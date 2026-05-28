@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  baseUrl: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://hdnxapi.devproinsights.com
-  urlUploadFile: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://hdnxvideo.devproinsights.com
-  defaultauth: 'fakebackend',
+  baseUrl: 'https://hdnxapi.devproinsights.com/api/v1/',
+  urlUploadFile: 'https://hdnxvideo.devproinsights.com/api/v1/',
+  defaultauth: 'backend',
   firebaseConfig: {
     apiKey: "AIzaSyCqS9cSPrDCNSQ-Ku2kZf5DBWjPPv7hvcA",
     authDomain: "test-demo-774f8.firebaseapp.com",

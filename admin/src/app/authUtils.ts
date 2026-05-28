@@ -82,10 +82,17 @@ class FirebaseAuthBackend {
      * Returns the authenticated user
      */
     getAuthenticatedUser = () => {
-        if (!sessionStorage.getItem('authUser')) {
+        const authUser = sessionStorage.getItem('authUser');
+        if (!authUser) {
             return null;
         }
-        return JSON.parse(sessionStorage.getItem('authUser')!);
+
+        try {
+            return JSON.parse(authUser);
+        } catch {
+            sessionStorage.removeItem('authUser');
+            return null;
+        }
     }
 
     /**

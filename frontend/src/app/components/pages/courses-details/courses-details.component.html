@@ -1,4 +1,4 @@
-<div class="courses-details-area ptb-50">
+<div class="courses-details-area ptb-50" *ngIf="!hasLoadError; else courseNotFound">
     <div class="container">
         <div class="page-title-content">
             <ul>
@@ -26,7 +26,7 @@
 
 
     <app-hdnx-loading [show]="isLoading">
-        <div class="container pt-5">
+        <div class="container course-detail-body">
             <div class="row">
                 <div class="col-lg-9 col-md-12 pb-4">
                     <div class="courses-details-desc pb-5">
@@ -47,12 +47,12 @@
                         <div class="tabs-container">
                             <div class="pane" id="tab1" *ngIf="currentTab === 'tab1'">
                                 <div class="courses-overview">
-                                    <div [innerHTML]="courseContentCourse?.description"></div>
+                                    <div>{{ courseContentCourse?.description }}</div>
                                 </div>
                             </div>
                             <div class="pane" id="tab2" *ngIf="currentTab === 'tab2'">
                                 <div class="courses-curriculum">
-                                    <div class="padding-list-title" *ngFor="let detail of courseContentCourse.listContentCourseDetails">
+                                    <div class="padding-list-title" *ngFor="let detail of courseContentCourse?.listContentCourseDetails">
                                         <h3>{{detail.name}}</h3>
                                         <ul>
                                             <li *ngFor="let item of detail.contentAndContentDetails">
@@ -74,14 +74,14 @@
                                         <div class="row align-items-center">
                                             <div class="col-lg-4 col-md-4">
                                                 <div class="advisor-image">
-                                                    <img src="{{courseContentCourse?.author?.pictureUrl}}" alt="image" />
+                                                    <img [src]="courseContentCourse?.author?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="image" />
                                                 </div>
                                             </div>
                                             <div class="col-lg-8 col-md-8">
                                                 <div class="advisor-content">
-                                                    <h3>{{courseContentCourse.author.name}}</h3>
-                                                    <span class="sub-title">{{courseContentCourse.author.email}}</span>
-                                                    <p>{{courseContentCourse.author.email}}</p>
+                                                    <h3>{{courseContentCourse?.author?.name}}</h3>
+                                                    <span class="sub-title">{{courseContentCourse?.author?.email}}</span>
+                                                    <p>{{courseContentCourse?.author?.email}}</p>
                                                     <ul class="social-link">
                                                         <li>
                                                             <a href="#" class="d-block" target="_blank"><i class="bx bxl-facebook"></i></a>
@@ -176,7 +176,7 @@
                                 <div class="courses-review-comments">
                                     <h3>3 Reviews</h3>
                                     <div class="user-review">
-                                        <img src="https://angular.envytheme.com/odemy-ng/assets/img/user1.jpg" alt="image" />
+                                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80" alt="image" />
                                         <div class="review-rating">
                                             <div class="review-stars">
                                                 <i class="bx bxs-star checked"></i>
@@ -194,7 +194,7 @@
                                         </p>
                                     </div>
                                     <div class="user-review">
-                                        <img src="https://angular.envytheme.com/odemy-ng/assets/img/user2.jpg" alt="image" />
+                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80" alt="image" />
                                         <div class="review-rating">
                                             <div class="review-stars">
                                                 <i class="bx bxs-star checked"></i>
@@ -209,7 +209,7 @@
                                         <p>Was really easy to implement and they quickly answer my additional questions!</p>
                                     </div>
                                     <div class="user-review">
-                                        <img src="https://angular.envytheme.com/odemy-ng/assets/img/user3.jpg" alt="image" />
+                                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80" alt="image" />
                                         <div class="review-rating">
                                             <div class="review-stars">
                                                 <i class="bx bxs-star checked"></i>
@@ -227,7 +227,7 @@
                                         </p>
                                     </div>
                                     <div class="user-review">
-                                        <img src="https://angular.envytheme.com/odemy-ng/assets/img/user4.jpg" alt="image" />
+                                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80" alt="image" />
                                         <div class="review-rating">
                                             <div class="review-stars">
                                                 <i class="bx bxs-star checked"></i>
@@ -249,7 +249,7 @@
                         </div>
                     </div>
 
-                    <div class="courses-area bg-f8f9f8 p-3">
+                    <div class="courses-area rate-courses-section bg-f8f9f8">
                         <div class="section-title">
                             <h2>Rate to this course</h2>
                         </div>
@@ -258,18 +258,18 @@
                                 <div class="single-courses-box">
                                     <div class="courses-image">
                                         <a routerLink="/detail-courses/{{item.id}}" class="d-block image">
-                                            <img src="{{item?.pictureUrl}}" style="width: 100%;" alt="image" />
+                                            <img [src]="item?.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" style="width: 100%;" alt="image" />
                                         </a>
                                         <a routerLink="/" class="fav"><i class="flaticon-heart"></i></a>
-                                        <div class="price shadow">$39</div>
+                                        <div class="price shadow">{{item?.isDiscount ? (item?.priceOfDiscount | currency:'VND':'symbol':'1.0-0') : (item?.priceOfCourse | currency:'VND':'symbol':'1.0-0')}}</div>
                                     </div>
                                     <div class="courses-content">
                                         <div class="course-author d-flex align-items-center">
-                                            <img src="https://angular.envytheme.com/odemy-ng/assets/img/user1.jpg" class="rounded-circle" alt="image" />
-                                            <span>Alex Morgan</span>
+                                            <img [src]="courseContentCourse?.author?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
+                                            <span>{{courseContentCourse?.author?.name || 'HDNX Academy'}}</span>
                                         </div>
                                         <h3>
-                                            <a routerLink="/detail-courses">{{item?.title}}</a>
+                                            <a routerLink="/detail-courses/{{item?.id}}">{{item?.title}}</a>
                                         </h3>
                                         <ul class="courses-box-footer d-flex justify-content-between align-items-center">
                                             <li><i class="flaticon-agenda"></i> {{item?.totalChapter}} Lessons</li>
@@ -286,7 +286,7 @@
                         <div class="image">
                             <lightgallery [settings]="settings" [onBeforeSlide]="onBeforeSlide" [onInit]="onInit">
                                 <a data-sub-html="<p>Watch Video</p>" class="d-block" (click)="openGallery()">
-                                    <img src="{{courseContentCourse?.pictureUrl}}" alt="image" />
+                                    <img [src]="courseContentCourse?.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image" />
                                     <div class="content">
                                         <i class="flaticon-play"></i>
                                         <span>Preview Course</span>
@@ -296,15 +296,15 @@
 
                             <!-- <lightgallery [settings]="settings" [onBeforeSlide]="onBeforeSlide">
                             <a data-lg-size="1280-720" *ngFor="let video of videos" [attr.data-src]="video.src" data-sub-html="<p>Watch Video</p>" class="d-block">
-                               <img src="{{courseContentCourse?.pictureUrl}}" alt="Video Thumbnail">
+                               <img [src]="courseContentCourse?.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="Video Thumbnail">
                             </a>
                          </lightgallery> -->
                         </div>
                         <ul class="info">
                             <li class="price">
                                 <div class="d-flex justify-content-center align-items-center">
-                                    {{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfCourse | currency: 'VND':'symbol':'1.0-0') : (courseContentCourse?.priceOfDiscount | currency: 'VND':'symbol':'1.0-0')}}
-                                    <span style="font-size: smaller"><del>{{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfDiscount | currency: 'VND':'symbol':'1.0-0') : (courseContentCourse?.priceOfCourse | currency: 'VND':'symbol':'1.0-0')}}</del></span>
+                                    {{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfDiscount | currency: 'VND':'symbol':'1.0-0') : (courseContentCourse?.priceOfCourse | currency: 'VND':'symbol':'1.0-0')}}
+                                    <span style="font-size: smaller"><del>{{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfCourse | currency: 'VND':'symbol':'1.0-0') : ''}}</del></span>
                                 </div>
                             </li>
                             <li>
@@ -379,3 +379,20 @@
     </app-hdnx-loading>
 
 </div>
+
+<ng-template #courseNotFound>
+    <div class="courses-details-area ptb-50">
+        <div class="container">
+            <div class="page-title-content">
+                <ul>
+                    <li><a routerLink="/">Home</a></li>
+                    <li>Không tìm thấy khóa học</li>
+                </ul>
+                <h2>Không tìm thấy khóa học</h2>
+                <p>Khóa học này không tồn tại hoặc đã ngừng hiển thị.</p>
+                <a routerLink="/" class="default-btn">Về trang chủ<span></span></a>
+            </div>
+        </div>
+    </div>
+</ng-template>
+

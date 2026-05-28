@@ -1,0 +1,10 @@
+{
+  "ClientConfig": {
+    "DateTimeFormat": "dd/MM/yyyy HH:mm:ss",
+    "DateFormat": "dd/MM/yyyy",
+    "DecimalFormat": "1.0-2",
+    "PageSizeOptions": "10;20;50;100",
+    "PageLabel": "Items per page",
+    "Function": ""
+  }
+}

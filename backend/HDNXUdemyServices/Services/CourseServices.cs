@@ -4,12 +4,14 @@ using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.CommonFunction;
 using HDNXUdemyServices.IServices;
 using Microsoft.AspNetCore.Http;
+using System.Text.RegularExpressions;
 
 namespace HDNXUdemyServices.Services
 {
@@ -49,14 +51,25 @@ namespace HDNXUdemyServices.Services
 
         public async Task<CourseModel> CreateCourse(CourseModel model)
         {
+            ValidateCourse(model);
+            await ValidateCourseTitleIsUnique(model.Title!, null);
             var dataInsert = _mapper.Map<CourseEntities>(model);
+            ApplyCourseUpdate(dataInsert, model);
             var dataAfterInsert = _mapper.Map<CourseModel>(await _courseRepository.AddReturnModelAsync(dataInsert));
             return dataAfterInsert;
         }
 
         public async Task<bool> UpdateStatusCourse(long id, int status, int processCourse)
         {
-            var getData = await _courseRepository.GetByIdAsync(id) ?? new CourseEntities();
+            ValidateId(id);
+            ValidateStatus(status);
+            if (!Enum.IsDefined(typeof(ProcessVideo), processCourse))
+            {
+                throw new ProjectBadRequestException("Process course is invalid.");
+            }
+
+            var getData = await _courseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course not found.");
             getData.Status = status;
             getData.ProcessCourse = processCourse;
             return await _courseRepository.UpdateAsync(getData);
@@ -64,10 +77,15 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> UpdateInformationCourse(long id, CourseModel model)
         {
-            var getData = await _courseRepository.GetByIdAsync(id) ?? new CourseEntities();
-            var dataInsert = _mapper.Map<CourseEntities>(model);
-            dataInsert.CreateDate = getData.CreateDate;
-            return await _courseRepository.UpdateAsync(dataInsert);
+            ValidateId(id);
+            ValidateCourse(model);
+
+            var getData = await _courseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course not found.");
+            await ValidateCourseTitleIsUnique(model.Title!, id);
+
+            ApplyCourseUpdate(getData, model);
+            return await _courseRepository.UpdateAsync(getData);
         }
 
         public async Task<List<CourseModel>> GetListCourseForAdmin()
@@ -88,7 +106,9 @@ namespace HDNXUdemyServices.Services
                 item.AverageScore = getVoteData.Item6;
                 item.CategoryName = getCategory.Where(x => x.Id == item.IdCategory).FirstOrDefault()?.Name;
                 item.UserName = "Admin";
-                item.ProcessCourseName = ((ProcessVideo)item.ProcessCourse).GetEnumDescription();
+                item.ProcessCourseName = item.ProcessCourse.HasValue
+                    ? ((ProcessVideo)item.ProcessCourse.Value).GetEnumDescription()
+                    : null;
             }
             return resultMapping;
         }
@@ -135,8 +155,12 @@ namespace HDNXUdemyServices.Services
 
                 if (isPurchaseCourseDetails.Any())
                 {
-                    var isPurchaseCourse = await _pucharseCourseRepository.GetByIdAsync(isPurchaseCourseDetails.FirstOrDefault().IdPurchaseOrder);
-                    isPurchase = isAdmin = isPurchaseCourseDetails.Any() && isPurchaseCourse?.PurcharseStatus == (int)ETypeOfStatusOrder.Payment;
+                    var purchaseDetail = isPurchaseCourseDetails.FirstOrDefault();
+                    if (purchaseDetail != null)
+                    {
+                        var isPurchaseCourse = await _pucharseCourseRepository.GetByIdAsync(purchaseDetail.IdPurchaseOrder);
+                        isPurchase = isAdmin = isPurchaseCourse?.PurcharseStatus == (int)ETypeOfStatusOrder.Payment;
+                    }
                 }
             }
 
@@ -156,7 +180,9 @@ namespace HDNXUdemyServices.Services
                 resultMapping.AverageScore = getVoteData.Item6;
                 resultMapping.CategoryName = getCategory.Where(x => x.Id == resultMapping.IdCategory).FirstOrDefault()?.Name;
                 resultMapping.UserName = (await _userRepository.GetByIdAsync(resultMapping.CreateBy))?.Name;
-                resultMapping.ProcessCourseName = ((ProcessVideo)resultMapping?.ProcessCourse).GetEnumDescription();
+                resultMapping.ProcessCourseName = resultMapping.ProcessCourse.HasValue
+                    ? ((ProcessVideo)resultMapping.ProcessCourse.Value).GetEnumDescription()
+                    : null;
                 resultMapping.ListContentCourseDetails = await GetContentOfCourse(getData.Id, isAdmin);
                 resultMapping.ListCourseRate = resultCourse;
                 resultMapping.Author = resultAuthor;
@@ -181,6 +207,38 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> AddCommentOfStudentForCourse(CourseEvaluationModel model)
         {
+            if (model.IdStudent <= 0)
+            {
+                throw new ProjectBadRequestException("Student is required.");
+            }
+
+            var course = await _courseRepository.GetObjectAsync(x => x.Id == model.IdCourse && x.Status == (int)EStatus.Active);
+            if (course == null)
+            {
+                throw new ProjectBadRequestException("Course is invalid.");
+            }
+
+            if (model.VoteStartNumber < 1 || model.VoteStartNumber > 5)
+            {
+                throw new ProjectBadRequestException("Vote must be between 1 and 5.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.CommentEvaluation))
+            {
+                throw new ProjectBadRequestException("Comment is required.");
+            }
+
+            model.CommentEvaluation = model.CommentEvaluation.Trim();
+            if (model.CommentEvaluation.Length > 1000)
+            {
+                throw new ProjectBadRequestException("Comment must be 1000 characters or fewer.");
+            }
+
+            if (Regex.IsMatch(model.CommentEvaluation, @"<\s*/?\s*[a-zA-Z][^>]*>", RegexOptions.CultureInvariant))
+            {
+                throw new ProjectBadRequestException("Comment cannot contain HTML or script content.");
+            }
+
             var insertData = _mapper.Map<CourseEvaluationEntities>(model);
             return await _courseEvaluationRepository.AddAsync(insertData);
         }
@@ -198,14 +256,20 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> UpdateStatusCommentCourse(long id, CourseEvaluationModel model)
         {
-            var getData = await _courseEvaluationRepository.GetByIdAsync(id) ?? new CourseEvaluationEntities();
+            ValidateId(id);
+            ValidateStatus(model?.Status ?? -1);
+            var getData = await _courseEvaluationRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course comment not found.");
             getData.Status = model.Status;
             return await _courseEvaluationRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<bool> UpdateInformationCommentCourse(long id, CourseEvaluationModel model)
         {
-            var getData = await _courseEvaluationRepository.GetByIdAsync(id) ?? new CourseEvaluationEntities();
+            ValidateId(id);
+            ValidateComment(model);
+            var getData = await _courseEvaluationRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course comment not found.");
             var dataInsert = _mapper.Map<CourseEvaluationEntities>(model);
             dataInsert.CreateDate = getData.CreateDate;
             return await _courseEvaluationRepository.UpdateAsync(dataInsert);
@@ -219,20 +283,27 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> CreateContentCourse(ContentCourseModel model)
         {
+            ValidateContentCourse(model);
             var dataInsert = _mapper.Map<ContentCourseEntities>(model);
             return await _contentCourseRepository.AddAsync(dataInsert);
         }
 
         public async Task<bool> UpdateStatusContentCourse(long id, ContentCourseModel model)
         {
-            var getData = await _contentCourseRepository.GetByIdAsync(id) ?? new ContentCourseEntities();
+            ValidateId(id);
+            ValidateStatus(model?.Status ?? -1);
+            var getData = await _contentCourseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course content not found.");
             getData.Status = model.Status;
             return await _contentCourseRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<bool> UpdateInformationContentCourse(long id, ContentCourseModel model)
         {
-            var getData = await _contentCourseRepository.GetByIdAsync(id) ?? new ContentCourseEntities();
+            ValidateId(id);
+            ValidateContentCourse(model);
+            var getData = await _contentCourseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course content not found.");
             var dataInsert = _mapper.Map<ContentCourseEntities>(model);
             dataInsert.CreateDate = getData.CreateDate;
             return await _contentCourseRepository.UpdateAsync(dataInsert);
@@ -259,20 +330,27 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> CreateContentCourseDetails(ContentCourseDetailModel model)
         {
+            ValidateContentCourseDetail(model);
             var dataInsert = _mapper.Map<ContentCourseDetailEntities>(model);
             return await _contentCourseDetailRepository.AddAsync(dataInsert);
         }
 
         public async Task<bool> UpdateStatusContentCourseDetails(long id, ContentCourseDetailModel model)
         {
-            var getData = await _contentCourseDetailRepository.GetByIdAsync(id) ?? new ContentCourseDetailEntities();
+            ValidateId(id);
+            ValidateStatus(model?.Status ?? -1);
+            var getData = await _contentCourseDetailRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course content detail not found.");
             getData.Status = model.Status;
             return await _contentCourseDetailRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<bool> UpdateInformationContentCourseDetails(long id, ContentCourseDetailModel model)
         {
-            var getData = await _contentCourseDetailRepository.GetByIdAsync(id) ?? new ContentCourseDetailEntities();
+            ValidateId(id);
+            ValidateContentCourseDetail(model);
+            var getData = await _contentCourseDetailRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Course content detail not found.");
             var dataInsert = _mapper.Map<ContentCourseDetailEntities>(model);
             dataInsert.CreateDate = getData.CreateDate;
             return await _contentCourseDetailRepository.UpdateAsync(dataInsert);
@@ -287,9 +365,46 @@ namespace HDNXUdemyServices.Services
         public async Task<ContentCourseDetailModel> GetContentCourseDetails(long id, HttpRequest request)
         {
             var getData = await _contentCourseDetailRepository.GetByIdAsync(id);
-            var resultMapping = _mapper.Map<ContentCourseDetailModel>(getData);
-            resultMapping.FileUploadUrlStream = $"{ProjectConfig.APIUrlGetVideoStream}{resultMapping.FileNameVideo}";
+            var resultMapping = _mapper.Map<ContentCourseDetailModel>(getData) ?? new ContentCourseDetailModel();
+            if (getData == null)
+            {
+                return resultMapping;
+            }
+
+            var content = await _contentCourseRepository.GetByIdAsync(getData.IdContent);
+            var course = content == null ? null : await _courseRepository.GetByIdAsync(content.IdCourse);
+            var currentUserId = GetCurrentUserId();
+            var canAccessPrivateContent = resultMapping.IsLearningFree || IsCurrentUserAdmin() || (course?.IsFree == true);
+
+            if (!canAccessPrivateContent && content != null && currentUserId > 0)
+            {
+                var purchaseDetails = await _purcharseCourseDetailsRepository.GetAsync(x => x.IdCourse == content.IdCourse && x.IdStudent == currentUserId);
+                foreach (var purchaseDetail in purchaseDetails)
+                {
+                    var purchaseOrder = await _pucharseCourseRepository.GetByIdAsync(purchaseDetail.IdPurchaseOrder);
+                    if (purchaseOrder?.PurcharseStatus == (int)ETypeOfStatusOrder.Payment && purchaseOrder.Status == (int)EStatus.Active)
+                    {
+                        canAccessPrivateContent = true;
+                        break;
+                    }
+                }
+            }
+
+            resultMapping.FileUploadUrlStream = canAccessPrivateContent && !string.IsNullOrWhiteSpace(resultMapping.FileNameVideo)
+                ? $"{ProjectConfig.APIUrlGetVideoStream}{resultMapping.FileNameVideo}"
+                : null;
             return resultMapping;
+        }
+
+        private long GetCurrentUserId()
+        {
+            var rawUserId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "user-id")?.Value;
+            return long.TryParse(rawUserId, out var userId) ? userId : 0;
+        }
+
+        private bool IsCurrentUserAdmin()
+        {
+            return _httpContextAccessor.HttpContext?.User.IsInRole(ERoles.Admin.ToString()) == true;
         }
 
         public async Task<List<ContentAndContentDetail>> GetContentOfCourse(long idCourse, bool isAdmin)
@@ -323,20 +438,27 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> CreateTheadQuestionCourse(TheadQuestionCourseModel model)
         {
+            ValidateThread(model);
             var dataInsert = _mapper.Map<TheadQuestionCourseEntities>(model);
             return await _theadQuestionCourseRepository.AddAsync(dataInsert);
         }
 
         public async Task<bool> UpdateStatusTheadQuestionCourse(long id, TheadQuestionCourseModel model)
         {
-            var getData = await _theadQuestionCourseRepository.GetByIdAsync(id) ?? new TheadQuestionCourseEntities();
+            ValidateId(id);
+            ValidateStatus(model?.Status ?? -1);
+            var getData = await _theadQuestionCourseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Thread question not found.");
             getData.Status = model.Status;
             return await _theadQuestionCourseRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<bool> UpdateInformationTheadQuestionCourse(long id, TheadQuestionCourseModel model)
         {
-            var getData = await _theadQuestionCourseRepository.GetByIdAsync(id) ?? new TheadQuestionCourseEntities();
+            ValidateId(id);
+            ValidateThread(model);
+            var getData = await _theadQuestionCourseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Thread question not found.");
             var dataInsert = _mapper.Map<TheadQuestionCourseEntities>(model);
             dataInsert.CreateDate = getData.CreateDate;
             return await _theadQuestionCourseRepository.UpdateAsync(dataInsert);
@@ -356,20 +478,27 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> CreateDetailsTheadQuestionCourse(DetailTheadQuestionCourseModel model)
         {
+            ValidateThreadDetail(model);
             var dataInsert = _mapper.Map<DetailTheadQuestionCourseEntities>(model);
             return await _detailsTheadQuestionCourseRepository.AddAsync(dataInsert);
         }
 
         public async Task<bool> UpdateStatusDetailsTheadQuestionCourse(long id, DetailTheadQuestionCourseModel model)
         {
-            var getData = await _detailsTheadQuestionCourseRepository.GetByIdAsync(id) ?? new DetailTheadQuestionCourseEntities();
+            ValidateId(id);
+            ValidateStatus(model?.Status ?? -1);
+            var getData = await _detailsTheadQuestionCourseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Thread question detail not found.");
             getData.Status = model.Status;
             return await _detailsTheadQuestionCourseRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<bool> UpdateInformationDetailsTheadQuestionCourse(long id, DetailTheadQuestionCourseModel model)
         {
-            var getData = await _detailsTheadQuestionCourseRepository.GetByIdAsync(id) ?? new DetailTheadQuestionCourseEntities();
+            ValidateId(id);
+            ValidateThreadDetail(model);
+            var getData = await _detailsTheadQuestionCourseRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("Thread question detail not found.");
             var dataInsert = _mapper.Map<DetailTheadQuestionCourseEntities>(model);
             dataInsert.CreateDate = getData.CreateDate;
             return await _detailsTheadQuestionCourseRepository.UpdateAsync(dataInsert);
@@ -387,9 +516,275 @@ namespace HDNXUdemyServices.Services
             return _mapper.Map<List<CourseModel>>(getData);
         }
 
+        private static void ValidateId(long id)
+        {
+            if (id <= 0)
+            {
+                throw new ProjectBadRequestException("Id is invalid.");
+            }
+        }
+
+        private static void ValidateStatus(int status)
+        {
+            if (!Enum.IsDefined(typeof(EStatus), status))
+            {
+                throw new ProjectBadRequestException("Status is invalid.");
+            }
+        }
+
+        private static void ValidateText(string? value, string fieldName, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ProjectBadRequestException($"{fieldName} is required.");
+            }
+
+            var text = value.Trim();
+            if (text.Length > maxLength)
+            {
+                throw new ProjectBadRequestException($"{fieldName} is too long.");
+            }
+
+            if (Regex.IsMatch(text, @"<\s*/?\s*[a-zA-Z][^>]*>", RegexOptions.CultureInvariant))
+            {
+                throw new ProjectBadRequestException($"{fieldName} cannot contain HTML or script content.");
+            }
+        }
+
+        private static void ValidateOptionalText(string? value, string fieldName, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            ValidateText(value, fieldName, maxLength);
+        }
+
+        private static void ValidateRichText(string? value, string fieldName, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ProjectBadRequestException($"{fieldName} is required.");
+            }
+
+            var text = value.Trim();
+            if (text.Length > maxLength)
+            {
+                throw new ProjectBadRequestException($"{fieldName} is too long.");
+            }
+
+            if (Regex.IsMatch(text, @"<\s*/?\s*script\b|on\w+\s*=|javascript\s*:", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            {
+                throw new ProjectBadRequestException($"{fieldName} cannot contain script content.");
+            }
+        }
+
+        private static void ValidateCourse(CourseModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            ValidateText(model.Title, nameof(model.Title), 255);
+            ValidateText(model.ShortDescription, nameof(model.ShortDescription), 1000);
+            ValidateText(model.Introduce, nameof(model.Introduce), 2000);
+            ValidateText(model.LevelCourse, nameof(model.LevelCourse), 100);
+            ValidateRichText(model.Description, nameof(model.Description), 5000);
+            ValidateOptionalText(model.Duration, nameof(model.Duration), 100);
+            ValidateOptionalText(model.PublicId, nameof(model.PublicId), 255);
+            ValidateOptionalText(model.PictureUrl, nameof(model.PictureUrl), 2000);
+            ValidateOptionalText(model.KeyVideoUpload, nameof(model.KeyVideoUpload), 500);
+            ValidateOptionalText(model.FileUrl, nameof(model.FileUrl), 2000);
+
+            if (model.IdAuthor <= 0)
+            {
+                throw new ProjectBadRequestException("Author is required.");
+            }
+
+            if (!model.IdCategory.HasValue || model.IdCategory <= 0)
+            {
+                throw new ProjectBadRequestException("Category is required.");
+            }
+
+            if (!model.PriceOfCourse.HasValue || model.PriceOfCourse < 0)
+            {
+                throw new ProjectBadRequestException("Price is required.");
+            }
+
+            if (!model.IsDiscount.HasValue || !model.PriceOfDiscount.HasValue || model.PriceOfDiscount < 0)
+            {
+                throw new ProjectBadRequestException("Discount information is required.");
+            }
+
+            if (!model.IsFree.HasValue)
+            {
+                throw new ProjectBadRequestException("Free course flag is required.");
+            }
+
+            if (!model.TypeOfCourse.HasValue || !Enum.IsDefined(typeof(ETypeOfCourse), model.TypeOfCourse.Value))
+            {
+                throw new ProjectBadRequestException("Type of course is invalid.");
+            }
+
+            if (!model.Languages.HasValue)
+            {
+                throw new ProjectBadRequestException("Language is required.");
+            }
+
+            if (model.TotalStudentRegister.HasValue && model.TotalStudentRegister < 0)
+            {
+                throw new ProjectBadRequestException("Total student register is invalid.");
+            }
+
+            if (model.TotalChapter.HasValue && model.TotalChapter < 0)
+            {
+                throw new ProjectBadRequestException("Total chapter is invalid.");
+            }
+
+            ValidateStatus(model.Status);
+
+            if (model.ProcessCourse.HasValue && !Enum.IsDefined(typeof(ProcessVideo), model.ProcessCourse.Value))
+            {
+                throw new ProjectBadRequestException("Process course is invalid.");
+            }
+        }
+
+        private async Task ValidateCourseTitleIsUnique(string title, long? excludeId)
+        {
+            var normalizedTitle = title.Trim().ToLowerInvariant();
+            var duplicateCourses = await _courseRepository.GetAsync(x =>
+                x.Title != null &&
+                x.Title.ToLower() == normalizedTitle &&
+                x.Status == (int)EStatus.Active &&
+                (!excludeId.HasValue || x.Id != excludeId.Value));
+
+            if (duplicateCourses.Any())
+            {
+                throw new ProjectConflictException("Course title already exists.");
+            }
+        }
+
+        private static void ApplyCourseUpdate(CourseEntities entity, CourseModel model)
+        {
+            entity.Title = model.Title!.Trim();
+            entity.ShortDescription = model.ShortDescription!.Trim();
+            entity.IdAuthor = model.IdAuthor;
+            entity.TotalStudentRegister = model.TotalStudentRegister ?? entity.TotalStudentRegister;
+            entity.TotalChapter = model.TotalChapter ?? entity.TotalChapter;
+            entity.Duration = model.Duration?.Trim();
+            entity.PriceOfCourse = model.PriceOfCourse!.Value;
+            entity.IsDiscount = model.IsDiscount!.Value;
+            entity.PriceOfDiscount = model.PriceOfDiscount!.Value;
+            entity.IsFree = model.IsFree!.Value;
+            entity.TypeOfCourse = model.TypeOfCourse!.Value;
+            entity.Introduce = model.Introduce!.Trim();
+            entity.IdCategory = model.IdCategory!.Value;
+            entity.LevelCourse = model.LevelCourse!.Trim();
+            entity.Languages = model.Languages!.Value;
+            entity.Description = model.Description!.Trim();
+            entity.PublicId = model.PublicId?.Trim();
+            entity.PictureUrl = model.PictureUrl?.Trim();
+            entity.KeyVideoUpload = model.KeyVideoUpload?.Trim();
+            entity.FileUrl = model.FileUrl?.Trim();
+            entity.ProcessCourse = model.ProcessCourse;
+            entity.Status = model.Status;
+        }
+
+        private static void ValidateContentCourse(ContentCourseModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            if (model.IdCourse <= 0)
+            {
+                throw new ProjectBadRequestException("Course is required.");
+            }
+
+            ValidateText(model.Name, nameof(model.Name), 255);
+            ValidateStatus(model.Status);
+        }
+
+        private static void ValidateContentCourseDetail(ContentCourseDetailModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            if (model.IdContent <= 0)
+            {
+                throw new ProjectBadRequestException("Content is required.");
+            }
+
+            ValidateText(model.NameSubContent, nameof(model.NameSubContent), 255);
+            ValidateStatus(model.Status);
+        }
+
+        private static void ValidateThread(TheadQuestionCourseModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            if (model.IdCourse <= 0 || model.IdStudent <= 0)
+            {
+                throw new ProjectBadRequestException("Course and student are required.");
+            }
+
+            ValidateText(model.Comment, nameof(model.Comment), 1000);
+            ValidateStatus(model.Status);
+        }
+
+        private static void ValidateThreadDetail(DetailTheadQuestionCourseModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            if (model.IdTheadQuestionCourse <= 0 || model.IdStudent <= 0)
+            {
+                throw new ProjectBadRequestException("Thread and student are required.");
+            }
+
+            ValidateText(model.Comment, nameof(model.Comment), 1000);
+            ValidateStatus(model.Status);
+        }
+
+        private static void ValidateComment(CourseEvaluationModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            if (model.IdCourse <= 0 || model.IdStudent <= 0)
+            {
+                throw new ProjectBadRequestException("Course and student are required.");
+            }
+
+            if (model.VoteStartNumber < 1 || model.VoteStartNumber > 5)
+            {
+                throw new ProjectBadRequestException("Vote must be between 1 and 5.");
+            }
+
+            ValidateText(model.CommentEvaluation, nameof(model.CommentEvaluation), 1000);
+            ValidateStatus(model.Status);
+        }
+
         public async Task<bool> LikeForCommentCourse(long id)
         {
             var getData = await _courseEvaluationRepository.GetByIdAsync(id);
+            if (getData == null)
+            {
+                return false;
+            }
+
             getData.Like += 1;
             return await _courseEvaluationRepository.UpdateAsync(getData);
         }
@@ -397,6 +792,11 @@ namespace HDNXUdemyServices.Services
         public async Task<bool> DisLikeForCommentCourse(long id)
         {
             var getData = await _courseEvaluationRepository.GetByIdAsync(id);
+            if (getData == null)
+            {
+                return false;
+            }
+
             getData.DisLike += 1;
             return await _courseEvaluationRepository.UpdateAsync(getData);
         }

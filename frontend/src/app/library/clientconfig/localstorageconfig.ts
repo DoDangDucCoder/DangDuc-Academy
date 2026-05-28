@@ -8,23 +8,23 @@ export class LocalStorageConfig {
   private static listCourseId = 'listCourse';
 
   public static RemoveUser(key: string) {
-    localStorage.removeItem(this.currentUserKey);
+    sessionStorage.removeItem(key);
+    localStorage.removeItem(key);
   }
 
   public static SetUser(pJSONStringify: LoginRegister) {
     const valueUpdate = JSON.stringify(pJSONStringify);
-    localStorage.setItem(this.currentUserKey, valueUpdate);
+    sessionStorage.setItem(this.currentUserKey, valueUpdate);
+    localStorage.removeItem(this.currentUserKey);
   }
 
-  public static GetUser(): LoginRegister {
-    const user = localStorage.getItem(this.currentUserKey);
-    if (user === null) return null;
-    return <LoginRegister>JSON.parse(user ?? '');
+  public static GetUser(): LoginRegister | null {
+    return this.ParseStorageItem<LoginRegister>(this.currentUserKey);
   }
 
   public static GetCurrentYearActive(): string {
-    const currentYearActive = JSON.parse(localStorage.getItem(this.currentUserKey) ?? '').yearCurrent;
-    return currentYearActive;
+    const currentUser = this.GetUser() as any;
+    return currentUser?.yearCurrent ?? '';
   }
 
   public static AddListCourses(listCourses: GetCourseWithDetailsContent[]) {
@@ -33,10 +33,8 @@ export class LocalStorageConfig {
     localStorage.setItem(this.listCourseId, valueUpdate);
   }
 
-  public static GetListCourseAddCart(): GetCourseWithDetailsContent[] {
-    const listCourse = localStorage.getItem(this.listCourseId);
-    if (listCourse === null) return null;
-    return <GetCourseWithDetailsContent[]>JSON.parse(listCourse);
+  public static GetListCourseAddCart(): GetCourseWithDetailsContent[] | null {
+    return this.ParseStorageItem<GetCourseWithDetailsContent[]>(this.listCourseId);
   }
 
   public static RemoveItemOnCart(id: number) {
@@ -49,6 +47,21 @@ export class LocalStorageConfig {
 
   public static RemoveAllDataListCourse(){
     this.RemoveUser(this.listCourseId);
+  }
+
+  private static ParseStorageItem<T>(storageKey: string): T | null {
+    const storageValue = sessionStorage.getItem(storageKey) ?? localStorage.getItem(storageKey);
+    if (!storageValue) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storageValue) as T;
+    } catch {
+      sessionStorage.removeItem(storageKey);
+      localStorage.removeItem(storageKey);
+      return null;
+    }
   }
 
 }

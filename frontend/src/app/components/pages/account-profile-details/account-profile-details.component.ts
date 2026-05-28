@@ -12,7 +12,7 @@ import { StudentUser } from 'src/app/models/models/student-user';
 })
 export class AccountProfileDetailsComponent implements OnInit {
 
-  student: StudentUser;
+  student: StudentUser | null = null;
   isLoading: boolean = false;
   informationOfUser!: UntypedFormGroup;
   generals = [
@@ -26,7 +26,6 @@ export class AccountProfileDetailsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.getDataOfStudent();
     this.informationOfUser = this.formBuilder.group({
       id: [],
       name: ['', Validators.required],
@@ -35,16 +34,26 @@ export class AccountProfileDetailsComponent implements OnInit {
       phone: ['', [Validators.required]],
       general: [''],
     });
+    this.getDataOfStudent();
   }
 
   getDataOfStudent() {
     const getUserLocal = LocalStorageConfig.GetUser();
+    if (!getUserLocal) {
+      this.student = null;
+      this.isLoading = false;
+      this.messengerServices.warringBookMarkCourse('Vui lòng đăng nhập lại để xem thông tin tài khoản!');
+      return;
+    }
+
     this.isLoading = true;
     this.studentServices.getStudent(getUserLocal.userId).subscribe(res => {
       if (res.retCode == 0 && res.systemMessage == '') {
-        this.student = res.data;
+        this.student = res.data ?? null;
         this.isLoading = false;
-        this.informationOfUser.patchValue(this.student);
+        if (this.student) {
+          this.informationOfUser.patchValue(this.student);
+        }
       } else {
         this.isLoading = false;
         this.messengerServices.errorWithIssue();
@@ -53,6 +62,11 @@ export class AccountProfileDetailsComponent implements OnInit {
   }
 
   updateStudent() {
+    if (!this.student) {
+      this.messengerServices.warringBookMarkCourse('Không tìm thấy thông tin tài khoản để cập nhật.');
+      return;
+    }
+
     if (this.informationOfUser.valid) {
       this.isLoading = true;
       this.student.name = this.informationOfUser.value.name;

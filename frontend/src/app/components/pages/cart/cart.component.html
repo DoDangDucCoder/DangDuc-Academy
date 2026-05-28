@@ -33,7 +33,7 @@
                     <tr *ngFor="let item of cartServices?.courseItems">
                         <td class="product-thumbnail">
                             <a routerLink="/details-products">
-                                <img src="{{ item?.pictureUrl }}" alt="item" />
+                                <img [src]="item?.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="item" />
                             </a>
                         </td>
                         <td class="product-name">

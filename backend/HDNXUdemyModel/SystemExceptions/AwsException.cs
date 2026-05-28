@@ -19,7 +19,9 @@ namespace HDNXUdemyModel.Exception
         {
         }
 
-        public ProjectAwsException(SerializationInfo info, StreamingContext context) : base(info, context)
+#pragma warning disable SYSLIB0051
+        protected ProjectAwsException(SerializationInfo info, StreamingContext context) : base(info, context)
+#pragma warning restore SYSLIB0051
         {
         }
     }

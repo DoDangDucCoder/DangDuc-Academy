@@ -8,7 +8,7 @@
             <h2>CategoryName</h2>
         </div>
     </div>
-    <div class="shape9"><img src="https://angular.envytheme.com/odemy-ng/assets/img/shape8.svg" alt="image" /></div>
+    <div class="shape9"><img src="assets/img/shape8.svg" alt="image" /></div>
 </div>
 
 <app-hdnx-loading [show]="isLoading">
@@ -36,15 +36,15 @@
                     <div class="single-courses-box">
                         <div class="courses-image">
                             <a routerLink="/detail-courses/{{item.id}}" class="d-block image">
-                                <img src="{{item.pictureUrl}}" alt="image" />
+                                <img [src]="item.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image" />
                             </a>
                             <a routerLink="/" class="fav"><i class="flaticon-heart"></i></a>
                             <div class="price shadow" [hidden]="!item.isDiscount">{{item.isDiscount == true ? (item.priceOfDiscount| currency ) : (item.priceOfCourse | currency )}}</div>
                         </div>
                         <div class="courses-content">
                             <div class="course-author d-flex align-items-center">
-                                <img src="assets/img/user1.jpg" class="rounded-circle" alt="image" />
-                                <span>Alex Morgan</span>
+                        <img [src]="'assets/images/demo/avatar-instructor.svg' | assetUrl" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
+                                <span>{{item.userName || 'HDNX Academy'}}</span>
                             </div>
                             <h3>
                                 <a routerLink="/detail-courses/{{item.id}}">{{item.title}}</a>
@@ -54,12 +54,12 @@
                             </p>
                             <ul class="courses-box-footer d-flex justify-content-between align-items-center">
                                 <li><i class="bx bx-money"></i><span class="ps-2">{{item.isDiscount == true ? (item.priceOfDiscount | currency) : (item.priceOfCourse | currency)}}</span> </li>
-                                <li><del><i class="bx bx-money"></i><span class="ps-2">{{item.isDiscount == true ? (item.priceOfCourse| currency ) : (item.priceOfDiscount | currency)}}</span></del>
+                                <li [hidden]="!item.isDiscount"><del><i class="bx bx-money"></i><span class="ps-2">{{item.priceOfCourse | currency}}</span></del>
                                 </li>
                             </ul>
                             <ul class="courses-box-footer d-flex justify-content-between align-items-center">
                                 <li><i class="flaticon-agenda"></i> {{item.totalChapter}} Lessons</li>
-                                <li><i class="flaticon-people"></i> {{item.totalVoteOfCourse}} Students</li>
+                                <li><i class="flaticon-people"></i> {{item.totalStudentRegister}} Students</li>
                             </ul>
                         </div>
                     </div>

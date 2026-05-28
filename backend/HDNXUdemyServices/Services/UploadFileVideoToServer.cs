@@ -3,6 +3,7 @@ using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
@@ -175,21 +176,30 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> CreateFileSoftware(FileManagerModel model)
         {
+            ValidateFileManagerModel(model);
             var dataInsert = _mapper.Map<FileManagerEntities>(model);
-            dataInsert.Icon = ((EFileTypeUpload)Enum.Parse(typeof(EFileTypeUpload), model.ExtendFile ?? string.Empty, true)).GetEnumDescription();
+            dataInsert.Icon = Enum.TryParse<EFileTypeUpload>(model.ExtendFile, true, out var fileType)
+                ? fileType.GetEnumDescription()
+                : EFileTypeUpload.Another.GetEnumDescription();
             return await _fileManagerRepository.AddAsync(dataInsert);
         }
 
         public async Task<bool> UpdateStatusSoftware(long id, FileManagerModel model)
         {
-            var getData = await _fileManagerRepository.GetByIdAsync(id) ?? new FileManagerEntities();
+            ValidateId(id);
+            ValidateStatus(model?.Status ?? -1);
+            var getData = await _fileManagerRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("File software not found.");
             getData.Status = model.Status;
             return await _fileManagerRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<bool> UpdateInformationSoftware(long id, FileManagerModel model)
         {
-            var getData = await _fileManagerRepository.GetByIdAsync(id) ?? new FileManagerEntities();
+            ValidateId(id);
+            ValidateFileManagerModel(model);
+            var getData = await _fileManagerRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("File software not found.");
             getData.Status = model.Status;
             getData.FileName = model.FileName;
             getData.ActualNameFile = model.ActualNameFile;
@@ -214,8 +224,53 @@ namespace HDNXUdemyServices.Services
 
         public async Task<FileManagerModel> GetFileSoftware(long id)
         {
-            var getData = await _fileManagerRepository.GetByIdAsync(id);
+            ValidateId(id);
+            var getData = await _fileManagerRepository.GetByIdAsync(id)
+                ?? throw new ProjectNotFoundException("File software not found.");
             return _mapper.Map<FileManagerModel>(getData);
+        }
+
+        private static void ValidateId(long id)
+        {
+            if (id <= 0)
+            {
+                throw new ProjectBadRequestException("Id is invalid.");
+            }
+        }
+
+        private static void ValidateStatus(int status)
+        {
+            if (!Enum.IsDefined(typeof(EStatus), status))
+            {
+                throw new ProjectBadRequestException("Status is invalid.");
+            }
+        }
+
+        private static void ValidateFileManagerModel(FileManagerModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            ValidateText(model.FileName, nameof(model.FileName), 255);
+            ValidateText(model.ActualNameFile, nameof(model.ActualNameFile), 255);
+            ValidateText(model.FileUrl, nameof(model.FileUrl), 1000);
+            ValidateText(model.ExtendFile, nameof(model.ExtendFile), 20);
+            ValidateStatus(model.Status);
+        }
+
+        private static void ValidateText(string? value, string fieldName, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ProjectBadRequestException($"{fieldName} is required.");
+            }
+
+            if (value.Length > maxLength || value.Contains("..") || value.Contains("<script", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException($"{fieldName} is invalid.");
+            }
         }
     }
 }

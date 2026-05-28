@@ -26,54 +26,88 @@ export class CheckoutComponent implements OnInit {
     private readonly stripeServices: StripeServices,
   ) { }
   purchaseCode: string = '';
-  infomationBanking: InformationManualBankingModel;
+  infomationBanking: InformationManualBankingModel | null = null;
   totalValue = 0;
   stripePayment = ConstantValue.paymentStripe;
   tranferPayment = ConstantValue.paymentTranfer;
+  paymentMessage = '';
   ngOnInit(): void {
-    this.purchaseCode = this.router.snapshot.paramMap.get('purchaseCode');
-    this.getInfomationBanking();
+    this.purchaseCode = this.router.snapshot.paramMap.get('purchaseCode') ?? '';
+    if (!this.purchaseCode) {
+      this.messengerServices.warringBookMarkCourse('Không tìm thấy mã thanh toán hợp lệ!');
+      this.routers.navigate(['/cart']);
+      return;
+    }
+
     this.totalValue = this.cartServices.courseItems.reduce((c, t1) => t1.totalOrder + c, 0);
+    if (this.cartServices.courseItems.length === 0) {
+      this.paymentMessage = 'Mã thanh toán không hợp lệ hoặc giỏ hàng đang trống.';
+      return;
+    }
   }
 
   copyMessenger(text: string) {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        console.log('Text copied to clipboard!');
-      }
-    );
+    if (!navigator.clipboard) {
+      this.messengerServices.errorWithIssue();
+      return;
+    }
 
-    navigator.clipboard.readText().then(
-      (text) => {
-        console.log(text);
-      }
-    )
+    navigator.clipboard.writeText(text)
+      .then(() => this.messengerServices.successes('Đã sao chép nội dung chuyển khoản'))
+      .catch(() => this.messengerServices.errorWithIssue());
   }
 
   getInfomationBanking() {
     this.purchaseServices.getInformationOfBanking().subscribe((res) => {
       if (res.retCode === 0 && res.systemMessage === '') {
         this.infomationBanking = res.data;
+      } else {
+        this.paymentMessage = 'Không thể tải thông tin thanh toán.';
       }
+    }, () => {
+      this.paymentMessage = 'Không thể tải thông tin thanh toán.';
     })
   }
 
   paymentPurchaseCourse(typePayment: string) {
-    let getDataOfUser = LocalStorageConfig.GetUser();
-    let dataOfCart = this.cartServices.courseItems;
-    let dataDetailsOfCourseDetail: PurchaseDetailsModel[] = [];
+    const getDataOfUser = LocalStorageConfig.GetUser();
+    if (getDataOfUser === null) {
+      this.messengerServices.warringBookMarkCourse('Vui lòng đăng nhập để thực hiện thanh toán!');
+      this.routers.navigate(['/login'], { queryParams: { returnUrl: this.routers.url } });
+      return;
+    }
+
+    if (!this.purchaseCode) {
+      this.messengerServices.warringBookMarkCourse('Không tìm thấy mã thanh toán hợp lệ!');
+      this.routers.navigate(['/cart']);
+      return;
+    }
+
+    const dataOfCart = this.cartServices.courseItems;
+    if (dataOfCart.length === 0) {
+      this.messengerServices.warringBookMarkCourse('Giỏ hàng đang trống, không thể thanh toán.');
+      return;
+    }
+
+    if (!this.infomationBanking) {
+      this.getInfomationBanking();
+      this.messengerServices.warringBookMarkCourse('Vui lòng thử lại sau khi thông tin thanh toán được tải.');
+      return;
+    }
+
+    const dataDetailsOfCourseDetail: PurchaseDetailsModel[] = [];
     dataOfCart.forEach((item) => {
-      let dataDetailItem: PurchaseDetailsModel = {
+      const dataDetailItem: PurchaseDetailsModel = {
         idCourse: item.id,
         priceOfCourse: item.priceOfCourse,
         priceOfDiscount: item.priceOfCourse,
-        idPurchaseOrder: 0,
+      idPurchaseOrder: 0,
 
       }
       dataDetailsOfCourseDetail.push(dataDetailItem);
-    })
+    });
 
-    let dataInsert: PurchaseOrder = {
+    const dataInsert: PurchaseOrder = {
       idStudent: getDataOfUser.userId,
       contentTranferBanking: this.purchaseCode,
       totalPrice: this.totalValue,

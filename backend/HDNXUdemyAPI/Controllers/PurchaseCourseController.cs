@@ -5,6 +5,7 @@ using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -15,6 +16,7 @@ namespace HDNXUdemyAPI.Controllers
     /// </summary>
     [ApiVersion(VersionApi.Version1)]
     [Route(RouterControllerName.PurchaseCourse)]
+    [Authorize]
     public class PurchaseCourseController : BaseController
     {
         private readonly IPurcharseCourseServices _purcharseCourseServices;
@@ -24,11 +26,12 @@ namespace HDNXUdemyAPI.Controllers
         /// PurchaseCourseController
         /// </summary>
         /// <param name="purcharseCourseServices"></param>
+        /// <param name="stripeServices"></param>
         /// <exception cref="ProjectException"></exception>
         public PurchaseCourseController(IPurcharseCourseServices purcharseCourseServices, IStripeServices stripeServices)
         {
             _purcharseCourseServices = purcharseCourseServices ?? throw new ProjectException(nameof(_purcharseCourseServices));
-            _stripeServices = stripeServices ?? throw new ProjectException(nameof(_purcharseCourseServices));
+            _stripeServices = stripeServices ?? throw new ProjectException(nameof(_stripeServices));
         }
 
         /// <summary>
@@ -37,7 +40,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="idStudent"></param>
         /// <returns></returns>
         [HttpGet("gen-purchase-code/{idStudent}")]
-        public RepositoryModel<string> GenPurchaseOrder(long idStudent)
+        public IActionResult GenPurchaseOrder(long idStudent)
         {
             RepositoryModel<string> result = new()
             {
@@ -48,8 +51,13 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin() && idStudent != CurrentUserId())
+            {
+                return Forbid();
+            }
+
             result.Data = _purcharseCourseServices.GenPurchaseOrder(idStudent);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -58,7 +66,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("create-purchase")]
-        public async Task<RepositoryModel<PurcharseCourseModel>> CreateRequestPurchase(PurcharseCourseModel model)
+        public async Task<IActionResult> CreateRequestPurchase(PurcharseCourseModel model)
         {
             RepositoryModel<PurcharseCourseModel> result = new()
             {
@@ -69,8 +77,19 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin())
+            {
+                var currentUserId = CurrentUserId();
+                if (model.IdStudent != 0 && model.IdStudent != currentUserId)
+                {
+                    return Forbid();
+                }
+
+                model.IdStudent = currentUserId;
+            }
+
             result.Data = await _purcharseCourseServices.CreateRequestPurchase(model);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -80,6 +99,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("purchase-course/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateStatusPurchase(long id, PurcharseCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -123,7 +143,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("get-list-purchase-course/{pageIndex}/{pageSize}")]
-        public async Task<RepositoryModel<PagedResult<PurcharseCourseModel>>> GetListPurcharseCourses(int pageIndex, int pageSize)
+        public async Task<IActionResult> GetListPurcharseCourses(int pageIndex, int pageSize)
         {
             RepositoryModel<PagedResult<PurcharseCourseModel>> result = new()
             {
@@ -134,8 +154,9 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
-            result.Data = await _purcharseCourseServices.GetListPurcharseCourses(pageIndex, pageSize);
-            return result;
+            result.Data = await _purcharseCourseServices.GetListPurcharseCourses(pageIndex, pageSize, IsAdmin() ? null : CurrentUserId());
+            result.StatusCode = (int)HttpStatusCode.OK;
+            return Ok(result);
         }
 
         /// <summary>
@@ -144,7 +165,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="idPurchase"></param>
         /// <returns></returns>
         [HttpGet("get-detail-purchase-course/{idPurchase}")]
-        public async Task<RepositoryModel<PurcharseCourseModel>> GetPurchaseCorseDetail(long idPurchase)
+        public async Task<IActionResult> GetPurchaseCorseDetail(long idPurchase)
         {
             RepositoryModel<PurcharseCourseModel> result = new()
             {
@@ -156,7 +177,21 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _purcharseCourseServices.GetPurchaseCorseDetail(idPurchase);
-            return result;
+            if (result.Data?.Id == null)
+            {
+                result.RetCode = ERetCode.NoExitData;
+                result.StatusCode = (int)HttpStatusCode.NotFound;
+                result.SystemMessage = "Purchase not found.";
+                return NotFound(result);
+            }
+
+            if (!IsAdmin() && result.Data.IdStudent != CurrentUserId())
+            {
+                return Forbid();
+            }
+
+            result.StatusCode = (int)HttpStatusCode.OK;
+            return Ok(result);
         }
 
         /// <summary>
@@ -165,7 +200,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("create-stripe-checkout-session")]
-        public async Task<RepositoryModel<CheckoutSessionResponse>> CreateCheckoutSession(PurcharseCourseModel model)
+        public async Task<IActionResult> CreateCheckoutSession([FromBody] PurcharseCourseModel? model)
         {
             RepositoryModel<CheckoutSessionResponse> result = new()
             {
@@ -176,8 +211,35 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (model == null || model.ListPurchaseCourseDetails == null || !model.ListPurchaseCourseDetails.Any())
+            {
+                result.RetCode = ERetCode.SystemError;
+                result.StatusCode = (int)HttpStatusCode.BadRequest;
+                result.SystemMessage = "At least one course is required for checkout.";
+                return BadRequest(result);
+            }
+
+            if (model.TotalPrice < 0 || model.ListPurchaseCourseDetails.Any(x => x.IdCourse <= 0 || x.PriceOfCourse < 0 || x.PriceOfDiscount < 0))
+            {
+                result.RetCode = ERetCode.SystemError;
+                result.StatusCode = (int)HttpStatusCode.BadRequest;
+                result.SystemMessage = "Checkout payload is invalid.";
+                return BadRequest(result);
+            }
+
+            if (!IsAdmin())
+            {
+                var currentUserId = CurrentUserId();
+                if (model.IdStudent != 0 && model.IdStudent != currentUserId)
+                {
+                    return Forbid();
+                }
+
+                model.IdStudent = currentUserId;
+            }
+
             result.Data = await _stripeServices.CreateCheckoutSession(model);
-            return result;
+            return Ok(result);
         }
     }
 }

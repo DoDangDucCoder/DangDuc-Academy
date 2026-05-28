@@ -42,11 +42,7 @@ export class ListPurchaseOrderComponent {
       { label: 'List of Purchase', active: true }
     ];
 
-    this.store.dispatch(fetchInvoiceData());
-    this.store.select(selectData).subscribe((data) => {
-      this.invoiceCard = data;
-      console.table(this.invoiceCard);
-    });
+    this.invoiceCard = [];
     this.getListPurchaseOrderOfCourse(1, 10);
   }
 
@@ -147,7 +143,7 @@ export class ListPurchaseOrderComponent {
 
   getListPurchaseOrderOfCourse(pageIndex: number, pageSize: number) {
     this.purchaseServices.getListPurchaseOrder(pageIndex, pageSize).subscribe((res) => {
-      if (res.retCode === 0 || res.systemMessage === '') {
+      if (res.retCode === 0 && res.systemMessage === '') {
         this.invoiceslist = res.data;
         this.invoices = this.invoiceslist.results;
         document.getElementById('elmLoader')?.classList.add('d-none');
@@ -158,9 +154,9 @@ export class ListPurchaseOrderComponent {
   }
 
   confirmOrder(model: PurchaseOrder) {
-    model.purcharseStatus == PurchaseOrderCode.Payment;
+    model.purcharseStatus = PurchaseOrderCode.Payment;
     this.purchaseServices.updateStatusPurchase(model).subscribe((res) => {
-      if (res.retCode === 0 || res.systemMessage === '') {
+      if (res.retCode === 0 && res.systemMessage === '') {
         this.getListPurchaseOrderOfCourse(1, 10);
       } else {
         document.getElementById('elmLoader')?.classList.add('d-none')

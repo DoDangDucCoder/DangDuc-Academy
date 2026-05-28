@@ -78,11 +78,12 @@
     "GetListUserNameRegisterForCourse": "student/student-name-of-course/{0}"
   },
   "Home": {
-    "GetDataForHome": "home"
+    "GetDataForHome": "home",
+    "GetPublicCategory": "home/category"
   },
   "Authentication": {
-    "RegisterUser": "authentication/register/{0}/{1}/{2}/{3}",
-    "LoginNormalAccount": "authentication/login/{0}/{1}",
+    "RegisterUser": "authentication/register",
+    "LoginNormalAccount": "authentication/login",
     "LoginWithGoogle": "authentication/login-google",
     "LoginWithFaceBook": "authentication/login-facebook"
   },

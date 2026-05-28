@@ -1,12 +1,15 @@
 ﻿using Asp.Versioning;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Text.Json.Serialization;
 
 namespace HDNXUdemyAPI.Controllers
 {
@@ -38,7 +41,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("course")]
-        public async Task<RepositoryModel<CourseModel>> CreateCourse(CourseModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateCourse(CourseModel model)
         {
             RepositoryModel<CourseModel> result = new()
             {
@@ -50,7 +54,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _courseServices.CreateCourse(model);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -61,7 +65,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="processCourse"></param>
         /// <returns></returns>
         [HttpPut("course/status/{id}/{status}/{processCourse}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusCourse(long id, int status, int processCourse)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusCourse(long id, int status, int processCourse)
         {
             RepositoryModel<bool> result = new()
             {
@@ -69,11 +74,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.UpdateStatusCourse(id, status, processCourse);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -83,7 +88,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateInformationCourse(long id, CourseModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateInformationCourse(long id, CourseModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -91,11 +97,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.UpdateInformationCourse(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -125,7 +131,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="isAdmin"></param>
         /// <returns></returns>
         [HttpGet("course/{id}/{isAdmin}")]
-        public async Task<RepositoryModel<GetCourseWithDetailsContent>> GetCourses(long id, bool isAdmin)
+        public async Task<IActionResult> GetCourses(long id, bool isAdmin)
         {
             RepositoryModel<GetCourseWithDetailsContent> result = new()
             {
@@ -137,7 +143,16 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _courseServices.GetDetailCourse(id, isAdmin);
-            return result;
+            if (result.Data?.Id == null)
+            {
+                result.RetCode = ERetCode.NoExitData;
+                result.StatusCode = (int)HttpStatusCode.NotFound;
+                result.SystemMessage = "Course not found.";
+                return NotFound(result);
+            }
+
+            result.StatusCode = (int)HttpStatusCode.OK;
+            return Ok(result);
         }
 
         /// <summary>
@@ -208,7 +223,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("course-comment")]
-        public async Task<RepositoryModel<bool>> AddCommentOfStudentForCourse(CourseEvaluationModel model)
+        [Authorize]
+        public async Task<IActionResult> AddCommentOfStudentForCourse(CourseEvaluationModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -219,8 +235,19 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin())
+            {
+                var currentUserId = CurrentUserId();
+                if (model.IdStudent != 0 && model.IdStudent != currentUserId)
+                {
+                    return Forbid();
+                }
+
+                model.IdStudent = currentUserId;
+            }
+
             result.Data = await _courseServices.AddCommentOfStudentForCourse(model);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -251,7 +278,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course-comment/status/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusCommentCourse(long id, CourseEvaluationModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusCommentCourse(long id, CourseEvaluationModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -259,11 +287,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.UpdateStatusCommentCourse(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -273,6 +301,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course-comment/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateInformationCommentCourse(long id, CourseEvaluationModel model)
         {
             RepositoryModel<bool> result = new()
@@ -315,6 +344,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("course-content")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> CreateContentCourse(ContentCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -337,19 +367,28 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course-content/status/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusContentCourse(long id, ContentCourseModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusContentCourse(long id, StatusUpdateRequest model)
         {
+            if (model == null || !model.Status.HasValue)
+            {
+                throw new ProjectBadRequestException("Status is required.");
+            }
+
             RepositoryModel<bool> result = new()
             {
                 PartnerCode = Messenger.SuccessFull,
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
-            result.Data = await _courseServices.UpdateStatusContentCourse(id, model);
-            return result;
+            result.Data = await _courseServices.UpdateStatusContentCourse(id, new ContentCourseModel
+            {
+                Status = model.Status.Value
+            });
+            return Ok(result);
         }
 
         /// <summary>
@@ -359,6 +398,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course-content/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateInformationContentCourse(long id, ContentCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -421,6 +461,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("course-content-details")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> CreateContentCourseDetails(ContentCourseDetailModel model)
         {
             RepositoryModel<bool> result = new()
@@ -443,7 +484,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course-content-details/status/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusContentCourseDetails(long id, ContentCourseDetailModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusContentCourseDetails(long id, ContentCourseDetailModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -451,11 +493,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.UpdateStatusContentCourseDetails(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -465,6 +507,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("course-content-details/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateInformationContentCourseDetails(long id, ContentCourseDetailModel model)
         {
             RepositoryModel<bool> result = new()
@@ -514,7 +557,7 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new ContentCourseDetailModel(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.GetContentCourseDetails(id, Request);
@@ -527,6 +570,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("thead-question-course")]
+        [Authorize]
         public async Task<RepositoryModel<bool>> CreateTheadQuestionCourse(TheadQuestionCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -549,7 +593,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("thead-question-course/status/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusTheadQuestionCourse(long id, TheadQuestionCourseModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusTheadQuestionCourse(long id, TheadQuestionCourseModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -557,11 +602,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.UpdateStatusTheadQuestionCourse(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -571,6 +616,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("thead-question-course/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateInformationTheadQuestionCourse(long id, TheadQuestionCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -633,6 +679,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("course-comment-like/{id}")]
+        [Authorize]
         public async Task<RepositoryModel<bool>> LikeForCommentCourse(long id)
         {
             RepositoryModel<bool> result = new()
@@ -654,6 +701,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("course-comment-dislike/{id}")]
+        [Authorize]
         public async Task<RepositoryModel<bool>> DisLikeForCommentCourse(long id)
         {
             RepositoryModel<bool> result = new()
@@ -675,6 +723,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("details-thead-question-course")]
+        [Authorize]
         public async Task<RepositoryModel<bool>> CreateDetailsTheadQuestionCourse(DetailTheadQuestionCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -697,7 +746,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("details-thead-question-course/status/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusDetailsTheadQuestionCourse(long id, DetailTheadQuestionCourseModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusDetailsTheadQuestionCourse(long id, DetailTheadQuestionCourseModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -705,11 +755,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _courseServices.UpdateStatusDetailsTheadQuestionCourse(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -719,6 +769,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("details-thead-question-course/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateInformationDetailsTheadQuestionCourse(long id, DetailTheadQuestionCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -752,6 +803,12 @@ namespace HDNXUdemyAPI.Controllers
 
             result.Data = await _courseServices.GetListDetailsTheadQuestionCourse(idThead);
             return result;
+        }
+
+        public sealed class StatusUpdateRequest
+        {
+            [JsonPropertyName("status")]
+            public int? Status { get; set; }
         }
     }
 }

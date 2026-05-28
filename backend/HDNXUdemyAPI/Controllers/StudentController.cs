@@ -3,7 +3,9 @@ using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.SystemExceptions;
+using HDNXUdemyServices.CommonFunction;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -14,6 +16,7 @@ namespace HDNXUdemyAPI.Controllers
     /// </summary>
     [ApiVersion(VersionApi.Version1)]
     [Route(RouterControllerName.Student)]
+    [Authorize]
     public class StudentController : BaseController
     {
         private readonly IStudentServices _studentServices;
@@ -37,6 +40,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> CreateStudent(UserModel model)
         {
             RepositoryModel<bool> result = new()
@@ -59,6 +63,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("status/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateStatusStudent(long id, UserModel model)
         {
             RepositoryModel<bool> result = new()
@@ -81,7 +86,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStudent(long id, UserModel model)
+        public async Task<IActionResult> UpdateStudent(long id, UserModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -92,8 +97,18 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin() && id != CurrentUserId())
+            {
+                return Forbid();
+            }
+
+            if (!IsAdmin())
+            {
+                model.RoleId = (int)ERoles.Student;
+            }
+
             result.Data = await _studentServices.UpdateStudent(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -101,6 +116,7 @@ namespace HDNXUdemyAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<List<UserModel>>> GetListStudents()
         {
             RepositoryModel<List<UserModel>> result = new()
@@ -122,7 +138,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<RepositoryModel<UserModel>> GetStudent(long id)
+        public async Task<IActionResult> GetStudent(long id)
         {
             RepositoryModel<UserModel> result = new()
             {
@@ -133,8 +149,13 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin() && id != CurrentUserId())
+            {
+                return Forbid();
+            }
+
             result.Data = await _studentServices.GetStudent(id);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -142,6 +163,7 @@ namespace HDNXUdemyAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("account-user")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<List<UserModel>>> GetListUserManager()
         {
             RepositoryModel<List<UserModel>> result = new()
@@ -162,6 +184,7 @@ namespace HDNXUdemyAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("account-teacher")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<List<UserModel>>> GetListTeachers()
         {
             RepositoryModel<List<UserModel>> result = new()
@@ -183,7 +206,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("student-promotion")]
-        public async Task<RepositoryModel<bool>> CreateStudentPromotions(StudentPromotionModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateStudentPromotions(StudentPromotionModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -195,7 +219,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _studentServices.CreateStudentPromotions(model);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -205,7 +229,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("student-promotion/status/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateStatusStudentPromotions(long id, StudentPromotionModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusStudentPromotions(long id, StudentPromotionModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -213,11 +238,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _studentServices.UpdateStatusStudentPromotions(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -227,7 +252,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("student-promotion/{id}")]
-        public async Task<RepositoryModel<bool>> UpdateInformationStudentPromotions(long id, StudentPromotionModel model)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateInformationStudentPromotions(long id, StudentPromotionModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -235,11 +261,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _studentServices.UpdateInformationStudentPromotions(id, model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -247,7 +273,8 @@ namespace HDNXUdemyAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("student-promotion")]
-        public async Task<RepositoryModel<List<StudentPromotionModel>>> GetListStudentPromotions()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetListStudentPromotions()
         {
             RepositoryModel<List<StudentPromotionModel>> result = new()
             {
@@ -255,11 +282,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new List<StudentPromotionModel>(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _studentServices.GetListStudentPromotions();
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -268,7 +295,8 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("student-promotion/{id}")]
-        public async Task<RepositoryModel<StudentPromotionModel>> GetStudentPromotions(long id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetStudentPromotions(long id)
         {
             RepositoryModel<StudentPromotionModel> result = new()
             {
@@ -276,11 +304,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new StudentPromotionModel(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _studentServices.GetStudentPromotions(id);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -289,7 +317,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("student-process")]
-        public async Task<RepositoryModel<bool>> CreateStudentProcess(StudentProcessModel model)
+        public async Task<IActionResult> CreateStudentProcess(StudentProcessModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -297,11 +325,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _studentServices.CreateStudentProcess(model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -395,7 +423,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("bookmark-course")]
-        public async Task<RepositoryModel<bool>> CreateBookmarkCourse(BookmarkCourseModel model)
+        public async Task<IActionResult> CreateBookmarkCourse(BookmarkCourseModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -406,8 +434,19 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            long currentUserId = CurrentUserId();
+            if (!IsAdmin())
+            {
+                if (model.IdStudent != 0 && model.IdStudent != currentUserId)
+                {
+                    return Forbid();
+                }
+
+                model.IdStudent = currentUserId;
+            }
+
             result.Data = await _studentServices.CreateStudentBookmarkCourse(model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -417,6 +456,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("bookmark-course/status/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<RepositoryModel<bool>> UpdateStatusBookmarkCourse(long id, BookmarkCourseModel model)
         {
             RepositoryModel<bool> result = new()
@@ -438,7 +478,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="idUser"></param>
         /// <returns></returns>
         [HttpGet("bookmark-course/{idUser}")]
-        public async Task<RepositoryModel<List<CourseModel>>> GetListBookmarkCourse(long idUser)
+        public async Task<IActionResult> GetListBookmarkCourse(long idUser)
         {
             RepositoryModel<List<CourseModel>> result = new()
             {
@@ -449,8 +489,13 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin() && idUser != CurrentUserId())
+            {
+                return Forbid();
+            }
+
             result.Data = await _studentServices.GetListStudentBookmarkCourse(idUser);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -480,7 +525,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="idStudent"></param>
         /// <returns></returns>
         [HttpGet("student-course/{idStudent}")]
-        public async Task<RepositoryModel<List<CourseModel>>> GetCoursesOfStudent(long idStudent)
+        public async Task<IActionResult> GetCoursesOfStudent(long idStudent)
         {
             RepositoryModel<List<CourseModel>> result = new()
             {
@@ -491,8 +536,13 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
+            if (!IsAdmin() && idStudent != CurrentUserId())
+            {
+                return Forbid();
+            }
+
             result.Data = await _courseServices.GetListCourseOfStudent(idStudent);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -515,5 +565,6 @@ namespace HDNXUdemyAPI.Controllers
             result.Data = await _studentServices.GetListUserNameRegisterForCourse(idCourse);
             return result;
         }
+
     }
 }

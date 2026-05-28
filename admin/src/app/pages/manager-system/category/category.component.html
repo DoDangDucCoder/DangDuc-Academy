@@ -46,7 +46,7 @@
                             <a href="javascript:void(0);" class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn" (click)="editCategory(data.id)"><i class="ph-pencil"></i></a>
                         </li>
                         <li>
-                            <a href="javascript:void(0);" class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn" (click)="deleteRecordModal.show()"><i class="ph-trash"></i></a>
+                            <a href="javascript:void(0);" class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn" (click)="idCategory = data.id; deleteRecordModal.show()"><i class="ph-trash"></i></a>
                         </li>
                     </ul>
                 </td>
@@ -123,7 +123,7 @@
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="pt-1">
-                                                @if (publicId) {<h5 class="fs-md mb-1">{{ publicId }}</h5>} @else {<h5 class="fs-md mb-1">{{ file.name }}</h5>}
+                                                @if (publicId) {<h5 class="fs-md mb-1">{{ publicId }}</h5>} @else {<h5 class="fs-md mb-1">{{ file?.name || 'Category image' }}</h5>}
                                             </div>
                                         </div>
                                     </div>

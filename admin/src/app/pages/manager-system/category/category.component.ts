@@ -114,13 +114,13 @@ export class CategoryComponent {
   // Add Category
   actionCategory() {
     var idCategory = this.categoryForm.controls['id'].value;
-    if (this.categoryForm.valid && this.checkValidate) {
+    if (this.categoryForm.valid && this.checkValidate()) {
       this.addCategory?.hide();
       const dataInsert: CategoryModel = {
         id: idCategory,
         name: this.categoryForm.value.name,
-        pictureUrl: this.pictureUrl,
-        publicId: this.publicId,
+        pictureUrl: this.pictureUrl || 'assets/images/demo/course-placeholder.svg',
+        publicId: this.publicId || '',
       }
       if (idCategory != null && idCategory != 0 && idCategory != "" && idCategory != undefined) {
         this.categoryService.updateInformationCategories(dataInsert).subscribe((res) => {
@@ -146,13 +146,7 @@ export class CategoryComponent {
 
 
   private checkValidate(): boolean {
-    if (this.pictureUrl) {
-      return true;
-    }
-    if (this.isUploadImages) {
-      return true;
-    }
-    return false;
+    return !!this.categoryForm.value.name;
   }
   // filterdata
   filterdata() {
@@ -191,18 +185,18 @@ export class CategoryComponent {
     this.pictureUrl = "";
     this.addCategory?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Thêm loại khoá học'
+    modaltitle .textContent = 'Thêm loại khoá học'
     var modalButton = document.getElementById('add-btn') as HTMLAreaElement
-    modalButton.innerHTML = 'Lưu';
+    modalButton .textContent = 'Lưu';
   }
 
   editCategory(id: number) {
     this.idCategory = id;
     this.addCategory?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Chỉnh sửa loại khoá học'
+    modaltitle .textContent = 'Chỉnh sửa loại khoá học'
     var modalButton = document.getElementById('add-btn') as HTMLAreaElement
-    modalButton.innerHTML = 'Cập nhật';
+    modalButton .textContent = 'Cập nhật';
     var dataEdit = this.categories.find(x => x.id == id);
     this.publicId = dataEdit.publicId;
     this.pictureUrl = dataEdit.pictureUrl;
@@ -210,11 +204,20 @@ export class CategoryComponent {
   }
 
   deleteCategory() {
+    if (!this.idCategory) {
+      this.messengerService.errorWithIssue();
+      return;
+    }
+
     this.categoryService.deleteCategories(this.idCategory).subscribe((res) => {
       if (res.retCode == 0 && res.systemMessage == "") {
         this.loadDataCategory();
+        this.deleteRecordModal?.hide();
+      } else {
+        this.messengerService.errorWithIssue();
       }
-      this.addCategory?.hide();
+    }, () => {
+      this.messengerService.errorWithIssue();
     })
   }
 }

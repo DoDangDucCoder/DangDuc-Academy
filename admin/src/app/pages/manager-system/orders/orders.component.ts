@@ -196,9 +196,9 @@ export class OrdersComponent {
   editOrder(id: any) {
     this.showModal?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Product'
+    modaltitle .textContent = 'Edit Product'
     var modalbtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalbtn.innerHTML = 'Update'
+    modalbtn .textContent = 'Update'
 
     document.querySelectorAll('#companyLogo-img').forEach((element: any) => {
       element.src = this.Order[id].shop[0].img;

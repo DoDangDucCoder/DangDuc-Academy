@@ -13,31 +13,29 @@ export class CartServices {
     }
 
     public get count(): number {
-        let countValue = LocalStorageConfig.GetListCourseAddCart()?.length;
-        console.log('countValue', countValue);
-        return countValue;
+        return LocalStorageConfig.GetListCourseAddCart()?.length ?? 0;
     };
 
 
     addCourse(course: GetCourseWithDetailsContent) {
-        let item: GetCourseWithDetailsContent = LocalStorageConfig.GetListCourseAddCart()?.find(item => item.id == course.id);;
-        if (item) { return } else {
+        const item = LocalStorageConfig.GetListCourseAddCart()?.find(item => item.id === course.id);
+        if (item) { return; } else {
             course.totalOrder = course.isDiscount == true ? course.priceOfDiscount : course.priceOfCourse;
-            let getCourses = LocalStorageConfig.GetListCourseAddCart() ?? Array<GetCourseWithDetailsContent>();
+            const getCourses = LocalStorageConfig.GetListCourseAddCart() ?? Array<GetCourseWithDetailsContent>();
             getCourses.push(course);
             LocalStorageConfig.AddListCourses(getCourses);
         }
-        this.cartUpdates.next("");
+        this.cartUpdates.next('');
 
     }
 
     removeCourse(course: GetCourseWithDetailsContent) {
         LocalStorageConfig.RemoveItemOnCart(course.id);
-        this.cartUpdates.next("");
+        this.cartUpdates.next('');
     }
 
     removeAllDataOfCart(){
         LocalStorageConfig.RemoveAllDataListCourse();
-        this.cartUpdates.next("");
+        this.cartUpdates.next('');
     }
 }

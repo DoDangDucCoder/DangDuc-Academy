@@ -3,6 +3,7 @@ using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
 using HDNXUdemyData.Model;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
@@ -45,7 +46,9 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> CreateCategory(CategoryModel category)
         {
+            await ValidateCategory(category);
             var dataInsert = _mapper.Map<CategoryEntities>(category);
+            dataInsert.Name = category.Name?.Trim();
             return await _categoryRepository.AddAsync(dataInsert);
         }
 
@@ -58,17 +61,71 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> UpdateInformationCategory(long id, CategoryModel category)
         {
-            var getData = await _categoryRepository.GetByIdAsync(id) ?? new CategoryEntities();
+            var getData = await _categoryRepository.GetByIdAsync(id);
+            if (getData == null)
+            {
+                throw new ProjectNotFoundException("Category not found.");
+            }
+
+            await ValidateCategory(category, id);
             getData.Status = category.Status;
-            getData.Name = category.Name;
+            getData.Name = category.Name?.Trim();
             getData.PictureUrl = category.PictureUrl;
             getData.PublicId = category.PublicId;
             return await _categoryRepository.UpdateAsync(getData);
         }
 
+        private async Task ValidateCategory(CategoryModel category, long? currentId = null)
+        {
+            if (category == null)
+            {
+                throw new ProjectBadRequestException("Category payload is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(category.Name))
+            {
+                throw new ProjectBadRequestException("Category name is required.");
+            }
+
+            category.Name = category.Name.Trim();
+            if (category.Name.Length > 100)
+            {
+                throw new ProjectBadRequestException("Category name must be 100 characters or fewer.");
+            }
+
+            if (category.Name.Contains("<script", StringComparison.OrdinalIgnoreCase) ||
+                category.Name.Contains("</script", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException("Category name contains unsupported markup.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(category.PictureUrl) && category.PictureUrl.Length > 500)
+            {
+                throw new ProjectBadRequestException("Picture URL must be 500 characters or fewer.");
+            }
+
+            var normalizedName = category.Name.ToLowerInvariant();
+            var duplicate = await _categoryRepository.GetObjectAsync(x =>
+                x.Name != null &&
+                x.Name.ToLower() == normalizedName &&
+                x.Status == (int)EStatus.Active &&
+                (!currentId.HasValue || x.Id != currentId.Value));
+            if (duplicate != null)
+            {
+                throw new ProjectConflictException("Category name already exists.");
+            }
+        }
+
         public async Task<bool> DeleteCategory(long id)
         {
-            return await _categoryRepository.DeleteByKey(id);
+            var getData = await _categoryRepository.GetByIdAsync(id);
+            if (getData == null)
+            {
+                return false;
+            }
+
+            getData.Status = (int)EStatus.Inactive;
+            return await _categoryRepository.UpdateStatusAsync(getData);
         }
 
         public async Task<List<CategoryModel>> GetListCategory()

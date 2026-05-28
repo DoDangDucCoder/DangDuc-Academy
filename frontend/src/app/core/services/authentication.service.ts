@@ -10,19 +10,20 @@ import { LocalStorageConfig } from "src/app/library/clientconfig/localstoragecon
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationServices {
-    loginDataUpdate$ = new BehaviorSubject<LoginRegister>(new LoginRegister());
+    private readonly currentUserSubject = new BehaviorSubject<LoginRegister | null>(LocalStorageConfig.GetUser());
+    loginDataUpdate$ = this.currentUserSubject.asObservable();
     constructor(
         private transferHttp: TransferHttp,
     ) { }
 
-    registerUser(email: string, password: string, name: string, phone: string) {
-        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'RegisterUser', email, password, name, phone);
-        return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<LoginRegister>) => res));
+    registerUser(name: string, phone: string, email: string, password: string) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'RegisterUser');
+        return this.transferHttp.post(ApiUrl, { name, phone, email, password }).pipe(map((res: RepositoryModel<LoginRegister>) => res));
     }
 
     loginNormalAccount(email: string, password: string) {
-        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'LoginNormalAccount', email, password);
-        return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<LoginRegister>) => res));
+        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'LoginNormalAccount');
+        return this.transferHttp.post(ApiUrl, { email, password }).pipe(map((res: RepositoryModel<LoginRegister>) => res));
     }
 
     loginWithGoogle(model: SocialUser) {
@@ -35,21 +36,25 @@ export class AuthenticationServices {
         return this.transferHttp.post(ApiUrl, model).pipe(map((res: RepositoryModel<LoginRegister>) => res));
     }
 
-    updateAfterLogin(dataLogin: LoginRegister) {
-        this.loginDataUpdate$.next(dataLogin);
+    updateAfterLogin(dataLogin: LoginRegister | null) {
+        this.currentUserSubject.next(dataLogin);
     }
 
-    getDataUploadAfterLogin(): Observable<LoginRegister> {
-        return this.loginDataUpdate$.asObservable();
+    getDataUploadAfterLogin(): Observable<LoginRegister | null> {
+        return this.loginDataUpdate$;
+    }
+
+    currentUser(): LoginRegister | null {
+        return LocalStorageConfig.GetUser();
     }
 
     isCheckMemberAccount(): boolean {
-        let dataGetValueUser = LocalStorageConfig.GetUser();
-        return dataGetValueUser != null;
+        return this.currentUser() != null;
     }
 
     logoutWithAccount(){
-        let valueCurrentUser = 'currentUser';
-        LocalStorageConfig.RemoveUser(valueCurrentUser);
+        LocalStorageConfig.RemoveUser('currentUser');
+        LocalStorageConfig.RemoveAllDataListCourse();
+        this.updateAfterLogin(null);
     }
 }

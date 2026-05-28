@@ -15,7 +15,7 @@ namespace HDNXUdemyServices.IServices
 
         Task<bool> IsCheckCoursePurchase(long idCourse);
 
-        Task<PagedResult<PurcharseCourseModel>> GetListPurcharseCourses(int pageIndex, int pageSize);
+        Task<PagedResult<PurcharseCourseModel>> GetListPurcharseCourses(int pageIndex, int pageSize, long? idStudent = null);
 
         Task<PurcharseCourseModel> GetPurchaseCorseDetail(long idPurchase);
 

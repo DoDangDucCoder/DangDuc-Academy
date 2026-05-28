@@ -10,6 +10,11 @@ namespace HDNXUdemyModel.Model
 
         public string? Password { get; set; }
 
+        public bool ShouldSerializePassword()
+        {
+            return false;
+        }
+
         public string? Phone { get; set; }
 
         public int General { get; set; }

@@ -5,6 +5,7 @@ using HDNXUdemyModel.RequestModel;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -77,8 +78,27 @@ namespace HDNXUdemyAPI.Controllers
         /// /// <param name="phone"></param>
         /// <param name="password"></param>
         /// <returns></returns>
+        [Obsolete("Use POST /api/v1/authentication/register with a JSON body. This route is retained only for legacy clients.")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("register/{name}/{phone}/{email}/{password}")]
-        public async Task<RepositoryModel<bool>> RegisterUser(string name, string phone, string email, string password)
+        [AllowAnonymous]
+        public IActionResult RegisterUser(string name, string phone, string email, string password)
+        {
+            RepositoryModel<bool> result = new()
+            {
+                PartnerCode = InterCode.ErrorMiddleware,
+                RetCode = ERetCode.BadRequest,
+                Data = false,
+                SystemMessage = "Legacy URL registration is disabled. Use POST /api/v1/authentication/register with a JSON body.",
+                StatusCode = (int)HttpStatusCode.Gone
+            };
+
+            return StatusCode(StatusCodes.Status410Gone, result);
+        }
+
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterUser(RegisterNormalUserRequest request)
         {
             RepositoryModel<bool> result = new()
             {
@@ -89,8 +109,8 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.Created
             };
 
-            result.Data = await _authenticationServices.RegisterNormalUser(email, password, name, phone);
-            return result;
+            result.Data = await _authenticationServices.RegisterNormalUser(request.Email ?? string.Empty, request.Password ?? string.Empty, request.Name ?? string.Empty, request.Phone ?? string.Empty);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -99,8 +119,9 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        [HttpGet("login/{email}/{password}")]
-        public async Task<RepositoryModel<ResponeLogin>> LoginNormalAccount(string email, string password)
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginNormalAccount(LoginNormalUserRequest request)
         {
             RepositoryModel<ResponeLogin> result = new()
             {
@@ -108,11 +129,29 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new ResponeLogin(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
-            result.Data = await _authenticationServices.LoginNormalAccount(email, password, HttpContext);
-            return result;
+            result.Data = await _authenticationServices.LoginNormalAccount(request.Email ?? string.Empty, request.Password ?? string.Empty, HttpContext);
+            return Ok(result);
+        }
+
+        [HttpGet("login/{email}/{password}")]
+        [AllowAnonymous]
+        [Obsolete("Use POST /api/v1/authentication/login with a JSON body. This legacy route keeps older clients working but must not be used by UI clients.")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult LoginNormalAccount(string email, string password)
+        {
+            RepositoryModel<bool> result = new()
+            {
+                PartnerCode = InterCode.ErrorMiddleware,
+                RetCode = ERetCode.BadRequest,
+                Data = false,
+                SystemMessage = "Legacy URL login is disabled. Use POST /api/v1/authentication/login with a JSON body.",
+                StatusCode = (int)HttpStatusCode.Gone
+            };
+
+            return StatusCode(StatusCodes.Status410Gone, result);
         }
 
         /// <summary>

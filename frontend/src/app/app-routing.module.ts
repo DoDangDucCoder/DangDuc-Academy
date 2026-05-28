@@ -36,6 +36,8 @@ import { NotificationUsersComponent } from './components/pages/notification-user
 import { AccountBookmarkCourseComponent } from './components/pages/account-bookmark-course/account-bookmark-course.component';
 import { PaymentErrorComponent } from './components/pages/payment-error/payment-error.component';
 import { PaymentSuccessComponent } from './components/pages/payment-success/payment-success.component';
+import { NotFoundComponent } from './components/pages/not-found/not-found.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
     { path: '', component: ElearningSchoolComponent },
@@ -47,7 +49,9 @@ const routes: Routes = [
     { path: 'purchase-guide', component: PurchaseGuideComponent },
     { path: 'privacy-policy', component: PrivacyPolicyComponent },
     { path: 'terms-of-service', component: TermsOfServiceComponent },
+    { path: 'courses', redirectTo: 'courses/1', pathMatch: 'full' },
     { path: 'courses/:id', component: CoursesListComponent },
+    { path: 'detail-courses', redirectTo: 'detail-courses/1', pathMatch: 'full' },
     { path: 'detail-courses/:id', component: CoursesDetailsComponent },
     { path: 'membership-levels', component: MembershipLevelsComponent },
     { path: 'become-teacher', component: BecomeATeacherComponent },
@@ -55,7 +59,7 @@ const routes: Routes = [
     { path: 'download-document', component: DownLoadRecoursesComponent },
     { path: 'products', component: ProductsListComponent },
     { path: 'cart', component: CartComponent },
-    { path: 'payment/:purchaseCode', component: CheckoutComponent },
+    { path: 'payment/:purchaseCode', component: CheckoutComponent, canActivate: [AuthGuard] },
     { path: 'details-products', component: ProductsDetailsComponent },
     { path: 'gallery', component: GalleryComponent },
     { path: 'news', component: CoursesNewsComponent },
@@ -64,18 +68,19 @@ const routes: Routes = [
     { path: 'detail-content-course/:id', component: CoursesContentDetailComponent },
     { path: 'login', component: LoginPagesComponent },
     { path: 'register', component: RegisterPagesComponent },
-    { path: 'my-course', component: AccountProfileCoursesComponent },
-    { path: 'my-information', component: AccountProfileDetailsComponent },
+    { path: 'my-course', component: AccountProfileCoursesComponent, canActivate: [AuthGuard] },
+    { path: 'my-information', component: AccountProfileDetailsComponent, canActivate: [AuthGuard] },
     { path: 'training-online', component: TrainingCoursesComponent },
     { path: 'detail-training-online', component: TrainingCoursesDetailsComponent },
     // Here add new pages component
 
     { path: 'register-error', component: RegisterErrorComponent },
     { path: 'send-email-register-success', component: SendEmailAfterRegisterComponent },
-    { path: 'notification', component: NotificationUsersComponent },
-    { path: 'bookmark-course', component: AccountBookmarkCourseComponent },
+    { path: 'notification', component: NotificationUsersComponent, canActivate: [AuthGuard] },
+    { path: 'bookmark-course', component: AccountBookmarkCourseComponent, canActivate: [AuthGuard] },
     { path: 'payment-success', component: PaymentSuccessComponent },
     { path: 'payment-error', component: PaymentErrorComponent },
+    { path: '**', component: NotFoundComponent },
 ];
 
 @NgModule({

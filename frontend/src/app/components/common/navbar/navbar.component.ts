@@ -38,13 +38,13 @@ export class NavbarComponent implements OnInit {
     ngOnInit(): void {
         this.authenticationServices.getDataUploadAfterLogin().subscribe((res) => {
             this.userStudent = res;
-        })
+        });
         this.getInformationOfUser();
         this.loadDataCategory();
         this.count = this.cartServices.count;
         this.cartServices.cartUpdates$.subscribe(() => {
             this.count = this.cartServices.count;
-        })
+        });
     }
 
     classApplied = false;
@@ -66,7 +66,7 @@ export class NavbarComponent implements OnInit {
     }
 
     loadDataCategory() {
-        this.categoryServices.getCategories().subscribe((res) => {
+        this.categoryServices.getPublicCategories().subscribe((res) => {
             if (res.retCode === 0 && res.systemMessage === '') {
                 this.categories = res.data;
             }
@@ -82,7 +82,7 @@ export class NavbarComponent implements OnInit {
     }
 
     getInformationOfUser() {
-        this.userStudent = LocalStorageConfig.GetUser();
+        this.userStudent = this.authenticationServices.currentUser();
     }
 
     logoutAccount(){

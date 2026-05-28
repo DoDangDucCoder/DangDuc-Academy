@@ -6,8 +6,8 @@
 export const environment = {
   production: false,
   baseUrl: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://localhost:44319
-  urlUploadFile: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://localhost:44349
-  defaultauth: 'fakebackend',
+  urlUploadFile: 'http://localhost:5148/api/v1/',  // Thay đổi từ https://localhost:44349
+  defaultauth: 'backend',
   firebaseConfig: {
     apiKey: "AIzaSyCqS9cSPrDCNSQ-Ku2kZf5DBWjPPv7hvcA",
     authDomain: "test-demo-774f8.firebaseapp.com",

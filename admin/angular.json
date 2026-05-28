@@ -111,6 +111,10 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host": "127.0.0.1",
+            "port": 4201
+          },
           "configurations": {
             "production": {
               "buildTarget": "Steex:build:production"

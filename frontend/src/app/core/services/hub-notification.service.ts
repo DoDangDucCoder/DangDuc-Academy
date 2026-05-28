@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from "@microsoft/signalr";
 import { environment } from "src/environments/environment";
 
 @Injectable({
@@ -9,21 +9,43 @@ import { environment } from "src/environments/environment";
 export class NotificationHubService {
 
     private hubConnection: HubConnection | undefined;
+    private isStarting = false;
     public notificationItems: Notification[] = [];
     public get count(): number {
         return this.notificationItems.length;
     };
     constructor() { }
 
-    public startConnection() {
-        let baseUrl = environment.baseUrlHub;
+    public startConnection(): Promise<void> {
+        if (this.hubConnection) {
+            const state = this.hubConnection.state;
+            if (
+                state === HubConnectionState.Connected ||
+                state === HubConnectionState.Connecting ||
+                state === HubConnectionState.Reconnecting ||
+                this.isStarting
+            ) {
+                return Promise.resolve();
+            }
+        }
+
+        this.isStarting = true;
+        const baseUrl = environment.baseUrlHub;
         this.hubConnection = new HubConnectionBuilder()
             .withUrl(`${baseUrl}hub-notification`).withAutomaticReconnect().configureLogging(LogLevel.Information)
             .build();
-        this.hubConnection
+
+        return this.hubConnection
             .start()
-            .then(() => { console.log('Connection started') })
-            .catch(err => { console.log('Error while starting connection: ' + err) })
+            .then(() => undefined)
+            .catch(err => {
+                this.hubConnection = undefined;
+                console.error('Error while starting notification hub connection', err);
+                return undefined;
+            })
+            .finally(() => {
+                this.isStarting = false;
+            });
     }
 
 }

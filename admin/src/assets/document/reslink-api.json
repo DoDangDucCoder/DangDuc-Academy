@@ -81,8 +81,8 @@
     "GetDataForHome": "home"
   },
   "Authentication": {
-    "RegisterUser": "authentication/register/{0}/{1}/{2}/{3}",
-    "LoginNormalAccount": "authentication/login/{0}/{1}",
+    "RegisterUser": "authentication/register",
+    "LoginNormalAccount": "authentication/login",
     "LoginWithGoogle": "authentication/login-google",
     "LoginWithFaceBook": "authentication/login-facebook"
   },

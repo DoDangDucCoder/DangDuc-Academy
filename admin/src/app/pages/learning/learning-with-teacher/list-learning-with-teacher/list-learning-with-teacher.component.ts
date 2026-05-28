@@ -158,9 +158,9 @@ valueChange(value: number, boundary: boolean): void {
     this.uploadedFiles = [];
     this.addCourse?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Product'
+    modaltitle .textContent = 'Edit Product'
     var modalbtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalbtn.innerHTML = 'Update'
+    modalbtn .textContent = 'Update'
     var editData = this.courses[id]
     this.uploadedFiles.push({ 'dataURL': editData.img, 'name': editData.imgalt, 'size': 1024, });
     this.listForm.patchValue(this.courses[id]);

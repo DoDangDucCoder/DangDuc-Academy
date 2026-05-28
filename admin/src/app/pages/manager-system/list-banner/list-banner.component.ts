@@ -198,18 +198,18 @@ export class ListBannerComponent {
     this.pictureUrl = "";
     this.addCategory?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Thêm hình ảnh banner'
+    modaltitle .textContent = 'Thêm hình ảnh banner'
     var modalButton = document.getElementById('add-btn') as HTMLAreaElement
-    modalButton.innerHTML = 'Lưu';
+    modalButton .textContent = 'Lưu';
   }
 
   editCategory(id: number) {
     this.idCategory = id;
     this.addCategory?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Chỉnh sửa ảnh banner'
+    modaltitle .textContent = 'Chỉnh sửa ảnh banner'
     var modalButton = document.getElementById('add-btn') as HTMLAreaElement
-    modalButton.innerHTML = 'Cập nhật';
+    modalButton .textContent = 'Cập nhật';
     var dataEdit = this.banner.find(x => x.id == id);
     this.publicId = dataEdit.publicId;
     this.pictureUrl = dataEdit.urlPicture;

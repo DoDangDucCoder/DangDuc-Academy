@@ -57,7 +57,7 @@ export class PurchaseOrderReviewComponent {
 
   getPurchaseOrderReview(idPurchase: number) {
     this.purchaseServices.getPurchaseCourseDetail(idPurchase).subscribe((res) => {
-      if (res.retCode === 0 || res.systemMessage === '') {
+      if (res.retCode === 0 && res.systemMessage === '') {
         this.purchaseOrderReview = res.data;
         document.getElementById('elmLoader')?.classList.add('d-none');
       } else {

@@ -1,7 +1,7 @@
 <div class="row align-items-center">
     <div class="col-lg-2 col-6 col-sm-3 col-md-3" *ngFor="let item of listPartner">
         <div class="single-partner-item">
-            <img src="{{item.pictureUrl}}" alt="image">
+            <img [src]="item.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image">
         </div>
     </div>
 </div>

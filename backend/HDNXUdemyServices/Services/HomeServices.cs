@@ -64,6 +64,12 @@ namespace HDNXUdemyServices.Services
             return returnValue;
         }
 
+        public async Task<List<CategoryModel>> GetPublicCategories()
+        {
+            var getData = await _categoryRepository.GetAllAsync();
+            return _mapper.Map<List<CategoryModel>>(getData);
+        }
+
         public async Task<List<CourseModel>> GetBookMarkForCourse(List<CourseModel> listCourse, long? idUser)
         {
             var getDataBookMarkOfStudent = await _bookmarkCourseRepository.GetAsync(x => x.IdStudent == idUser);

@@ -15,23 +15,22 @@ export class AuthGuard  {
     ) { }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        if (environment.defaultauth === 'firebase') {
-            const currentUser = this.authenticationService.currentUser();
-            if (currentUser) {
-                // logged in so return true
+        const currentUser = environment.defaultauth === 'fakebackend'
+            ? this.authFackservice.currentUserValue
+            : this.authenticationService.currentUser();
+
+        if (currentUser) {
+            const roleId = Number((currentUser as any).roleId);
+            const roleName = `${(currentUser as any).roleName ?? (currentUser as any).role ?? ''}`.toLowerCase();
+            if (roleId === 0 || roleName === 'admin') {
                 return true;
             }
-        } else {
-            const currentUser = this.authFackservice.currentUserValue;
-            if (currentUser) {
-                // logged in so return true
-                return true;
-            }
-            // check if user data is in storage is logged in via API.
-            if(localStorage.getItem('currentUser')) {
-                return true;
-            }
+
+            this.authenticationService.logout().subscribe();
+            this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url, forbidden: 'true' } });
+            return false;
         }
+
         // not logged in so redirect to login page with the return url
         this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
         return false;

@@ -19,7 +19,9 @@ namespace HDNXUdemyModel.SystemExceptions
         {
         }
 
-        public ProjectNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
+#pragma warning disable SYSLIB0051
+        protected ProjectNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
+#pragma warning restore SYSLIB0051
         {
         }
     }

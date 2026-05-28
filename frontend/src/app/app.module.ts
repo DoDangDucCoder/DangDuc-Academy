@@ -76,6 +76,9 @@ import { NgIconsModule } from '@ng-icons/core';
 import { bootstrapBookmark, bootstrapBookmarkCheckFill } from '@ng-icons/bootstrap-icons';
 import { AccountBookmarkCourseComponent } from './components/pages/account-bookmark-course/account-bookmark-course.component';
 import { MentionModule } from 'angular-mentions';
+import { AssetUrlPipe } from './library/custompipe/asset-url.pipe';
+import { FallbackSrcDirective } from './directives/fallback-src.directive';
+import { NotFoundComponent } from './components/pages/not-found/not-found.component';
 
 @NgModule({
   declarations: [
@@ -133,7 +136,10 @@ import { MentionModule } from 'angular-mentions';
     RegisterErrorComponent,
     SendEmailAfterRegisterComponent,
     NotificationUsersComponent,
-    AccountBookmarkCourseComponent
+    AccountBookmarkCourseComponent,
+    AssetUrlPipe,
+    FallbackSrcDirective,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -166,16 +172,14 @@ import { MentionModule } from 'angular-mentions';
         {
           id: GoogleLoginProvider.PROVIDER_ID,
           provider: new GoogleLoginProvider(environment.clientIdGoogle, {
-            oneTapEnabled: true
+            oneTapEnabled: false
           }),
 
         }, {
           id: FacebookLoginProvider.PROVIDER_ID,
           provider: new FacebookLoginProvider(environment.facebookId)
         }
-      ], onError: (error) => {
-        console.log(error);
-      }
+      ], onError: () => {}
     } as SocialAuthServiceConfig
   }, {provide: DEFAULT_CURRENCY_CODE, useValue: 'USD'},],
   bootstrap: [AppComponent],

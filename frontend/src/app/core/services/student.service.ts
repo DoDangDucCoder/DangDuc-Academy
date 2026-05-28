@@ -7,6 +7,7 @@ import { RepositoryModel } from "src/app/models/models/repository_base";
 import { BookMarkCourse } from "src/app/models/models/book-mark";
 import { Course } from "src/app/models/models/course";
 import { LocalStorageConfig } from "src/app/library/clientconfig/localstorageconfig";
+import { Observable, of } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class StudentServices {
@@ -55,8 +56,12 @@ export class StudentServices {
     }
 
     getListBookmarkCourse() {
-        let getValueOfUser = LocalStorageConfig.GetUser();
-        const ApiUrl = LinkSettings.GetResLinkSetting('Student', 'GetListBookmarkCourse', getValueOfUser.userId);
+        const userId = this.getCurrentUserId();
+        if (userId === null) {
+            return of(this.createUnauthorizedResponse<Course[]>([]));
+        }
+
+        const ApiUrl = LinkSettings.GetResLinkSetting('Student', 'GetListBookmarkCourse', userId);
         return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<Course[]>) => res));
     }
 
@@ -66,8 +71,12 @@ export class StudentServices {
     }
 
     getDataCourseOfStudent() {
-        let getValueOfUser = LocalStorageConfig.GetUser();
-        const ApiUrl = LinkSettings.GetResLinkSetting('Student', 'GetCoursesOfStudent', getValueOfUser.userId);
+        const userId = this.getCurrentUserId();
+        if (userId === null) {
+            return of(this.createUnauthorizedResponse<Course[]>([]));
+        }
+
+        const ApiUrl = LinkSettings.GetResLinkSetting('Student', 'GetCoursesOfStudent', userId);
         return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<Course[]>) => res));
 
     }
@@ -76,5 +85,19 @@ export class StudentServices {
         const ApiUrl = LinkSettings.GetResLinkSetting('Student', 'GetListUserNameRegisterForCourse', idCourse);
         return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<string[]>) => res));
 
+    }
+
+    private getCurrentUserId(): number | null {
+        return LocalStorageConfig.GetUser()?.userId ?? null;
+    }
+
+    private createUnauthorizedResponse<T>(data: T): RepositoryModel<T> {
+        return {
+            data,
+            retCode: 401,
+            statusCode: 401,
+            systemMessage: 'User is not authenticated',
+            partnerCode: null,
+        };
     }
 }

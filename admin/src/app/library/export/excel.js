@@ -25,8 +25,7 @@ var Export = /** @class */ (function () {
     };
     Export.exportExcelByArray = function (title1, title2, title3, title4, title5, jsonHeaderTitle, jsonDetail) {
         var html = this.convertDataToHTML(title1, title2, title3, title4, title5, jsonHeaderTitle, jsonDetail);
-        var tbl = document.createElement('table');
-        tbl.innerHTML = html;
+        var tbl = new DOMParser().parseFromString(html, 'text/html').querySelector('table');
         var workbook = XLSX.utils.table_to_book(tbl);
         var excelBuffer = XLSX.write(workbook, { bookType: EXCEL_EXTENSION, type: 'array' });
         this.saveAsExcelFile(excelBuffer, title1);

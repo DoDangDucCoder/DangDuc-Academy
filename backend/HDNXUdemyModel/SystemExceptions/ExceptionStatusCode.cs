@@ -12,8 +12,9 @@ namespace HDNXUdemyModel.SystemExceptions
         {
             { typeof(ProjectBadRequestException), HttpStatusCode.BadRequest },
             { typeof(ProjectNotFoundException), HttpStatusCode.NotFound },
+            { typeof(ProjectConflictException), HttpStatusCode.Conflict },
             { typeof(AuthenticationException), HttpStatusCode.Unauthorized },
-            { typeof(ProjectAwsException), HttpStatusCode.InternalServerError },
+            { typeof(ProjectAwsException), HttpStatusCode.ServiceUnavailable },
             { typeof(ProjectException), HttpStatusCode.InternalServerError },
         };
 

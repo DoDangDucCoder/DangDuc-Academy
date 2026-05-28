@@ -36,4 +36,9 @@ export class CategoryServices {
         const ApiUrl = LinkSettings.GetResLinkSetting('MasterData', 'GetCategory');
         return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<CategoryModel[]>) => res));
     }
+
+    getPublicCategories() {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Home', 'GetPublicCategory');
+        return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<CategoryModel[]>) => res));
+    }
 }

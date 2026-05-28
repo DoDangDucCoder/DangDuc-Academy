@@ -65,8 +65,31 @@ export class AddEditAccountUserComponent implements OnInit {
       roleId: ['', Validators.required],
     });
 
-    this.loadStudentAndUser(this.idUser);
+    if (this.idUser > 0) {
+      this.loadStudentAndUser(this.idUser);
+    } else {
+      this.student = this.createEmptyStudent();
+      this.informationForm.patchValue(this.student);
+    }
 
+  }
+
+  private createEmptyStudent(): StudentUser {
+    return {
+      id: 0,
+      name: '',
+      email: '',
+      password: '',
+      phone: '',
+      general: 0,
+      pictureUrl: '',
+      publicId: '',
+      roleId: ERoles.User,
+      typeLogin: 0,
+      isRequestTeacher: false,
+      totalCourseRegister: 0,
+      status: 0
+    };
   }
 
   // Change Tab Content
@@ -125,7 +148,7 @@ export class AddEditAccountUserComponent implements OnInit {
       const dataInsert: StudentUser = {
         name: this.informationForm.value.name,
         email: this.informationForm.value.email,
-        password: '',
+        password: this.idUser === 0 ? (this.informationForm.value.password ?? '') : '',
         phone: this.informationForm.value.phone,
         general: this.informationForm.value.general,
         pictureUrl: '',
@@ -150,7 +173,7 @@ export class AddEditAccountUserComponent implements OnInit {
       } else {
         this.isLoading = true;
         dataInsert.id = this.student.id;
-        dataInsert.password = this.student.password;
+        dataInsert.password = this.student.password ?? '';
         dataInsert.typeLogin = this.student.typeLogin;
         dataInsert.totalCourseRegister = this.student.totalCourseRegister;
         dataInsert.status = this.student.status;
@@ -172,16 +195,24 @@ export class AddEditAccountUserComponent implements OnInit {
   }
 
   loadStudentAndUser(id: number) {
+    if (id <= 0) {
+      this.student = this.createEmptyStudent();
+      this.informationForm.patchValue(this.student);
+      return;
+    }
     this.isLoading = true;
     this.studentUserServices.getStudent(id).subscribe((res) => {
-      if (res.retCode === 0 && res.systemMessage === '') {
-        this.student = res.data;
+      if (res.retCode === 0 && res.systemMessage === '' && res.data) {
+        this.student = { ...this.createEmptyStudent(), ...res.data, password: res.data.password ?? '' };
         this.isLoading = false;
         this.informationForm.patchValue(this.student);
       } else {
         this.isLoading = false;
-        this.messengerService.errorWithIssue();
+        this.student = this.createEmptyStudent();
       }
+    }, () => {
+      this.isLoading = false;
+      this.student = this.createEmptyStudent();
     });
   }
 

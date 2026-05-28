@@ -2,7 +2,7 @@
 {
     public class GenOrderPurechase
     {
-        public List<int> IdCourses { get; set; }
+        public List<int> IdCourses { get; set; } = new();
 
         public int IdStudent { get; set; }
     }

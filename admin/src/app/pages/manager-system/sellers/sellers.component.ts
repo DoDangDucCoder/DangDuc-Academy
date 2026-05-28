@@ -101,9 +101,9 @@ export class SellersComponent {
   editSeller(id: any) {
     this.addSellerModal?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit seller details'
+    modaltitle .textContent = 'Edit seller details'
     var modalbtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalbtn.innerHTML = 'Update'
+    modalbtn .textContent = 'Update'
 
     this.uploadedFiles.push({ 'dataURL': this.sellers[id].img, 'name': this.sellers[id].img_alt, 'size': 1024, });
     this.sellerForm.controls['stock'].setValue(this.sellers[id].stock)

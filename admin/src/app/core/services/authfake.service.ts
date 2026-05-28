@@ -7,18 +7,18 @@ import { User } from '../../store/Authentication/auth.models';
 @Injectable({ providedIn: 'root' })
 export class AuthfakeauthenticationService {
 
-    private currentUserSubject: BehaviorSubject<User>;
-    public currentUser: Observable<User>;
+    private currentUserSubject: BehaviorSubject<User | null>;
+    public currentUser: Observable<User | null>;
 
     constructor(private http: HttpClient) {
-        this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')!));
+        this.currentUserSubject = new BehaviorSubject<User | null>(this.getStoredCurrentUser());
         this.currentUser = this.currentUserSubject.asObservable();
     }
 
     /**
      * current user
      */
-    public get currentUserValue(): User {
+    public get currentUserValue(): User | null {
         return this.currentUserSubject.value;
     }
 
@@ -33,7 +33,8 @@ export class AuthfakeauthenticationService {
             if (user && user.token) {
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
                 localStorage.setItem('toast', 'true');
-                localStorage.setItem('currentUser', JSON.stringify(user));
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.removeItem('currentUser');
                 this.currentUserSubject.next(user);
             }
             return user;
@@ -46,6 +47,22 @@ export class AuthfakeauthenticationService {
     logout() {
         // remove user from local storage to log user out
         localStorage.removeItem('currentUser');
-        this.currentUserSubject.next(null!);
+        sessionStorage.removeItem('currentUser');
+        this.currentUserSubject.next(null);
+    }
+
+    private getStoredCurrentUser(): User | null {
+        const currentUser = sessionStorage.getItem('currentUser') ?? localStorage.getItem('currentUser');
+
+        if (!currentUser) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(currentUser) as User;
+        } catch {
+            localStorage.removeItem('currentUser');
+            return null;
+        }
     }
 }

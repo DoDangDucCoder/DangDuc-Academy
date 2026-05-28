@@ -3,27 +3,42 @@ export class LocalStorageConfig {
   private static currentUserKey = 'currentUser';
 
   public static RemoveUser() {
+    sessionStorage.removeItem(this.currentUserKey);
     localStorage.removeItem(this.currentUserKey);
   }
 
   public static SetUser(pJSONStringify: string) {
-    localStorage.setItem(this.currentUserKey, pJSONStringify);
+    sessionStorage.setItem(this.currentUserKey, pJSONStringify);
+    localStorage.removeItem(this.currentUserKey);
   }
 
   public static GetUser() {
-    const user = localStorage.getItem(this.currentUserKey);
-    if (user === null) return null;
-    return JSON.parse(user ?? '');
+    return this.ParseStorageItem(this.currentUserKey);
   }
 
   public static GetParishId() {
-    const idParish = JSON.parse(localStorage.getItem(this.currentUserKey) ?? '').parishId;
-    return idParish;
+    const currentUser = this.GetUser() as any;
+    return currentUser?.parishId ?? null;
   }
 
   public static GetCurrentYearActive(): string {
-    const currentYearActive = JSON.parse(localStorage.getItem(this.currentUserKey) ?? '').yearCurrent;
-    return currentYearActive;
+    const currentUser = this.GetUser() as any;
+    return currentUser?.yearCurrent ?? '';
+  }
+
+  private static ParseStorageItem(storageKey: string) {
+    const storageValue = sessionStorage.getItem(storageKey) ?? localStorage.getItem(storageKey);
+    if (!storageValue) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storageValue);
+    } catch {
+      sessionStorage.removeItem(storageKey);
+      localStorage.removeItem(storageKey);
+      return null;
+    }
   }
 
 }

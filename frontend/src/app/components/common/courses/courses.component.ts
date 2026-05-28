@@ -60,12 +60,11 @@ export class CoursesComponent implements OnInit {
             }
             this.studentServices.createBookmarkCourse(dataInsert).subscribe((res) => {
                 if (res.retCode === 0 && res.systemMessage === '') {
-                    this.listCourse.listDataOfContent.length
-                    this.listCourse.listDataOfContent.forEach((item) => {
+                    this.listCourse?.listDataOfContent?.forEach((item) => {
                         if (item.id === idCourser) {
                             item.isBookMark = !item.isBookMark;
                         }
-                    })
+                    });
                 }
             });
 

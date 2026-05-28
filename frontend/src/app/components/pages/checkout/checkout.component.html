@@ -19,6 +19,9 @@
         </div>
 
         <div class="row">
+            <div class="col-12" *ngIf="paymentMessage">
+                <div class="alert alert-warning">{{paymentMessage}}</div>
+            </div>
             <div class="col-lg-6 col-md-12">
                 <div class="billing-details">
                     <h3 class="title">Tranfer banking by QR Code</h3>

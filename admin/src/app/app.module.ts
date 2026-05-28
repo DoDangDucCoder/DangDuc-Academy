@@ -54,8 +54,6 @@ export function createTranslateLoader(http: HttpClient): any {
 }
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
-} else {
-  fakebackendInterceptor;
 }
 
 @NgModule({
@@ -97,8 +95,7 @@ if (environment.defaultauth === 'firebase') {
       InstructorEffects,
       CustomerEffects,
       studentsEffects,
-      CourcesEffects,
-      InstructorEffects
+      CourcesEffects
     ]),
     AngularFireModule.initializeApp(environment.firebaseConfig),
     HttpClientModule,
@@ -115,7 +112,10 @@ if (environment.defaultauth === 'firebase') {
     {provide: DEFAULT_CURRENCY_CODE, useValue: 'USD'},
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: fakebackendInterceptor, multi: true }, TransferHttp
+    ...(environment.defaultauth === 'fakebackend'
+      ? [{ provide: HTTP_INTERCEPTORS, useClass: fakebackendInterceptor, multi: true }]
+      : []),
+    TransferHttp
   ],
   bootstrap: [AppComponent]
 })

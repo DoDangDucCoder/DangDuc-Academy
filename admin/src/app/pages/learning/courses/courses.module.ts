@@ -47,9 +47,10 @@ import { CreateCourseDetailsComponent } from './create-course-details/create-cou
 import { FormatMoneyDirective } from 'src/app/directives/format-money.directive';
 import { NumberFormatPipe } from 'src/app/pipeTransform/format_current_number';
 import { EditCourseComponent } from './edit-course/edit-course.component';
+import { environment } from 'src/environments/environment';
 
 const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
-  url:'',
+  url: `${environment.urlUploadFile}upload-video-to-server/file-document`,
   maxFilesize: 100,
   maxFiles: 1,
 };

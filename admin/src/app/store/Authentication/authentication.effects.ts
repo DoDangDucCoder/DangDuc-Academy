@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { map, switchMap, catchError, exhaustMap, tap } from 'rxjs/operators';
-import { from, of } from 'rxjs';
+import { map, catchError, exhaustMap, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { AuthenticationService } from '../../core/services/auth.service';
-import { login, loginSuccess, loginFailure, logout, logoutSuccess, Register } from './authentication.actions';
+import { login, loginSuccess, loginFailure, logout, logoutSuccess, Register, RegisterFailure, RegisterSuccess } from './authentication.actions';
 import { Router } from '@angular/router';
 
 @Injectable()
@@ -14,11 +14,15 @@ export class AuthenticationEffects {
       ofType(Register),
       exhaustMap(({ email, first_name, password }) =>
         this.AuthenticationService.register(email, first_name, password).pipe(
-          map((user) => {
-            this.router.navigate(['/auth/login']);
-            return loginSuccess({ user });
+          map((response) => {
+            if (response.retCode === 0 && response.systemMessage === '') {
+              this.router.navigate(['/auth/login']);
+              return RegisterSuccess({ user: { email, name: first_name } });
+            }
+
+            return RegisterFailure({ error: response.systemMessage || 'Register failed' });
           }),
-          catchError((error) => of(loginFailure({ error })))
+          catchError((error) => of(RegisterFailure({ error: this.getErrorMessage(error, 'Register failed') })))
         )
       )
     )
@@ -29,15 +33,15 @@ export class AuthenticationEffects {
       ofType(login),
       exhaustMap(({ email, password }) =>
         this.AuthenticationService.login(email, password).pipe(
-          map((user) => {
-            if (user.status == 'success') {
-              localStorage.setItem('currentUser', JSON.stringify(user.data));
-              localStorage.setItem('token', user.token);
+          map((response) => {
+            if (response.retCode === 0 && response.systemMessage === '' && response.data) {
               this.router.navigate(['/']);
+              return loginSuccess({ user: response.data });
             }
-            return loginSuccess({ user });
+
+            return loginFailure({ error: response.systemMessage || 'Login failed' });
           }),
-          catchError((error) => of(loginFailure({ error })))
+          catchError((error) => of(loginFailure({ error: this.getErrorMessage(error, 'Login failed') })))
         )
       )
     )
@@ -58,4 +62,12 @@ export class AuthenticationEffects {
     private AuthenticationService: AuthenticationService,
     private router: Router) { }
 
+  private getErrorMessage(error: unknown, fallbackMessage: string): string {
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    const value = error as { error?: { systemMessage?: string; message?: string }; message?: string };
+    return value?.error?.systemMessage || value?.error?.message || value?.message || fallbackMessage;
+  }
 }

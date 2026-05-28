@@ -10,13 +10,15 @@ import { PageResult, RepositoryModel } from "src/app/models/models/repository_ba
 import { CouponModel } from "src/app/models/models/coupon";
 import { CouponPromotionModel } from "src/app/models/request_model/coupon-promotion";
 import { PromotionCodeModel } from "src/app/models/models/promotion-code";
+import { MessengerServices } from "./messenger.service";
 
 @Injectable({ providedIn: 'root' })
 export class StripeServices {
-    stripePromise: Promise<Stripe>
+    private stripePromise!: Promise<Stripe | null>;
 
     constructor(
-        private transferHttp: TransferHttp
+        private transferHttp: TransferHttp,
+        private messengerServices: MessengerServices
     ) {
         this.loadConfigForStripe();
     }
@@ -27,12 +29,27 @@ export class StripeServices {
 
     async goToCheckOutForStripe(model: PurchaseOrder): Promise<void> {
         const stripe = await this.stripePromise;
-        this.createCheckoutSession(model).subscribe(async (res) => {
-            if (res.systemMessage === '' && res.retCode === 0) {
-                await stripe.redirectToCheckout({
-                    sessionId: res.data.sessionId,
-                });
-            }
+        if (!stripe) {
+            this.messengerServices.errorWithIssue();
+            return;
+        }
+
+        this.createCheckoutSession(model).subscribe({
+            next: async (res) => {
+                if (res.systemMessage === '' && res.retCode === 0 && res.data?.sessionId) {
+                    const checkoutResult = await stripe.redirectToCheckout({
+                        sessionId: res.data.sessionId,
+                    });
+
+                    if (checkoutResult.error) {
+                        this.messengerServices.errorWithIssue();
+                    }
+                    return;
+                }
+
+                this.messengerServices.errorWithIssue();
+            },
+            error: () => this.messengerServices.errorWithIssue(),
         });
 
     }

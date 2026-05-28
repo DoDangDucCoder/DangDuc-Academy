@@ -6,6 +6,7 @@ using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.RequestModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -16,6 +17,7 @@ namespace HDNXUdemyAPI.Controllers
     /// </summary>
     [ApiVersion(VersionApi.Version1)]
     [Route(RouterControllerName.Promotion)]
+    [Authorize(Roles = "Admin")]
     public class PromotionOfCourseController : BaseController
     {
         private readonly IStripeServices _stripeServices;
@@ -36,7 +38,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("coupon-promotion")]
-        public async Task<RepositoryModel<bool>> CreatePromotionCoupon(CouponPromotionCode model)
+        public async Task<IActionResult> CreatePromotionCoupon(CouponPromotionCode model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -48,7 +50,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.CreateCouponForPromotion(model);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="stripeCouponId"></param>
         /// <returns></returns>
         [HttpPut("coupon-inactive/{stripeCouponId}")]
-        public async Task<RepositoryModel<bool>> DeleteCouponForPromotion(string stripeCouponId)
+        public async Task<IActionResult> DeleteCouponForPromotion(string stripeCouponId)
         {
             RepositoryModel<bool> result = new()
             {
@@ -65,11 +67,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _stripeServices.DeleteCouponForPromotion(stripeCouponId);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -79,7 +81,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="promotionCode"></param>
         /// <returns></returns>
         [HttpPost("promotion-code/{idCoupon}/{promotionCode}")]
-        public async Task<RepositoryModel<bool>> CreateStripePromotionCode(string idCoupon, string promotionCode)
+        public async Task<IActionResult> CreateStripePromotionCode(string idCoupon, string promotionCode)
         {
             RepositoryModel<bool> result = new()
             {
@@ -91,7 +93,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.CreateStripePromotionCode(idCoupon, promotionCode);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -100,7 +102,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="promotionCodeId"></param>
         /// <returns></returns>
         [HttpPost("inactive-promotion-code/{promotionCodeId}")]
-        public async Task<RepositoryModel<bool>> InactivePromotionCode(string promotionCodeId)
+        public async Task<IActionResult> InactivePromotionCode(string promotionCodeId)
         {
             RepositoryModel<bool> result = new()
             {
@@ -108,11 +110,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _stripeServices.InactivePromotionCode(promotionCodeId);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace HDNXUdemyAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("coupon-promotion-code/{pageIndex}/{pageSize}")]
-        public async Task<RepositoryModel<PagedResult<CouponModel>>> GetListCouponActiveOnSystem(int pageIndex, int pageSize)
+        public async Task<IActionResult> GetListCouponActiveOnSystem(int pageIndex, int pageSize)
         {
             RepositoryModel<PagedResult<CouponModel>> result = new()
             {
@@ -128,11 +130,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new PagedResult<CouponModel>(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _stripeServices.GetListCouponActiveOnSystem(pageIndex, pageSize);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -141,7 +143,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("coupon-promotion")]
-        public async Task<RepositoryModel<bool>> UpdatePromotionCoupon(CouponPromotionCode model)
+        public async Task<IActionResult> UpdatePromotionCoupon(CouponPromotionCode model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -149,11 +151,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new bool(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _stripeServices.UpdateCouponPromotionCode(model);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -163,7 +165,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("promotion-codes/{pageIndex}/{pageSize}")]
-        public async Task<RepositoryModel<PagedResult<PromotionCodeModel>>> GetListPromotions(int pageIndex, int pageSize)
+        public async Task<IActionResult> GetListPromotions(int pageIndex, int pageSize)
         {
             RepositoryModel<PagedResult<PromotionCodeModel>> result = new()
             {
@@ -171,11 +173,11 @@ namespace HDNXUdemyAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new PagedResult<PromotionCodeModel>(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
             result.Data = await _stripeServices.GetListPromotions(pageIndex, pageSize);
-            return result;
+            return Ok(result);
         }
     }
 }

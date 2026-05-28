@@ -6,6 +6,7 @@ using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -16,6 +17,7 @@ namespace HDNXUdemyAPI.Controllers
     /// </summary>
     [ApiVersion(VersionApi.Version1)]
     [Route(RouterControllerName.MasterData)]
+    [Authorize(Roles = "Admin")]
     public class MasterController : BaseController
     {
         private readonly IMasterDataServices _masterDataServices;
@@ -39,7 +41,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("category")]
-        public async Task<RepositoryModel<bool>> CreateCategory(CategoryModel model)
+        public async Task<IActionResult> CreateCategory(CategoryModel model)
         {
             RepositoryModel<bool> result = new()
             {
@@ -51,7 +53,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _masterDataServices.CreateCategory(model);
-            return result;
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         /// <summary>
@@ -82,7 +84,7 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("category/delete/{id}")]
-        public async Task<RepositoryModel<bool>> DeleteCategory(long id)
+        public async Task<IActionResult> DeleteCategory(long id)
         {
             RepositoryModel<bool> result = new()
             {
@@ -94,7 +96,15 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _masterDataServices.DeleteCategory(id);
-            return result;
+            if (!result.Data)
+            {
+                result.RetCode = ERetCode.NoExitData;
+                result.StatusCode = (int)HttpStatusCode.NotFound;
+                result.SystemMessage = "Category not found or could not be deleted.";
+                return NotFound(result);
+            }
+
+            return Ok(result);
         }
 
         /// <summary>

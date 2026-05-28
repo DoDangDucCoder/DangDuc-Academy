@@ -6,18 +6,17 @@ import { getFirebaseBackend } from 'src/app/authUtils';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { GlobalComponent } from "../../global-component";
+import { environment } from 'src/environments/environment';
+import { LinkSettings } from 'src/app/library/linksetting/LinkSetting';
+import { RepositoryModel } from 'src/app/models/models/repository_base';
+import { LoginRegister } from 'src/app/models/respone_model/login-register-respone';
 
 // Action
-import { login, loginSuccess, loginFailure, logout, logoutSuccess, RegisterSuccess } from '../../store/Authentication/authentication.actions';
+import { logout, logoutSuccess } from '../../store/Authentication/authentication.actions';
 
 // Firebase
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import firebase from 'firebase/compat/app';
-
-
-
-const AUTH_API = GlobalComponent.AUTH_API;
 
 const httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -25,13 +24,11 @@ const httpOptions = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-    user!: User;
-    currentUserValue: any;
-
-    private currentUserSubject: BehaviorSubject<User>;
+    private readonly defaultPhone = '0000000000';
+    private currentUserSubject: BehaviorSubject<LoginRegister | User | null>;
 
     constructor(private http: HttpClient, private store: Store, private afAuth: AngularFireAuth) {
-        this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')!));
+        this.currentUserSubject = new BehaviorSubject<LoginRegister | User | null>(this.getStoredCurrentUser());
     }
 
     // Sign in with Google provider
@@ -69,41 +66,45 @@ export class AuthenticationService {
 
 
     register(email: string, first_name: string, password: string) {
-        return this.http.post(AUTH_API + 'signup', {
+        const apiUrl = environment.baseUrl + LinkSettings.GetResLinkSetting(
+            'Authentication',
+            'RegisterUser',
+        );
+
+        return this.http.post<RepositoryModel<boolean>>(apiUrl, {
+            name: first_name,
+            phone: this.defaultPhone,
             email,
-            first_name,
             password,
         }, httpOptions).pipe(
-            map((response: any) => {
-                const user = response;
-                this.store.dispatch(RegisterSuccess({ user }));
-                return user;
-            }),
-            catchError((error: any) => {
-                const errorMessage = 'Login failed'; // Customize the error message as needed
-                this.store.dispatch(loginFailure({ error: errorMessage }));
-                return throwError(errorMessage);
-            })
+            catchError((error: any) => throwError(() => this.getErrorMessage(error, 'Register failed')))
         );
     }
 
     login(email: string, password: string) {
-        this.store.dispatch(login({ email, password }));
+        const apiUrl = environment.baseUrl + LinkSettings.GetResLinkSetting(
+            'Authentication',
+            'LoginNormalAccount',
+        );
 
-        return this.http.post(AUTH_API + 'signin', {
-            email,
-            password
-        }, httpOptions).pipe(
-            map((response: any) => {
-                const user = response;
-                this.store.dispatch(loginSuccess({ user }));
-                return user;
+        return this.http.post<RepositoryModel<LoginRegister>>(apiUrl, { email, password }, httpOptions).pipe(
+            map((response) => {
+                if (response.retCode === 0 && response.systemMessage === '' && response.data) {
+                    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
+                    localStorage.removeItem('currentUser');
+                    if (response.data.token) {
+                        sessionStorage.setItem('auth-token', response.data.token);
+                        localStorage.removeItem('token');
+                    } else {
+                        sessionStorage.removeItem('auth-token');
+                        localStorage.removeItem('token');
+                    }
+                    this.currentUserSubject.next(response.data);
+                }
+
+                return response;
             }),
-            catchError((error: any) => {
-                const errorMessage = 'Login failed'; // Customize the error message as needed
-                this.store.dispatch(loginFailure({ error: errorMessage }));
-                return throwError(errorMessage);
-            })
+            catchError((error: any) => throwError(() => this.getErrorMessage(error, 'Login failed')))
         );
     }
 
@@ -113,7 +114,9 @@ export class AuthenticationService {
 
         localStorage.removeItem('currentUser');
         localStorage.removeItem('token');
-        this.currentUserSubject.next(null!);
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('auth-token');
+        this.currentUserSubject.next(null);
         this.store.dispatch(logoutSuccess());
 
         // Return an Observable<void> indicating the successful logout
@@ -125,13 +128,37 @@ export class AuthenticationService {
     }
 
     resetPassword(email: string) {
-        return this.http.post(AUTH_API + 'reset-password', { email }, httpOptions);
+        return this.http.post(`${environment.baseUrl}auth/reset-password`, { email }, httpOptions);
     }
 
     /**
  * Returns the current user
  */
     public currentUser(): any {
-        return getFirebaseBackend()!.getAuthenticatedUser();
+        if (environment.defaultauth === 'firebase') {
+            return getFirebaseBackend()?.getAuthenticatedUser();
+        }
+
+        return this.currentUserSubject.value ?? this.getStoredCurrentUser();
+    }
+
+    private getStoredCurrentUser(): LoginRegister | User | null {
+        const currentUser = sessionStorage.getItem('currentUser') ?? localStorage.getItem('currentUser');
+
+        if (!currentUser) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(currentUser) as LoginRegister;
+        } catch {
+            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentUser');
+            return null;
+        }
+    }
+
+    private getErrorMessage(error: any, fallbackMessage: string): string {
+        return error?.error?.systemMessage || error?.error?.message || error?.message || fallbackMessage;
     }
 }

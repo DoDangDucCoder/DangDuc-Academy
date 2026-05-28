@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   baseUrl: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://localhost:44319
-  urlUploadFile: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://localhost:44349
+  urlUploadFile: 'http://localhost:5148/api/v1/',  // Thay đổi từ https://localhost:44349
   clientIdGoogle: '458553878162-a7m0q6jreoirc837m3dp06mtmv5t5cu7.apps.googleusercontent.com',
   facebookId: '727016849494944',
   baseUrlHub: 'http://localhost:5194/',  // Thay đổi từ https://localhost:44319

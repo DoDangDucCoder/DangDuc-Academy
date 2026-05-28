@@ -66,7 +66,7 @@
                     <div class="col-md-auto">
                         <div class="hstack gap-2">
                             <button class="btn btn-subtle-danger d-none" id="remove-actions" (click)="deleteRecordModal.show()"><i class="ri-delete-bin-2-line"></i></button>
-                            <a routerLink="/invoices/create" class="btn btn-secondary"><i class="bi bi-plus-circle align-baseline me-1"></i> Add Purchase</a>
+                            <button type="button" class="btn btn-secondary" disabled><i class="bi bi-plus-circle align-baseline me-1"></i> Add Purchase</button>
                         </div>
                     </div><!--end col-->
                 </div><!--end row-->
@@ -102,8 +102,8 @@
                                 </td>
                                 <td class="customer_name">{{data?.user?.name}}</td>
                                 <td class="email">{{data?.user?.email}}</td>
-                                <td class="create_date">{{data?.createDate | date :'yyyy-mm-dd hh:mm:ss'}}</td>
-                                <td class="due_date">{{data?.purchaseDate | date :'yyyy-mm-dd hh:mm:ss'}}</td>
+                                <td class="create_date">{{data?.createDate | date :'yyyy-MM-dd HH:mm:ss'}}</td>
+                                <td class="due_date">{{data?.purchaseDate | date :'yyyy-MM-dd HH:mm:ss'}}</td>
                                 <td class="amount">{{data?.totalPrice | currency }}</td>
                                 <td class="status"><span class="badge"
                                         [ngClass]="{'bg-success-subtle text-success':data.nameStatus == 'Payment','bg-danger-subtle text-danger':data.nameStatus === 'Reject','bg-warning-subtle text-warning':data.nameStatus ==='Pending-Payment' || data.nameStatus === 'Request'}">{{data.nameStatus}}</span>
@@ -111,9 +111,9 @@
                                 <td>
                                     <ul class="d-flex gap-2 list-unstyled mb-0">
                                         <li><a tooltip="Xem" href="javascript:void(0);" class="btn btn-subtle-primary btn-icon btn-sm" routerLink="/purchase-order/purchase-order-review/{{data?.id}}" data-view-id="24301901"><i class="ph-eye"></i></a> </li>
-                                        <li><a tooltip="Sửa" href="javascript:void(0);" class="btn btn-subtle-warning btn-icon btn-sm" routerLink="/invoices/create" data-edit-id="24301901"><i class="ph-pencil"></i></a> </li>
+                                        <li><button tooltip="Sửa" type="button" class="btn btn-subtle-warning btn-icon btn-sm" disabled><i class="ph-pencil"></i></button> </li>
                                         <li><a tooltip="Gửi email thông tin" href="javascript:void(0);" class="btn btn-subtle-dark btn-icon btn-sm"><i class="ph ph-paper-plane-right"></i></a> </li>
-                                        <li [hidden]="(data.nameStatus == 'Payment')"><a tooltip="Hoàn thành đơn hàng" href="javascript:void(0);" class="btn btn-subtle-info btn-icon btn-sm"><i class="ph ph-check-circle"></i></a> </li>
+                                        <li [hidden]="(data.nameStatus == 'Payment')"><a tooltip="Hoàn thành đơn hàng" href="javascript:void(0);" (click)="confirmOrder(data)" class="btn btn-subtle-info btn-icon btn-sm"><i class="ph ph-check-circle"></i></a> </li>
                                         <li><a tooltip="Xoá đơn hàng" href="javascript:void(0);" (click)="removeItem(data.id)" class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn"><i class="ph-trash"></i></a> </li>
                                     </ul>
                                 </td>

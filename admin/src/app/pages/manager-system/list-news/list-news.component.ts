@@ -24,11 +24,11 @@ export class ListNewsComponent {
   breadCrumbItems!: Array<{}>;
   productForm!: UntypedFormGroup;
   submitted = false;
-  products: any;
+  products: any[] = [];
   masterSelected!: boolean;
   endItem: any
   // Table data
-  allproducts: any;
+  allproducts: any[] = [];
 
   files: File[] = [];
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
@@ -49,20 +49,7 @@ export class ListNewsComponent {
       { label: 'Products', active: true }
     ];
 
-    // Fetch Data
-    this.store.dispatch(fetchproductsList());
-    this.store.select(selectDataLoading).subscribe((data) => {
-      if (data == false) {
-        document.getElementById('elmLoader')?.classList.add('d-none');
-      }
-    });
-    this.store.select(selectData).subscribe((data) => {
-      this.products = data;
-      this.allproducts = data;
-      // setTimeout(() => {
-        this.products = cloneDeep(this.allproducts.slice(0, 10));
-      // }, 100);
-    })
+    document.getElementById('elmLoader')?.classList.add('d-none');
     
 
     /**
@@ -88,7 +75,7 @@ export class ListNewsComponent {
     } else {
       this.direction = 'asc';
     }
-    const sortedArray = [...this.products]; // Create a new array
+    const sortedArray = [...(this.products ?? [])]; // Create a new array
     sortedArray.sort((a, b) => {
       const res = this.compare(a[column], b[column]);
       return this.direction === 'asc' ? res : -res;
@@ -101,11 +88,7 @@ export class ListNewsComponent {
 
 
   // dropzone
-  public dropzoneConfig: DropzoneConfigInterface = {
-    clickable: true,
-    addRemoveLinks: true,
-    previewsContainer: false,
-  };
+  public dropzoneConfig: DropzoneConfigInterface = {};
 
   uploadedFiles: any[] = [];
 
@@ -127,9 +110,9 @@ export class ListNewsComponent {
   editList(id: any) {
     this.showModal?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Product'
+    modaltitle .textContent = 'Edit Product'
     var modal = document.getElementById('add-btn') as HTMLAreaElement
-    modal.innerHTML = 'Update'
+    modal .textContent = 'Update'
 
     var editData = this.products[id]
     this.uploadedFiles.push({ 'dataURL': editData.img, 'name': editData.img_alt, 'size': 1024, });

@@ -239,9 +239,9 @@ export class SellerOverviewComponent {
   editList(id: any) {
     this.showModal?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Product'
+    modaltitle .textContent = 'Edit Product'
     var modalbtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalbtn.innerHTML = 'Update'
+    modalbtn .textContent = 'Update'
     this.editseller = this.sellerlist[id]
     this.uploadedFiles.push({ 'dataURL': this.editseller.img, 'name': 'image', 'size': 1024, });
     this.overviewForm.patchValue(this.sellerlist[id]);

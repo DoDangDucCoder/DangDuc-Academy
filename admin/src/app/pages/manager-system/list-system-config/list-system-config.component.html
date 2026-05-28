@@ -83,7 +83,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Product Images</label>
-                        <dropzone class="dropzone" [config]="dropzoneConfig" [message]="'Drop files here or click to upload.'" (success)="onUploadSuccess($event)"></dropzone>
+                        <div class="alert alert-info mb-0">Upload chưa được cấu hình cho màn hình cấu hình hệ thống.</div>
 
                         @if (uploadedFiles) {
                         <ul class="list-unstyled mb-0" id="dropzone-preview">

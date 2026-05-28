@@ -23,8 +23,11 @@ namespace HDNXUdemyData.EntitiesContext
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(ProjectConfig.ConnectionString ?? "", builder => builder.UseNodaTime());
-            optionsBuilder.EnableSensitiveDataLogging();
-            optionsBuilder.EnableDetailedErrors();
+
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                optionsBuilder.EnableDetailedErrors();
+            }
         }
 
         public virtual DbSet<NotificationEntities>? Notifications { get; set; }
@@ -75,6 +78,37 @@ namespace HDNXUdemyData.EntitiesContext
             modelBuilder.Entity<DetailTheadQuestionCourseEntities>().ToTable("DetailTheadQuestionCourses").HasKey(x => x.Id);
             modelBuilder.Entity<CouponEntities>().ToTable("Coupons").HasKey(x => x.Id);
             modelBuilder.Entity<PromotionCodeEntities>().ToTable("PromotionCodes").HasKey(x => x.Id);
+            modelBuilder.Entity<UserEntities>().HasIndex(x => x.Email).IsUnique();
+            modelBuilder.Entity<PurcharseCourseEntities>().HasIndex(x => x.PurcharseCode).IsUnique();
+            modelBuilder.Entity<CouponEntities>().HasIndex(x => x.StripeCouponId).IsUnique();
+            modelBuilder.Entity<PromotionCodeEntities>().HasIndex(x => x.StripePromotionCodeId).IsUnique();
+            modelBuilder.Entity<BookmarkCourseEntities>().HasIndex(x => new { x.IdStudent, x.IdCourse }).IsUnique();
+            modelBuilder.Entity<CourseEvaluationEntities>().HasIndex(x => new { x.IdStudent, x.IdCourse }).IsUnique();
+            modelBuilder.Entity<CourseEntities>().ToTable(t => t.HasCheckConstraint("CK_Courses_Prices_NonNegative", "\"PriceOfCourse\" >= 0 AND \"PriceOfDiscount\" >= 0"));
+            modelBuilder.Entity<PurcharseCourseEntities>().ToTable(t => t.HasCheckConstraint("CK_PurcharseCourses_Amounts_NonNegative", "\"TotalPrice\" >= 0 AND \"DiscountAmount\" >= 0"));
+            modelBuilder.Entity<PurcharseCourseDetailsEntities>().ToTable(t => t.HasCheckConstraint("CK_PurcharseCourseDetails_Prices_NonNegative", "\"PriceOfCourse\" >= 0 AND \"PriceOfDiscount\" >= 0"));
+            modelBuilder.Entity<BookmarkCourseEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<BookmarkCourseEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ContentCourseEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ContentCourseDetailEntities>().HasOne<ContentCourseEntities>().WithMany().HasForeignKey(x => x.IdContent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CourseEntities>().HasOne<CategoryEntities>().WithMany().HasForeignKey(x => x.IdCategory).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CourseEvaluationEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CourseEvaluationEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<DetailTheadQuestionCourseEntities>().HasOne<TheadQuestionCourseEntities>().WithMany().HasForeignKey(x => x.IdTheadQuestionCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<DetailTheadQuestionCourseEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<NotificationEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<NotificationEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<PurcharseCourseEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<PurcharseCourseDetailsEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<PurcharseCourseDetailsEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<PurcharseCourseDetailsEntities>().HasOne<PurcharseCourseEntities>().WithMany().HasForeignKey(x => x.IdPurchaseOrder).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<StudentProcessEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<StudentPromotionEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<StudentPromotionEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<StudentPromotionEntities>().HasOne<PromotionCodeEntities>().WithMany().HasForeignKey(x => x.IdPromotion).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SubCategoryEntities>().HasOne<CategoryEntities>().WithMany().HasForeignKey(x => x.IdCategory).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TheadQuestionCourseEntities>().HasOne<UserEntities>().WithMany().HasForeignKey(x => x.IdStudent).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TheadQuestionCourseEntities>().HasOne<CourseEntities>().WithMany().HasForeignKey(x => x.IdCourse).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.SeedDataDefault();
         }
 

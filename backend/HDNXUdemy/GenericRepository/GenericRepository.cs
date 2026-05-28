@@ -60,7 +60,7 @@ namespace HDNXUdemyData.GenericRepository
 
         public async Task<T> GetObjectAsync(Expression<Func<T, bool>> expression)
         {
-            return await _projectContext.Set<T>().Where(expression).FirstOrDefaultAsync();
+            return (await _projectContext.Set<T>().Where(expression).FirstOrDefaultAsync())!;
         }
 
         private bool Insert(T pObj)
@@ -229,7 +229,6 @@ namespace HDNXUdemyData.GenericRepository
 
         private bool BulkInsertData(List<T> pObjInsertList)
         {
-            bool isOk = false;
             try
             {
                 LocalDateTime timeUpdate = LocalDateTime.FromDateTime(DateTime.UtcNow);
@@ -239,7 +238,7 @@ namespace HDNXUdemyData.GenericRepository
                     p.UpdateDate = timeUpdate;
                 });
                 _projectContext.BulkInsert(pObjInsertList);
-                return isOk;
+                return true;
             }
             catch (Exception ex)
             {
@@ -249,7 +248,6 @@ namespace HDNXUdemyData.GenericRepository
 
         private async Task<bool> BulkInsertDataAsync(List<T> pObjInsertList)
         {
-            bool isOk = false;
             try
             {
                 LocalDateTime timeUpdate = LocalDateTime.FromDateTime(DateTime.UtcNow);
@@ -259,7 +257,7 @@ namespace HDNXUdemyData.GenericRepository
                     p.UpdateDate = timeUpdate;
                 });
                 await _projectContext.BulkInsertAsync(pObjInsertList);
-                return isOk;
+                return true;
             }
             catch (Exception ex)
             {

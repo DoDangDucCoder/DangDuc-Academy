@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="coursePlaceholderBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#374151" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="36" fill="url(#coursePlaceholderBg)" />
+  <rect x="72" y="84" width="190" height="38" rx="19" fill="#93c5fd" opacity="0.18" />
+  <text x="72" y="111" fill="#bfdbfe" font-family="Arial, sans-serif" font-size="22" font-weight="700">
+    Course Preview
+  </text>
+  <text x="72" y="214" fill="#f9fafb" font-family="Arial, sans-serif" font-size="54" font-weight="700">
+    HDNX Demo Course
+  </text>
+  <text x="72" y="280" fill="#d1d5db" font-family="Arial, sans-serif" font-size="28">
+    Image unavailable, using local fallback
+  </text>
+  <path d="M586 120l112 64v82l-112 64-112-64v-82z" fill="#60a5fa" opacity="0.35" />
+  <path d="M586 148l64 36-64 36-64-36z" fill="#e0f2fe" opacity="0.95" />
+</svg>

@@ -13,7 +13,7 @@ export class AccountProfileCoursesComponent implements OnInit {
 
   value: string = '100%';
   courses: Course[] = [];
-  user: LoginRegister;
+  user: LoginRegister | null = null;
   constructor(
     private readonly studentServices: StudentServices,
   ) { }
@@ -26,7 +26,9 @@ export class AccountProfileCoursesComponent implements OnInit {
   getDataCourseStudent() {
     this.studentServices.getDataCourseOfStudent().subscribe((res) => {
       if (res.retCode === 0 && res.systemMessage === '') {
-        this.courses = res.data;
+        this.courses = res.data ?? [];
+      } else {
+        this.courses = [];
       }
     });
   }

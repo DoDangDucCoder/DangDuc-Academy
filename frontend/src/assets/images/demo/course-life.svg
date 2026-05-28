@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="lifeBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c2d12" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="36" fill="url(#lifeBg)" />
+  <rect x="74" y="82" width="178" height="40" rx="20" fill="#fdba74" opacity="0.28" />
+  <text x="74" y="111" fill="#ffedd5" font-family="Arial, sans-serif" font-size="22" font-weight="700">
+    Soft Skills
+  </text>
+  <text x="72" y="212" fill="#fff7ed" font-family="Arial, sans-serif" font-size="52" font-weight="700">
+    Work Smarter Daily
+  </text>
+  <text x="72" y="272" fill="#ffedd5" font-family="Arial, sans-serif" font-size="28">
+    Planning, focus, communication
+  </text>
+  <path d="M610 116l58 58-112 112-58-58z" fill="#fdba74" opacity="0.4" />
+  <path d="M640 250l82 82" fill="none" stroke="#fff7ed" stroke-width="18" stroke-linecap="round" opacity="0.55" />
+  <text x="72" y="360" fill="#fff7ed" font-family="Arial, sans-serif" font-size="24">
+    Local sample to verify catalog pages
+  </text>
+</svg>

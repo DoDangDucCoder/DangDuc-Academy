@@ -1,10 +1,13 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.RequestModel;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
 
 namespace HDNXUdemyConvertVideoAPI.Controllers
@@ -29,11 +32,11 @@ namespace HDNXUdemyConvertVideoAPI.Controllers
         /// <summary>
         /// LoginNormalAccount
         /// </summary>
-        /// <param name="email"></param>
-        /// <param name="password"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("login")]
-        public async Task<RepositoryModel<ResponeLogin>> LoginNormalAccount(string email, string password)
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginNormalAccount([FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] LoginNormalUserRequest? request)
         {
             RepositoryModel<ResponeLogin> result = new()
             {
@@ -41,32 +44,71 @@ namespace HDNXUdemyConvertVideoAPI.Controllers
                 RetCode = ERetCode.Successfull,
                 Data = new ResponeLogin(),
                 SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                StatusCode = (int)HttpStatusCode.OK
             };
 
-            result.Data = await _authenticationServices.LoginNormalAccount(email, password, HttpContext);
-            return result;
+            if (Request.Query.ContainsKey("email") || Request.Query.ContainsKey("password"))
+            {
+                result.PartnerCode = InterCode.ErrorMiddleware;
+                result.RetCode = ERetCode.BadRequest;
+                result.SystemMessage = "Query-string login is disabled. Use POST /api/v1/authentication/login with a JSON body.";
+                result.StatusCode = (int)HttpStatusCode.BadRequest;
+                return BadRequest(result);
+            }
+
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                result.PartnerCode = InterCode.ErrorMiddleware;
+                result.RetCode = ERetCode.BadRequest;
+                result.SystemMessage = "Email and password are required.";
+                result.StatusCode = (int)HttpStatusCode.BadRequest;
+                return BadRequest(result);
+            }
+
+            result.Data = await _authenticationServices.LoginNormalAccount(request.Email ?? string.Empty, request.Password ?? string.Empty, HttpContext);
+            return Ok(result);
         }
 
         /// <summary>
-        /// GeneralToken
+        /// Legacy query-string login is disabled because it exposes passwords in URLs.
+        /// </summary>
+        [HttpPost("login-legacy")]
+        [AllowAnonymous]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult LoginNormalAccountLegacy([FromQuery] string? email, [FromQuery] string? password)
+        {
+            RepositoryModel<bool> result = new()
+            {
+                PartnerCode = InterCode.ErrorMiddleware,
+                RetCode = ERetCode.BadRequest,
+                Data = false,
+                SystemMessage = "Query-string login is disabled. Use POST /api/v1/authentication/login with a JSON body.",
+                StatusCode = (int)HttpStatusCode.BadRequest
+            };
+
+            return BadRequest(result);
+        }
+
+        /// <summary>
+        /// Disabled legacy upload token minting endpoint.
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
         [HttpPost("general-token/{email}")]
-        public async Task<RepositoryModel<ResponeLogin>> GeneralToken(string email)
+        [Authorize(Roles = "Admin")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult GeneralToken(string email)
         {
-            RepositoryModel<ResponeLogin> result = new()
+            RepositoryModel<bool> result = new()
             {
-                PartnerCode = Messenger.SuccessFull,
-                RetCode = ERetCode.Successfull,
-                Data = new ResponeLogin(),
-                SystemMessage = string.Empty,
-                StatusCode = (int)HttpStatusCode.Created
+                PartnerCode = InterCode.ErrorMiddleware,
+                RetCode = ERetCode.BadRequest,
+                Data = false,
+                SystemMessage = "General token minting is disabled. Use scoped upload credentials instead of user JWTs.",
+                StatusCode = (int)HttpStatusCode.BadRequest
             };
 
-            result.Data = await _authenticationServices.GeneralToken(email, HttpContext);
-            return result;
+            return BadRequest(result);
         }
     }
 }

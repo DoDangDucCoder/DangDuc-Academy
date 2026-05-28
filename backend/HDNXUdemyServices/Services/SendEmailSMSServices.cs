@@ -28,13 +28,14 @@ namespace HDNXUdemyServices.Services
         {
             try
             {
+                var (senderEmail, hostName) = GetEmailConfiguration();
                 var refreshToken = new TokenResponse { RefreshToken = ProjectConfig.RefreshToken };
                 UserCredential getUserCredential = new UserCredential(
                     new GoogleAuthorizationCodeFlow(
                                 new GoogleAuthorizationCodeFlow.Initializer
                                 {
                                     ClientSecrets = _clientSecretsGmailOAuth,
-                                }), ProjectConfig.SenderEmail, refreshToken);
+                                }), senderEmail, refreshToken);
 
                 if (getUserCredential.Token.IsStale)
                 {
@@ -47,7 +48,7 @@ namespace HDNXUdemyServices.Services
                     {
                         var emailConfig = new MimeMessage
                         {
-                            Sender = MailboxAddress.Parse(ProjectConfig.SenderEmail),
+                            Sender = MailboxAddress.Parse(senderEmail),
                             Subject = subjectEmail,
                         };
 
@@ -55,8 +56,8 @@ namespace HDNXUdemyServices.Services
                         emailConfig.To.Add(MailboxAddress.Parse(toEmail));
                         emailConfig.Body = builderBody.ToMessageBody();
                         using var smtpClient = new SmtpClient();
-                        await smtpClient.ConnectAsync(ProjectConfig.HostName, ProjectConfig.Port, SecureSocketOptions.StartTls);
-                        var oauth2 = new SaslMechanismOAuth2(ProjectConfig.SenderEmail, getUserCredential.Token.AccessToken);
+                        await smtpClient.ConnectAsync(hostName, ProjectConfig.Port, SecureSocketOptions.StartTls);
+                        var oauth2 = new SaslMechanismOAuth2(senderEmail, getUserCredential.Token.AccessToken);
                         await smtpClient.AuthenticateAsync(oauth2);
                         await smtpClient.SendAsync(emailConfig);
                         await smtpClient.DisconnectAsync(true);
@@ -74,13 +75,14 @@ namespace HDNXUdemyServices.Services
         {
             try
             {
+                var (senderEmail, hostName) = GetEmailConfiguration();
                 var refreshToken = new TokenResponse { RefreshToken = ProjectConfig.RefreshToken };
                 UserCredential getUserCredential = new UserCredential(
                     new GoogleAuthorizationCodeFlow(
                                 new GoogleAuthorizationCodeFlow.Initializer
                                 {
                                     ClientSecrets = _clientSecretsGmailOAuth
-                                }), ProjectConfig.SenderEmail, refreshToken);
+                                }), senderEmail, refreshToken);
                 if (getUserCredential.Token.IsStale)
                 {
                     bool isRefreshEmailToken = await getUserCredential.RefreshTokenAsync(CancellationToken.None);
@@ -92,14 +94,14 @@ namespace HDNXUdemyServices.Services
                     {
                         var emailConfig = new MimeMessage
                         {
-                            Sender = MailboxAddress.Parse(ProjectConfig.SenderEmail),
+                            Sender = MailboxAddress.Parse(senderEmail),
                             Subject = subjectEmail,
                         };
 
                         var resultData = new List<InternetAddress>();
                         for (int i = 0; i < toEmail.Count; i++)
                         {
-                            var resultDataFor = MailboxAddress.Parse(toEmail[0]);
+                            var resultDataFor = MailboxAddress.Parse(toEmail[i]);
                             resultData.Add(resultDataFor);
                         }
 
@@ -107,8 +109,8 @@ namespace HDNXUdemyServices.Services
                         emailConfig.To.AddRange(resultData);
                         emailConfig.Body = builderBody.ToMessageBody();
                         using var smtpClient = new SmtpClient();
-                        await smtpClient.ConnectAsync(ProjectConfig.HostName, ProjectConfig.Port, SecureSocketOptions.StartTls);
-                        var oauth2 = new SaslMechanismOAuth2(ProjectConfig.SenderEmail, getUserCredential.Token.AccessToken);
+                        await smtpClient.ConnectAsync(hostName, ProjectConfig.Port, SecureSocketOptions.StartTls);
+                        var oauth2 = new SaslMechanismOAuth2(senderEmail, getUserCredential.Token.AccessToken);
                         smtpClient.Authenticate(oauth2);
                         await smtpClient.SendAsync(emailConfig);
                         await smtpClient.DisconnectAsync(true);
@@ -120,6 +122,21 @@ namespace HDNXUdemyServices.Services
             {
                 throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
             }
+        }
+
+        private static (string SenderEmail, string HostName) GetEmailConfiguration()
+        {
+            if (string.IsNullOrWhiteSpace(ProjectConfig.SenderEmail))
+            {
+                throw new ProjectException(nameof(ProjectConfig.SenderEmail));
+            }
+
+            if (string.IsNullOrWhiteSpace(ProjectConfig.HostName))
+            {
+                throw new ProjectException(nameof(ProjectConfig.HostName));
+            }
+
+            return (ProjectConfig.SenderEmail, ProjectConfig.HostName);
         }
     }
 }

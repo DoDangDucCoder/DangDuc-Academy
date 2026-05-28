@@ -34,7 +34,15 @@ export class ListPromotionsComponent {
   submitted = false;
   masterSelected!: boolean;
   supportList: any;
-  promotions: PageResult<PromotionCodeModel[]>;
+  promotions: PageResult<PromotionCodeModel[]> = {
+    currentPage: 1,
+    pageCount: 0,
+    pageSize: 10,
+    rowCount: 0,
+    firstRowOnPage: 0,
+    lastRowOnPage: 0,
+    results: []
+  };
   // assigndata: any
   assignList: any;
   term: any
@@ -44,7 +52,15 @@ export class ListPromotionsComponent {
   editData: any;
   alltickets: any;
   isLoading = false;
-  coupons: PageResult<CouponModel[]>;
+  coupons: PageResult<CouponModel[]> = {
+    currentPage: 1,
+    pageCount: 0,
+    pageSize: 10,
+    rowCount: 0,
+    firstRowOnPage: 0,
+    lastRowOnPage: 0,
+    results: []
+  };
 
   constructor(
     private formBuilder: UntypedFormBuilder, 
@@ -75,18 +91,22 @@ export class ListPromotionsComponent {
     });
     this.assignList = assignesTickets
     this.loadDataOfPromotion(1, 10);
+    this.loadDataOfCoupon(1, 100);
   }
 
   // Edit Data
   editList(id: any) {
     this.addPromotion?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Promotion Code'
+    modaltitle .textContent = 'Edit Promotion Code'
     var modalBtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalBtn.innerHTML = 'Update';
-    this.editData = this.promotions[id];
-    this.assignto = this.editData.assignedto;
-    this.listForm.patchValue(this.promotions[id]);
+    modalBtn .textContent = 'Update';
+    this.editData = this.promotions.results?.[id];
+    if (!this.editData) {
+      return;
+    }
+    this.assignto = this.editData.assignedto ?? [];
+    this.listForm.patchValue(this.editData);
   }
 
   // Add Assigne
@@ -153,7 +173,7 @@ export class ListPromotionsComponent {
     } else {
       this.direction = 'asc';
     }
-    const sortedArray = [...this.promotions.results]; // Create a new array
+    const sortedArray = [...(this.promotions.results ?? [])]; // Create a new array
     sortedArray.sort((a, b) => {
       const res = this.compare(a[column], b[column]);
       return this.direction === 'asc' ? res : -res;
@@ -168,9 +188,10 @@ export class ListPromotionsComponent {
   // filterdata
   filterdata() {
     if (this.term) {
-      this.promotions = this.alltickets.filter((es: any) => es.ticketTitle.toLowerCase().includes(this.term.toLowerCase()))
+      const source = this.alltickets?.results ?? this.promotions.results ?? [];
+      this.promotions = { ...this.promotions, results: source.filter((es: any) => `${es.stripePromotionCodeId ?? ''}`.toLowerCase().includes(this.term.toLowerCase())) };
     } else {
-      this.promotions = this.alltickets.slice(0, 10);
+      this.promotions = this.alltickets ?? this.promotions;
     }
     // noResultElement
     this.updateNoResultDisplay();
@@ -181,7 +202,7 @@ export class ListPromotionsComponent {
     const noResultElement = document.querySelector('.noresult') as HTMLElement;
     const paginationElement = document.getElementById('pagination-element') as HTMLElement;
 
-    if (this.term && this.promotions.results.length === 0) {
+    if (this.term && (this.promotions.results?.length ?? 0) === 0) {
       noResultElement.classList.remove('d-none')
       paginationElement.classList.add('d-none')
 
@@ -195,30 +216,40 @@ export class ListPromotionsComponent {
   pageChanged(event: PageChangedEvent): void {
     const startItem = (event.page - 1) * event.itemsPerPage;
     this.endItem = event.page * event.itemsPerPage;
-    this.promotions = this.alltickets.slice(startItem, this.endItem);
+    const source = this.alltickets?.results ?? [];
+    this.promotions = { ...this.promotions, results: source.slice(startItem, this.endItem) };
   }
 
   loadDataOfPromotion(pageIndex: number, pageSize: number) {
     this.isLoading = true;
     this.stripeServices.getListPromotions(pageIndex, pageSize).subscribe((res) => {
-      if (res.systemMessage === '' && res.retCode === 0) {
+      if (res.systemMessage === '' && res.retCode === 0 && res.data) {
         this.isLoading = false;
-        this.promotions = res.data;
+        this.promotions = { ...this.promotions, ...res.data, results: res.data.results ?? [] };
+        this.alltickets = this.promotions;
       } else {
         this.isLoading = false;
+        this.promotions = { ...this.promotions, results: [] };
       }
+    }, () => {
+      this.isLoading = false;
+      this.promotions = { ...this.promotions, results: [] };
     });
   }
 
   loadDataOfCoupon(pageIndex: number, pageSize: number) {
     this.isLoading = true;
     this.stripeServices.getListCouponAndPromotion(pageIndex, pageSize).subscribe((res) => {
-      if (res.systemMessage === '' && res.retCode === 0) {
+      if (res.systemMessage === '' && res.retCode === 0 && res.data) {
         this.isLoading = false;
-        this.coupons = res.data;
+        this.coupons = { ...this.coupons, ...res.data, results: res.data.results ?? [] };
       } else {
         this.isLoading = false;
+        this.coupons = { ...this.coupons, results: [] };
       }
+    }, () => {
+      this.isLoading = false;
+      this.coupons = { ...this.coupons, results: [] };
     });
   }
 }

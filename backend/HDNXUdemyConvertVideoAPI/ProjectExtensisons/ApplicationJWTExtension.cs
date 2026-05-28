@@ -16,7 +16,13 @@ namespace HDNXUdemyConvertVideoAPI.ProjectExtensisons
         /// <param name="services"></param>
         public static void CustomerApplicationJWTExtension(this IServiceCollection services)
         {
-            var key = Encoding.ASCII.GetBytes("AudioStoryAPI_20231028");
+            var secret = ProjectConfig.Secret ?? string.Empty;
+            if (Encoding.ASCII.GetByteCount(secret) < 32)
+            {
+                throw new InvalidOperationException("JWT secret must be at least 256 bits.");
+            }
+
+            var key = Encoding.ASCII.GetBytes(secret);
 
             services.AddAuthentication(a =>
             {
@@ -24,14 +30,16 @@ namespace HDNXUdemyConvertVideoAPI.ProjectExtensisons
                 a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(a =>
             {
-                a.RequireHttpsMetadata = false;
-                a.SaveToken = true;
+                a.RequireHttpsMetadata = true;
+                a.SaveToken = false;
                 a.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(2),
                 };
             }).AddCookie(c =>
             {

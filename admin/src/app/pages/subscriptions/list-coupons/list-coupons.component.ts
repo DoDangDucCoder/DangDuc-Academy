@@ -76,9 +76,9 @@ export class ListCouponsComponent {
   editList(id: any) {
     this.addCoupon?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Value Of Coupon'
+    modaltitle .textContent = 'Edit Value Of Coupon'
     var modal = document.getElementById('add-btn') as HTMLAreaElement
-    modal.innerHTML = 'Update';
+    modal .textContent = 'Update';
     this.editData = this.coupons.results[id];
     this.listCouponForm.patchValue(this.coupons.results[id]);
 
@@ -91,9 +91,9 @@ export class ListCouponsComponent {
   addNewCoupon() {
     this.addCoupon?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Add Value Of Coupon'
+    modaltitle .textContent = 'Add Value Of Coupon'
     var modal = document.getElementById('add-btn') as HTMLAreaElement
-    modal.innerHTML = 'Add Coupon';
+    modal .textContent = 'Add Coupon';
     this.listCouponForm.reset();
   }
 

@@ -331,9 +331,9 @@ export class ListStudentComponent implements OnInit {
     this.uploadedFiles = [];
     this.addInstructor?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement;
-    modaltitle.innerHTML = 'Edit Product';
+    modaltitle .textContent = 'Edit Product';
     var modal = document.getElementById('add-btn') as HTMLAreaElement;
-    modal.innerHTML = 'Update';
+    modal .textContent = 'Update';
 
     this.editData = this.instructors[id];
 
@@ -507,7 +507,7 @@ export class ListStudentComponent implements OnInit {
   loadDataStudent() {
     this.isLoading = true;
     this.studentServices.getStudents().subscribe((res) => {
-      if (res.retCode === 0 || res.systemMessage === '') {
+      if (res.retCode === 0 && res.systemMessage === '') {
         this.students = res.data;
         console.log(this.students);
         this.listStudent = res.data;

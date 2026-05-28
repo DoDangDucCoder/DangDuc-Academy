@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
-import { AuthfakeauthenticationService } from 'src/app/core/services/authfake.service';
 import { login } from 'src/app/store/Authentication/authentication.actions';
 
 @Component({
@@ -32,18 +31,19 @@ export class LoginComponent {
   constructor(private formBuilder: UntypedFormBuilder,
     private router: Router,
     private store: Store,
+    private authenticationService: AuthenticationService,
 ) { }
 
   ngOnInit(): void {
-    if (localStorage.getItem('currentUser')) {
+    if (this.authenticationService.currentUser()) {
       this.router.navigate(['/']);
     }
     /**
      * Form Validatyion
      */
     this.loginForm = this.formBuilder.group({
-      email: ['admin@themesbrand.com', [Validators.required, Validators.email]],
-      password: ['123456', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
     });
   }
 
@@ -55,6 +55,10 @@ export class LoginComponent {
    */
   onSubmit() {
     this.submitted = true;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
 
     const email = this.f['email'].value; // Get the username from the form
     const password = this.f['password'].value; // Get the password from the form

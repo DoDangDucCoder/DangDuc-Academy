@@ -15,7 +15,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using System.Net.Mail;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace HDNXUdemyServices.Services
 {
@@ -97,12 +99,21 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> RegisterNormalUser(string email, string password, string name, string phone)
         {
+            ValidateRegistration(email, password, name, phone);
+
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+            var existingUser = await _userRepository.GetObjectAsync(x => x.Email != null && x.Email.ToLower() == normalizedEmail);
+            if (existingUser != null)
+            {
+                throw new ProjectConflictException("Email already exists.");
+            }
+
             var dataInsert = new UserEntities()
             {
-                Email = email,
-                Password = password,
-                Name = name,
-                Phone = phone,
+                Email = normalizedEmail,
+                Password = PasswordHasher.Hash(password),
+                Name = name.Trim(),
+                Phone = phone.Trim(),
                 RoleId = (int)ERoles.Student,
                 TypeLogin = (int)ETypeLogin.Email,
             };
@@ -117,10 +128,22 @@ namespace HDNXUdemyServices.Services
 
         public async Task<ResponeLogin> LoginNormalAccount(string email, string password, HttpContext httpContext)
         {
-            var getData = await _userRepository.GetObjectAsync(x => x.Email == email && x.Password == password);
-            var returnData = new ResponeLogin();
-            if (getData != null)
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
+                throw new ProjectBadRequestException("Email and password are required.");
+            }
+
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+            var getData = await _userRepository.GetObjectAsync(x => x.Email != null && x.Email.ToLower() == normalizedEmail);
+            var returnData = new ResponeLogin();
+            if (getData != null && PasswordHasher.Verify(password, getData.Password))
+            {
+                if (!PasswordHasher.IsHashed(getData.Password))
+                {
+                    getData.Password = PasswordHasher.Hash(password);
+                    await _userRepository.UpdateAsync(getData);
+                }
+
                 returnData = await ConvertDataForLogin(getData, getData.Email ?? string.Empty,
                     getData.PictureUrl ?? string.Empty, getData.Name ?? string.Empty, ETypeLogin.Email, httpContext);
             }
@@ -129,6 +152,32 @@ namespace HDNXUdemyServices.Services
                 throw new ProjectBadRequestException(InternalCodeMessenger.NotFoundValue);
             }
             return returnData;
+        }
+
+        private static void ValidateRegistration(string email, string password, string name, string phone)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(phone) ||
+                string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                throw new ProjectBadRequestException("Name, phone, email, and password are required.");
+            }
+
+            try
+            {
+                _ = new MailAddress(email);
+            }
+            catch
+            {
+                throw new ProjectBadRequestException("Invalid email format.");
+            }
+
+            if (password.Length < 8 ||
+                !Regex.IsMatch(password, "[A-Z]") ||
+                !Regex.IsMatch(password, "[a-z]") ||
+                !Regex.IsMatch(password, "[0-9]"))
+            {
+                throw new ProjectBadRequestException("Password must be at least 8 characters and include uppercase, lowercase, and number.");
+            }
         }
 
         public async Task<ResponeLogin> GeneralToken(string email, HttpContext httpContext)

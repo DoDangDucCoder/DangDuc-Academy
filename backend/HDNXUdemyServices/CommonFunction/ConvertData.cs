@@ -128,7 +128,7 @@ namespace HDNXUdemyServices.CommonFunction
                                 typeof(DescriptionAttribute), false), (
                                 f, a) => new { Field = f, Att = a }).SingleOrDefault(a => ((DescriptionAttribute)a.Att)
                                                                                           .Description == pDescription);
-            return field == null ? default : (TEnum)field.Field.GetRawConstantValue();
+            return field?.Field.GetRawConstantValue() is TEnum enumValue ? enumValue : default!;
         }
 
         public static string ConvertUnicodeToEngLish(this string value)

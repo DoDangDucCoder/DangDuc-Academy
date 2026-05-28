@@ -54,7 +54,7 @@
                         <ul class="navbar-nav" *ngIf="isMemberAccount">
                             <li class="nav-item">
                                 <div class="client-info_nav">
-                                    <img src="{{userStudent?.pictureUrl}}" class="rounded-circle" alt="image" />
+                                    <img [src]="userStudent?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
                                     <div class="title">
                                         <h3>{{userStudent?.name}}</h3>
                                         <span>{{userStudent?.roleName}}</span>
@@ -126,7 +126,7 @@
                         <ul class="navbar-nav" *ngIf="isMemberAccount">
                             <li class="nav-item">
                                 <div class="client-info_nav">
-                                    <img src="{{userStudent?.pictureUrl}}" class="rounded-circle" alt="image" />
+                                    <img [src]="userStudent?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
                                     <div class="title">
                                         <h3>{{userStudent?.name}}</h3>
                                         <span>{{userStudent?.roleName}}</span>

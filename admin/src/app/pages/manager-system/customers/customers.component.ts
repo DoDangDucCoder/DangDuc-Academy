@@ -78,9 +78,9 @@ export class CustomersComponent {
   editCustomer(id: any) {
     this.showModal?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Customer'
+    modaltitle .textContent = 'Edit Customer'
     var modalbtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalbtn.innerHTML = 'Update'
+    modalbtn .textContent = 'Update'
     document.querySelectorAll('#customer-img').forEach((element: any) => {
       element.src = this.customers[id].img;
     });

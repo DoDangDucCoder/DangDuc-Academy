@@ -65,6 +65,7 @@ namespace HDNXUdemyServices.CommonFunction
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("user-id", userId.ToString()),
+                    new Claim("role-id", roleId.ToString()),
                     new Claim("email", email),
                     new Claim("user-name", email),
                     new Claim(ClaimTypes.Role, ((ERoles)roleId).GetEnumDescription()),

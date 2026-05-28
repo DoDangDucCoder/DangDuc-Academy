@@ -147,7 +147,7 @@
                                 <label for="status-input" class="form-label">Coupon<span class="text-danger">*</span></label>
 
                                 <select class="form-select" id="status-input" formControlName="status" data-choices data-choices-search-false>
-                                    <option *ngFor="let item of coupons.results" value="{{item.stripeCouponId}}">{{item.nameOfCoupon}}</option>
+                                    <option *ngFor="let item of (coupons?.results ?? [])" value="{{item.stripeCouponId}}">{{item.nameOfCoupon}}</option>
                                 </select>
                             </div>
                         </div><!--end col-->

@@ -34,19 +34,15 @@ export class TransferHttp {
       'Content-Type': sContent
     });
 
-    if (LocalStorageConfig.GetUser() != null) {
-      // tslint:disable-next-line: prefer-const
-      let currentUser = LocalStorageConfig.GetUser();
-      const returnToken = currentUser.token;
-      if (currentUser && returnToken) {
-        httpHeaders = new HttpHeaders(
-          {
-            // tslint:disable-next-line: object-literal-key-quotes
-            'Authorization': `Bearer ${returnToken}`,
-            'Content-Type': sContent
-          },
-        );
-      }
+    const returnToken = this.getAccessToken();
+    if (returnToken) {
+      httpHeaders = new HttpHeaders(
+        {
+          // tslint:disable-next-line: object-literal-key-quotes
+          'Authorization': `Bearer ${returnToken}`,
+          'Content-Type': sContent
+        },
+      );
     }
     // return this.mapshare(this.http.get(this.Host + url, { observe:'response', responseType: 'blob' }));
     return this.http.get(this.Host + url, { headers: httpHeaders, observe: 'response', responseType: 'blob' })
@@ -66,7 +62,7 @@ export class TransferHttp {
   }
 
   putUrl(url: string, contentType?: EContentType) {
-    return this.mapshare(this.http.put(this.Host + url, this.jwt(contentType)));
+    return this.mapshare(this.http.put(this.Host + url, null, this.jwt(contentType)));
   }
 
   delete(url: string, contentType?: EContentType) {
@@ -97,7 +93,9 @@ export class TransferHttp {
       ConfigForApp.isLoadingButton = false;
       // this.notification.error('Thông báo lỗi!', 'Code 401: ' + error.statusText + '<br>' + error.error.messenger.message);
       // this.router.navigate(['/error']);
-      localStorage.removeItem('currentUser');
+      LocalStorageConfig.RemoveUser('currentUser');
+      LocalStorageConfig.RemoveAllDataListCourse();
+      this.router.navigate(['/login']);
       return throwError(() => error);
     }
 
@@ -163,19 +161,15 @@ export class TransferHttp {
       'Content-Type': sContent,
     });
 
-    if (LocalStorageConfig.GetUser() != null) {
-      // tslint:disable-next-line: prefer-const
-      let currentUser = LocalStorageConfig.GetUser();
-      const returnToken = currentUser.token;
-      if (currentUser && returnToken) {
-        httpHeaders = new HttpHeaders(
-          {
-            // tslint:disable-next-line: object-literal-key-quotes
-            'Authorization': 'Bearer ' + returnToken,
-            'Content-Type': sContent
-          },
-        );
-      }
+    const returnToken = this.getAccessToken();
+    if (returnToken) {
+      httpHeaders = new HttpHeaders(
+        {
+          // tslint:disable-next-line: object-literal-key-quotes
+          'Authorization': 'Bearer ' + returnToken,
+          'Content-Type': sContent
+        },
+      );
     }
     return { headers: httpHeaders };
   }
@@ -185,22 +179,22 @@ export class TransferHttp {
     // create authorization header with jwt token
 
     let httpHeaders = new HttpHeaders();
-    const sContent = this.contentType(EContentType.formdata);
+    const returnToken = this.getAccessToken();
 
-    if (LocalStorageConfig.GetUser() != null) {
-      // tslint:disable-next-line: prefer-const
-      let currentUser = LocalStorageConfig.GetUser();
-      const returnToken = currentUser.token;
-      if (currentUser && returnToken) {
-        httpHeaders = new HttpHeaders(
-          {
-            // tslint:disable-next-line: object-literal-key-quotes
-            'Authorization': 'Bearer ' + returnToken,
-          },
-        );
-      }
+    if (returnToken) {
+      httpHeaders = new HttpHeaders(
+        {
+          // tslint:disable-next-line: object-literal-key-quotes
+          'Authorization': 'Bearer ' + returnToken,
+        },
+      );
     }
     return { headers: httpHeaders };
+  }
+
+  private getAccessToken(): string | null {
+    const currentUser = LocalStorageConfig.GetUser();
+    return currentUser?.token ?? null;
   }
 
   private contentType(typeValue: EContentType) {

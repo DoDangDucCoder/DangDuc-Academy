@@ -24,7 +24,7 @@
             <div class="col-xl-3 col-lg-4 col-md-12">
                 <div class="author-profile-sidebar">
                     <div class="author-user">
-                        <img src="{{user.pictureUrl}}" alt="author" />
+                        <img [src]="user.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="author" />
                         <i class="bx bx-check-shield"></i>
                     </div>
                     <h3>{{user.name}}</h3>
@@ -69,15 +69,15 @@
                     <div *ngFor="let item of courses" class="col-xl-4 col-lg-4 col-md-6">
                         <div class="single-courses-box">
                             <div class="courses-image">
-                                <a routerLink="//{{item.id}}" class="d-block image">
-                                    <img src="{{item.pictureUrl}}" alt="image" />
+                                <a routerLink="/detail-courses/{{item.id}}" class="d-block image">
+                                    <img [src]="item.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image" />
                                 </a>
                                 <a routerLink="/" class="fav"><i class="flaticon-heart"></i></a>
                             </div>
                             <div class="courses-content">
                                 <div class="course-author d-flex align-items-center">
-                                    <img src="https://angular.envytheme.com/odemy-ng/assets/img/user1.jpg" class="rounded-circle" alt="image" />
-                                    <span>Alex Morgan</span>
+                                <img [src]="'assets/images/demo/avatar-instructor.svg' | assetUrl" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
+                                    <span>{{item.userName || 'HDNX Academy'}}</span>
                                 </div>
                                 <h3>
                                     <a routerLink="/detail-courses/{{item.id}}">{{item.title}}</a>
@@ -109,3 +109,4 @@
         </div>
     </div>
 </div>
+

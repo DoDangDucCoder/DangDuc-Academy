@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { Course } from 'src/app/models/models/course';
 
 @Component({
     selector: 'app-elearning-banner',
@@ -12,10 +13,16 @@ export class ElearningBannerComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    @Input() featuredCourses: Course[] = [];
+
     bgImage = [
         {
             img: 'assets/img/gray-bg.jpg'
         }
     ]
+
+    get displayCourses(): Course[] {
+        return this.featuredCourses.slice(0, 2);
+    }
 
 }

@@ -219,9 +219,9 @@ export class ListFileUploadComponent {
     this.idFileUpload = id;
     this.uploadFile?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Chỉnh sửa file upload'
+    modaltitle .textContent = 'Chỉnh sửa file upload'
     var modalButton = document.getElementById('add-btn') as HTMLAreaElement
-    modalButton.innerHTML = 'Cập nhật';
+    modalButton .textContent = 'Cập nhật';
     var dataEdit = this.fileSoftwares.find(x => x.id == id);
     this.fileUpload.controls['isFree'].setValue(dataEdit.isFree);
     this.fileUpload.patchValue(dataEdit);
@@ -232,9 +232,9 @@ export class ListFileUploadComponent {
     this.uploadedFiles = [];
     this.uploadFile?.show();
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Tạo file'
+    modaltitle .textContent = 'Tạo file'
     var modalButton = document.getElementById('add-btn') as HTMLAreaElement
-    modalButton.innerHTML = 'Lưu';
+    modalButton .textContent = 'Lưu';
     this.fileUpload.controls['isFree'].setValue(true);
   }
 }

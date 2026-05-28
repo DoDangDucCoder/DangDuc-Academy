@@ -3,6 +3,7 @@ using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
@@ -58,10 +59,10 @@ namespace HDNXUdemyServices.Services
 
         public async Task<PurcharseCourseModel> CreateRequestPurchase(PurcharseCourseModel model)
         {
-            var getValueOfInfoPurechase = _mapper.Map<InformationManualBankingModel>(
-                (await _informationManualBankingRepository.GetAsync(x => x.Status == (int)EStatus.Active)).FirstOrDefault());
+            await ValidatePurchaseRequest(model);
 
             var dataInsert = _mapper.Map<PurcharseCourseEntities>(model);
+            dataInsert.PurcharseCode = dataInsert.PurcharseCode == Guid.Empty ? Guid.NewGuid() : dataInsert.PurcharseCode;
             var addReturnModel = await _purcharseCourseRepository.AddReturnModelAsync(dataInsert);
 
             model.ListPurchaseCourseDetails?.ForEach(item =>
@@ -72,7 +73,61 @@ namespace HDNXUdemyServices.Services
             var dataInsertDetail = _mapper.Map<List<PurcharseCourseDetailsEntities>>(model.ListPurchaseCourseDetails);
             await _purcharseCourseDetailsRepository.AddManyAsync(dataInsertDetail);
 
+            model.Id = addReturnModel.Id;
+            model.PurcharseCode = addReturnModel.PurcharseCode;
             return model;
+        }
+
+        private async Task ValidatePurchaseRequest(PurcharseCourseModel model)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Purchase payload is required.");
+            }
+
+            if (model.IdStudent <= 0)
+            {
+                throw new ProjectBadRequestException("Student is required.");
+            }
+
+            if (model.TotalPrice < 0 || model.DiscountAmount < 0)
+            {
+                throw new ProjectBadRequestException("Purchase amounts cannot be negative.");
+            }
+
+            if (model.ListPurchaseCourseDetails == null || !model.ListPurchaseCourseDetails.Any())
+            {
+                throw new ProjectBadRequestException("At least one course is required.");
+            }
+
+            foreach (var detail in model.ListPurchaseCourseDetails)
+            {
+                if (detail.IdCourse <= 0)
+                {
+                    throw new ProjectBadRequestException("Course id is required.");
+                }
+
+                var course = await _courseRepository.GetObjectAsync(x => x.Id == detail.IdCourse && x.Status == (int)EStatus.Active);
+                if (course == null)
+                {
+                    throw new ProjectBadRequestException($"Course {detail.IdCourse} is invalid.");
+                }
+
+                var duplicate = await _purcharseCourseDetailsRepository.GetObjectAsync(x =>
+                    x.IdStudent == model.IdStudent &&
+                    x.IdCourse == detail.IdCourse &&
+                    x.Status == (int)EStatus.Active);
+                if (duplicate != null)
+                {
+                    throw new ProjectConflictException("Course has already been purchased by this student.");
+                }
+
+                detail.IdStudent = model.IdStudent;
+                if (detail.PriceOfCourse < 0 || detail.PriceOfDiscount < 0)
+                {
+                    throw new ProjectBadRequestException("Course prices cannot be negative.");
+                }
+            }
         }
 
         public async Task<bool> UpdateStatusPurchase(long id, PurcharseCourseModel model)
@@ -114,13 +169,13 @@ namespace HDNXUdemyServices.Services
             return isPurchaseCourseDetails.Any();
         }
 
-        public async Task<PagedResult<PurcharseCourseModel>> GetListPurcharseCourses(int pageIndex, int pageSize)
+        public async Task<PagedResult<PurcharseCourseModel>> GetListPurcharseCourses(int pageIndex, int pageSize, long? idStudent = null)
         {
             DateTime firstDayOfCurrentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             DateTime firstDayOfPreviousMonth = firstDayOfCurrentMonth.AddMonths(-1);
             DateTime currentDayOfCurrentMonth = DateTime.Now;
             DateTime currentDayOfPreviousMonth = currentDayOfCurrentMonth.AddMonths(-1);
-            var getData = (await _pucharseCourseRepository.GetAsync(x => x.Status == (int)EStatus.Active))
+            var getData = (await _pucharseCourseRepository.GetAsync(x => x.Status == (int)EStatus.Active && (!idStudent.HasValue || x.IdStudent == idStudent.Value)))
                 .OrderByDescending(x => x.CreateDate)
                 .GetPagingPaged(pageIndex, pageSize, null);
             var returnValue = _mapper.Map<PagedResult<PurcharseCourseModel>>(getData);
@@ -133,7 +188,10 @@ namespace HDNXUdemyServices.Services
                 item.User = _mapper.Map<UserModel>(await _userRepository.GetByIdAsync(item.IdStudent));
                 item.NameStatus = ((ETypeOfStatusOrder)item.PurcharseStatus).GetEnumDescription();
             }
-            returnValue.Results[0].ValueOfDataCount = GetDataValueForStatusOfPurchaseOrder(getDataOfCurrentMonth.ToList(), getDataOfPreviousMonth.ToList());
+            if (returnValue.Results.Any())
+            {
+                returnValue.Results[0].ValueOfDataCount = GetDataValueForStatusOfPurchaseOrder(getDataOfCurrentMonth.ToList(), getDataOfPreviousMonth.ToList());
+            }
             return returnValue;
         }
 

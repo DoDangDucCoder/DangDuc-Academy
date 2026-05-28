@@ -10,6 +10,7 @@ import { Options } from 'ngx-slider-v2';
 import { Router } from '@angular/router';
 import { CourseServices } from 'src/app/core/services/course.service';
 import { Course } from 'src/app/models/models/course';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-list-courses',
@@ -94,7 +95,7 @@ export class ListCourseComponent {
     this.isLoading = true;
     this.courseServices.getListAllCourse().subscribe((res) => {
       if (res.retCode == 0 && res.systemMessage == '') {
-        this.courses = res.data;
+        this.courseList = res.data;
         this.listCourseQuery = res.data;
         this.courses = this.listCourseQuery.slice(0, 10);
         this.isLoading = false;
@@ -128,6 +129,7 @@ export class ListCourseComponent {
 
   // File Upload
   public dropzoneConfig: DropzoneConfigInterface = {
+    url: `${environment.urlUploadFile}upload-video-to-server/file-document`,
     clickable: true,
     addRemoveLinks: true,
     previewsContainer: false,

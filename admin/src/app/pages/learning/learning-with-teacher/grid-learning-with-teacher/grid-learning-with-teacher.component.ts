@@ -113,9 +113,9 @@ export class GridLearningWithTeacherComponent {
     this.uploadedFiles = [];
     this.addCourse?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Product'
+    modaltitle .textContent = 'Edit Product'
     var modal = document.getElementById('add-btn') as HTMLAreaElement
-    modal.innerHTML = 'Update'
+    modal .textContent = 'Update'
 
     this.editData = this.listData[id]
     this.uploadedFiles.push({ 'dataURL': this.editData.img, 'name': this.editData.imgalt, 'size': 1024, });

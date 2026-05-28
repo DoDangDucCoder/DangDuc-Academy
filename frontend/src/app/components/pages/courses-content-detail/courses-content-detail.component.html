@@ -41,7 +41,7 @@
                 <div class="tabs-container">
                     <div class="pane" id="tab1" *ngIf="currentTab === 'tab1'">
                         <div class="courses-overview">
-                            <div [innerHTML]="contentCourseDetail?.description"></div>
+                            <div>{{ contentCourseDetail?.description }}</div>
                         </div>
                     </div>
                     <div class="pane" id="tab2" *ngIf="currentTab === 'tab2'">
@@ -107,7 +107,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-lg-4 col-md-4">
                                         <div class="advisor-image">
-                                            <img src="{{contentCourseDetail?.author.pictureUrl}}" alt="image" />
+                                            <img [src]="contentCourseDetail?.author?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="image" />
                                         </div>
                                     </div>
                                     <div class="col-lg-8 col-md-8">
@@ -213,7 +213,7 @@
                             </div>
 
                             <div class="user-review" *ngFor="let itemComment of commentOfCourse">
-                                <img src="{{itemComment?.users?.pictureUrl}}" alt="image" />
+                                <img [src]="itemComment?.users?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="image" />
                                 <div class="review-rating">
                                     <span class="d-inline-block">{{itemComment?.users?.name}}</span>
                                     <div class="review-stars">
@@ -278,7 +278,7 @@
                                     <div class="user-banner">
                                         <div class="user">
                                             <div class="avatar">
-                                                <img src="{{item?.user?.pictureUrl}}" />
+                                                <img [src]="item?.user?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" />
                                                 <span class="stat grey"></span>
                                             </div>
                                             <h5>{{item?.user?.name}}</h5>
@@ -349,8 +349,7 @@
                         <div ngbAccordionBody>
                             <ng-template>
                                 <ul>
-                                    <li class="list-group-content" ngbTooltip="{{ itemContent?.nameSubContent }}" [class.active]="itemContent.id === activeItemIndex" (click)="onClickContentCourse(itemContent.id)" *ngFor="let itemContent of item?.contentAndContentDetails"
-                                        (click)="getDataOfContentDetails(itemContent.id)">
+                                    <li class="list-group-content" ngbTooltip="{{ itemContent?.nameSubContent }}" [class.active]="itemContent.id === activeItemIndex" (click)="selectContentCourse(itemContent.id)" *ngFor="let itemContent of item?.contentAndContentDetails">
                                         <a href="javascript:void(0)" class="locked popup-youtube d-flex justify-content-between align-items-center">
                                             <span class="courses-name">{{ itemContent?.nameSubContent }}</span>
                                             <div class="courses-meta">

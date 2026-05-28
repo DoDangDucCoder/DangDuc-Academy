@@ -75,9 +75,15 @@ namespace HDNXUdemyConvertVideoAPI.Middlewares
                         result.Data = false;
                         break;
 
+                    case (int)HttpStatusCode.ServiceUnavailable:
+                        result.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                        result.SystemMessage = ex.Message;
+                        result.Data = false;
+                        break;
+
                     default:
                         result.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        result.SystemMessage = ex.Message;
+                        result.SystemMessage = "An internal server error occurred.";
                         result.Data = false;
                         break;
                 }

@@ -297,9 +297,9 @@ export class ListTeacherComponent {
     this.uploadedFiles = [];
     this.addInstructor?.show()
     var modaltitle = document.querySelector('.modal-title') as HTMLAreaElement
-    modaltitle.innerHTML = 'Edit Product'
+    modaltitle .textContent = 'Edit Product'
     var modalbtn = document.getElementById('add-btn') as HTMLAreaElement
-    modalbtn.innerHTML = 'Update'
+    modalbtn .textContent = 'Update'
 
     this.editData = this.instructors[id]
 

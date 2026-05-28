@@ -6,12 +6,18 @@
         text-align: center;
         position: relative;
         overflow: hidden;
+        border-radius: 5px;
+        background-color: #f8f8f8;
 
         a {
             position: relative;
             display: block;
 
             img {
+                width: 100%;
+                aspect-ratio: 4 / 5;
+                object-fit: cover;
+                display: block;
                 transition: all 1.5s cubic-bezier(0,0,.2,1);
             }
         }

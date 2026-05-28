@@ -16,6 +16,19 @@
                 left: 5px;
                 right: 5px;
             };
+            .image {
+                overflow: hidden;
+                border-radius: 6px;
+                aspect-ratio: 1 / 1.08;
+                background-color: #f3f3f3;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    display: block;
+                    object-fit: cover;
+                }
+            }
             &:nth-child(3) {
                 .image {
                     margin-top: -15px;
@@ -24,6 +37,12 @@
             &:nth-child(2) {
                 .image {
                     margin-bottom: 20px;
+                    aspect-ratio: 1 / 1.18;
+                }
+            }
+            &:nth-child(4) {
+                .image {
+                    aspect-ratio: 1 / 1.18;
                 }
             }
         }

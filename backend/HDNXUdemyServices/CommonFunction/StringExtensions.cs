@@ -239,14 +239,13 @@ namespace HDNXUdemyServices.CommonFunction
             var saltStringBytes = Generate128BitsOfRandomEntropy();
             var ivStringBytes = Generate128BitsOfRandomEntropy();
             var plainTextBytes = Encoding.UTF8.GetBytes(pText);
-            using var password = new Rfc2898DeriveBytes(pKey, saltStringBytes, DerivationIterations);
+            using var password = new Rfc2898DeriveBytes(pKey, saltStringBytes, DerivationIterations, HashAlgorithmName.SHA1);
             var keyBytes = password.GetBytes(Keysize / 8);
-            using var symmetricKey = new RijndaelManaged
-            {
-                BlockSize = 128,
-                Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7
-            };
+            using var symmetricKey = Aes.Create();
+            symmetricKey.KeySize = Keysize;
+            symmetricKey.BlockSize = 128;
+            symmetricKey.Mode = CipherMode.CBC;
+            symmetricKey.Padding = PaddingMode.PKCS7;
             using var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes);
             using var memoryStream = new MemoryStream();
             using var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
@@ -277,14 +276,13 @@ namespace HDNXUdemyServices.CommonFunction
             // Get the actual cipher text bytes by removing the first 64 bytes from the cipherText string.
             var cipherTextBytes = cipherTextBytesWithSaltAndIv.Skip((Keysize / 8) * 2).Take(cipherTextBytesWithSaltAndIv.Length - ((Keysize / 8) * 2)).ToArray();
 
-            using var password = new Rfc2898DeriveBytes(pKey, saltStringBytes, DerivationIterations);
+            using var password = new Rfc2898DeriveBytes(pKey, saltStringBytes, DerivationIterations, HashAlgorithmName.SHA1);
             var keyBytes = password.GetBytes(Keysize / 8);
-            using var symmetricKey = new RijndaelManaged
-            {
-                BlockSize = 128,
-                Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7
-            };
+            using var symmetricKey = Aes.Create();
+            symmetricKey.KeySize = Keysize;
+            symmetricKey.BlockSize = 128;
+            symmetricKey.Mode = CipherMode.CBC;
+            symmetricKey.Padding = PaddingMode.PKCS7;
             using var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes);
             using var memoryStream = new MemoryStream(cipherTextBytes);
             using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
@@ -324,11 +322,7 @@ namespace HDNXUdemyServices.CommonFunction
         private static byte[] Generate128BitsOfRandomEntropy()
         {
             var randomBytes = new byte[16]; // 16 Bytes will give us 128 bits.
-            using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                // Fill the array with cryptographically secure random bytes.
-                rngCsp.GetBytes(randomBytes);
-            }
+            RandomNumberGenerator.Fill(randomBytes);
 
             return randomBytes;
         }

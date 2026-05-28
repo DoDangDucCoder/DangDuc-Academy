@@ -14,7 +14,7 @@ import { LoginRegister } from 'src/app/models/respone_model/login-register-respo
 export class AccountBookmarkCourseComponent implements OnInit {
   value: string = '100%';
   course: Course[] = [];
-  user: LoginRegister;
+  user: LoginRegister | null = null;
   constructor(
     private readonly studentServices: StudentServices,
     private readonly cartServices: CartServices,
@@ -30,7 +30,7 @@ export class AccountBookmarkCourseComponent implements OnInit {
   loadListBookmarkCourseOfUser() {
     this.studentServices.getListBookmarkCourse().subscribe((res) => {
       if (res.retCode === 0 && res.systemMessage === '') {
-        this.course = res.data;
+        this.course = res.data ?? [];
       } else {
         this.course = [];
       }

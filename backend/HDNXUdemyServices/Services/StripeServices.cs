@@ -4,6 +4,7 @@ using HDNXUdemyData.IRepository;
 using HDNXUdemyData.Model;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
 using HDNXUdemyModel.RequestModel;
 using HDNXUdemyModel.ResponModel;
@@ -37,11 +38,31 @@ namespace HDNXUdemyServices.Services
 
         public async Task<CheckoutSessionResponse> CreateCheckoutSession(PurcharseCourseModel model)
         {
+            if (model.ListPurchaseCourseDetails == null || !model.ListPurchaseCourseDetails.Any())
+            {
+                throw new ProjectBadRequestException("No courses were provided for checkout.");
+            }
+
+            if (model.TotalPrice < 0 || model.ListPurchaseCourseDetails.Any(x => x.IdCourse <= 0 || x.PriceOfCourse < 0 || x.PriceOfDiscount < 0))
+            {
+                throw new ProjectBadRequestException("Checkout payload is invalid.");
+            }
+
             var listSessionLineItemOption = new List<SessionLineItemOptions>();
             var returnValue = new CheckoutSessionResponse();
             foreach (var item in model.ListPurchaseCourseDetails)
             {
                 var dataOfCoures = await _courseRepository.GetByIdAsync(item.IdCourse);
+                if (dataOfCoures == null)
+                {
+                    throw new ProjectNotFoundException("Course not found.");
+                }
+
+                if (dataOfCoures.PriceOfCourse < 0)
+                {
+                    throw new ProjectBadRequestException("Course price is invalid.");
+                }
+
                 var itemSessionItemOption = new SessionLineItemOptions()
                 {
                     Quantity = 1,
@@ -52,12 +73,21 @@ namespace HDNXUdemyServices.Services
                         ProductData = new SessionLineItemPriceDataProductDataOptions()
                         {
                             Name = dataOfCoures.Title,
-                            Images = new List<string> { dataOfCoures.PictureUrl },
+                            Images = string.IsNullOrWhiteSpace(dataOfCoures.PictureUrl)
+                                ? new List<string>()
+                                : new List<string> { dataOfCoures.PictureUrl },
                         }
                     },
                 };
                 listSessionLineItemOption.Add(itemSessionItemOption);
             }
+
+            if (string.IsNullOrWhiteSpace(ProjectConfig.StripeSecretKey) ||
+                ProjectConfig.StripeSecretKey.StartsWith("CHANGE_ME", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.");
+            }
+
             var options = new SessionCreateOptions
             {
                 SuccessUrl = ProjectConfig.StripePaymentSuccessLink,
@@ -80,13 +110,33 @@ namespace HDNXUdemyServices.Services
             }
             catch (StripeException ex)
             {
-                throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
             }
             return returnValue;
         }
 
         public async Task<bool> CreateStripePromotionCode(string idCoupon, string promotionCode)
         {
+            if (string.IsNullOrWhiteSpace(idCoupon) || string.IsNullOrWhiteSpace(promotionCode))
+            {
+                throw new ProjectBadRequestException("Coupon and promotion code are required.");
+            }
+
+            if (promotionCode.Length > 100 || promotionCode.Contains("<script", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException("Promotion code is invalid.");
+            }
+
+            var duplicatedCode = await _promotionCodeRepository.GetObjectAsync(x => x.StripePromotionCodeId == promotionCode);
+            if (duplicatedCode != null)
+            {
+                throw new ProjectConflictException("Promotion code already exists.");
+            }
+
             try
             {
                 var options = new PromotionCodeCreateOptions
@@ -103,12 +153,17 @@ namespace HDNXUdemyServices.Services
             }
             catch (StripeException ex)
             {
-                throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
             }
         }
 
         public async Task<bool> CreateCouponForPromotion(CouponPromotionCode model)
         {
+            await ValidateCoupon(model, isUpdate: false);
             var options = new CouponCreateOptions
             {
                 Duration = model.TypeDuration,
@@ -135,28 +190,51 @@ namespace HDNXUdemyServices.Services
             }
             catch (StripeException ex)
             {
-                throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
             }
         }
 
         public async Task<bool> DeleteCouponForPromotion(string stripeCouponId)
         {
+            if (string.IsNullOrWhiteSpace(stripeCouponId) || stripeCouponId.Contains("..") || stripeCouponId.Contains("<script", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException("Coupon id is invalid.");
+            }
+
             try
             {
                 var service = new CouponService();
                 var deleteCouponStripe = await service.DeleteAsync(stripeCouponId);
                 var getCouponOnData = await _couponRepository.GetObjectAsync(x => x.StripeCouponId == stripeCouponId);
+                if (getCouponOnData == null)
+                {
+                    return deleteCouponStripe.Deleted ?? false;
+                }
+
                 getCouponOnData.Status = (int)EStatus.Inactive;
                 return await _couponRepository.UpdateAsync(getCouponOnData);
             }
             catch (StripeException ex)
             {
-                throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
             }
         }
 
         public async Task<bool> InactivePromotionCode(string promotionCodeId)
         {
+            if (string.IsNullOrWhiteSpace(promotionCodeId) || promotionCodeId.Contains("..") || promotionCodeId.Contains("<script", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException("Promotion code id is invalid.");
+            }
+
             try
             {
                 var option = new PromotionCodeUpdateOptions()
@@ -169,12 +247,17 @@ namespace HDNXUdemyServices.Services
             }
             catch (StripeException ex)
             {
-                throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
             }
         }
 
         public async Task<PagedResult<CouponModel>> GetListCouponActiveOnSystem(int pageIndex, int pageSize)
         {
+            ValidatePaging(pageIndex, pageSize);
             var getDataFromAPI = (await _couponRepository.GetAsync(x => x.Status != (int)EStatus.Inactive))
                 .GetPagingPaged(pageIndex, pageSize, null);
             return _mapper.Map<PagedResult<CouponModel>>(getDataFromAPI);
@@ -182,8 +265,9 @@ namespace HDNXUdemyServices.Services
 
         public async Task<bool> UpdateCouponPromotionCode(CouponPromotionCode model)
         {
+            await ValidateCoupon(model, isUpdate: true);
             var entitiesCoupon = await _couponRepository.GetByIdAsync(model.Id ?? 0);
-            if (entitiesCoupon == null) { return false; }
+            if (entitiesCoupon == null) { throw new ProjectNotFoundException("Coupon not found."); }
             entitiesCoupon.StartDate = LocalDateTime.FromDateTime(model.StartDate ?? DateTime.UtcNow);
             entitiesCoupon.EndDate = LocalDateTime.FromDateTime(model.EndDate ?? DateTime.UtcNow);
             entitiesCoupon.Status = model.Status;
@@ -202,6 +286,7 @@ namespace HDNXUdemyServices.Services
 
         public async Task<PagedResult<PromotionCodeModel>> GetListPromotions(int pageIndex, int pageSize)
         {
+            ValidatePaging(pageIndex, pageSize);
             var getDataFromAPI = (await _promotionCodeRepository.GetAsync(x => x.Status != (int)EStatus.Inactive))
                 .GetPagingPaged(pageIndex, pageSize, null);
             return _mapper.Map<PagedResult<PromotionCodeModel>>(getDataFromAPI);
@@ -215,12 +300,12 @@ namespace HDNXUdemyServices.Services
                 var options = new CouponCreateOptions
                 {
                     Duration = entities.Duration,
-                    PercentOff = entities?.PercentOff,
-                    Currency = entities?.Currency
+                    PercentOff = entities.PercentOff,
+                    Currency = entities.Currency
                 };
                 var service = new CouponService();
                 var stripeCreateCoupon = await service.CreateAsync(options);
-                var mapperStripeToModel = _mapper.Map<CouponEntities>(stripeCreateCoupon);
+                var mapperStripeToModel = _mapper.Map<CouponEntities>(stripeCreateCoupon) ?? new CouponEntities();
                 mapperStripeToModel.Status = (int)EStatus.Active;
                 mapperStripeToModel.Id = entities.Id;
                 mapperStripeToModel.CreateDate = entities.CreateDate;
@@ -231,7 +316,11 @@ namespace HDNXUdemyServices.Services
             }
             catch (StripeException ex)
             {
-                throw new ProjectException(ex.InnerException?.Message ?? string.Empty, ex);
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Payment provider is unavailable.", ex);
             }
         }
 
@@ -245,6 +334,70 @@ namespace HDNXUdemyServices.Services
             modelReturn.EndDate = LocalDateTime.FromDateTime(model.EndDate ?? DateTime.UtcNow);
             modelReturn.Status = model.Status;
             return modelReturn;
+        }
+
+        private async Task ValidateCoupon(CouponPromotionCode model, bool isUpdate)
+        {
+            if (model == null)
+            {
+                throw new ProjectBadRequestException("Payload is required.");
+            }
+
+            if (isUpdate && (!model.Id.HasValue || model.Id.Value <= 0))
+            {
+                throw new ProjectBadRequestException("Id is invalid.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.NameOfCoupon))
+            {
+                throw new ProjectBadRequestException("Coupon name is required.");
+            }
+
+            if (model.NameOfCoupon.Length > 150 || model.NameOfCoupon.Contains("<script", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException("Coupon name is invalid.");
+            }
+
+            if (model.PercentOff <= 0 || model.PercentOff > 100)
+            {
+                throw new ProjectBadRequestException("PercentOff must be between 1 and 100.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Currency) || model.Currency.Length != 3)
+            {
+                throw new ProjectBadRequestException("Currency is invalid.");
+            }
+
+            var allowedDurations = new[] { "forever", "once", "repeating" };
+            if (string.IsNullOrWhiteSpace(model.TypeDuration) || !allowedDurations.Contains(model.TypeDuration, StringComparer.OrdinalIgnoreCase))
+            {
+                throw new ProjectBadRequestException("Duration is invalid.");
+            }
+
+            if (!model.StartDate.HasValue || !model.EndDate.HasValue || model.StartDate.Value >= model.EndDate.Value)
+            {
+                throw new ProjectBadRequestException("Date range is invalid.");
+            }
+
+            if (!Enum.IsDefined(typeof(EStatus), model.Status))
+            {
+                throw new ProjectBadRequestException("Status is invalid.");
+            }
+
+            var duplicate = await _couponRepository.GetObjectAsync(x =>
+                x.NameOfCoupon == model.NameOfCoupon && (!isUpdate || x.Id != model.Id));
+            if (duplicate != null)
+            {
+                throw new ProjectConflictException("Coupon already exists.");
+            }
+        }
+
+        private static void ValidatePaging(int pageIndex, int pageSize)
+        {
+            if (pageIndex < 1 || pageSize < 1 || pageSize > 100)
+            {
+                throw new ProjectBadRequestException("Paging is invalid.");
+            }
         }
     }
 }

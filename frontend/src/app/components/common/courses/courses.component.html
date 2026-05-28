@@ -1,7 +1,7 @@
-<div class="container" [hidden]="!listCourse.listDataOfContent.length">
+<div class="container" *ngIf="listCourse?.listDataOfContent?.length">
     <div class="title-of-course">
         <h4 class="sub-title "><i class='flaticon-shopping-cart'></i> {{listCourse.nameContent}}</h4>
-        <a class="sub-title" href="http://" target="_blank" rel="noopener noreferrer">View more</a>
+        <a class="sub-title" routerLink="/categories">View more</a>
     </div>
     <div class="courses-slides-two">
         <owl-carousel-o [options]="coursesSlides">
@@ -10,15 +10,15 @@
                     <div class="single-courses-box">
                         <div class="courses-image">
                             <a routerLink="/detail-courses/{{item.id}}" class="d-block image">
-                                <img src="{{item.pictureUrl}}" alt="image">
+                                <img [src]="item.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image">
                             </a>
 
                             <div [hidden]="!item.isDiscount" class="price shadow">{{item.isDiscount == true ? (item.priceOfDiscount| currency ) : (item.priceOfCourse | currency )}}</div>
                         </div>
                         <div class="courses-content">
                             <div class="course-author d-flex align-items-center justify-content-between">
-                                <img src="https://angular.envytheme.com/odemy-ng/assets/img/user3.jpg" class="rounded-circle" alt="image">
-                                <span class="span-content-course">{{item.userName}}</span>
+                                <img [src]="'assets/images/demo/avatar-instructor.svg' | assetUrl" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image">
+                                <span class="span-content-course">{{item.userName || 'HDNX Academy'}}</span>
                                 <a href="javascript:void(0)" (click)="bookMarkCourse(item.id)">
                                     <ng-icon *ngIf="!item.isBookMark" size="24" name="bootstrapBookmark"></ng-icon>
                                     <ng-icon *ngIf="item.isBookMark" size="24" name="bootstrapBookmarkCheckFill"></ng-icon>

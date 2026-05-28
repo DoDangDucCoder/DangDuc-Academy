@@ -20,7 +20,9 @@ namespace HDNXUdemyModel.Exception
         {
         }
 
-        public ProjectBadRequestException(SerializationInfo info, StreamingContext context) : base(info, context)
+#pragma warning disable SYSLIB0051
+        protected ProjectBadRequestException(SerializationInfo info, StreamingContext context) : base(info, context)
+#pragma warning restore SYSLIB0051
         {
         }
     }

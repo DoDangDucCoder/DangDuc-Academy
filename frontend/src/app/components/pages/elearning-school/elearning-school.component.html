@@ -1,5 +1,5 @@
 <app-hdnx-loading [show]="isLoading">
-    <app-elearning-banner></app-elearning-banner>
+    <app-elearning-banner [featuredCourses]="homeDataOfProject?.listContentData?.[0]?.listDataOfContent || []"></app-elearning-banner>
 
     <div class="partner-area pt-100 pb-70 border-bottom">
         <div class="container">

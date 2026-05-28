@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import "@mux/mux-player";
 import { BeforeSlideDetail } from 'lightgallery/lg-events';
 import lgVideo from 'lightgallery/plugins/video';
@@ -25,12 +25,12 @@ import { StudentServices } from 'src/app/core/services/student.service';
   styleUrls: ['./courses-content-detail.component.scss'],
   host: { class: 'd-block' },
 })
-export class CoursesContentDetailComponent implements OnInit {
+export class CoursesContentDetailComponent implements OnInit, AfterViewInit {
 
   private modalService = inject(NgbModal);
   isDisplayReplay = false;
   isComment = false;
-  @ViewChild('artplayer') artplayerElement: ElementRef;
+  @ViewChild('artplayer') artplayerElement!: ElementRef;
   player: Artplayer | undefined;
   playerHeight = '100%';
   option: Option = {
@@ -104,10 +104,8 @@ export class CoursesContentDetailComponent implements OnInit {
     this.option.container = this.artplayerElement.nativeElement;
     if (this.artplayerElement) {
       this.player = new Artplayer(this.option);
-    } else {
-
     }
-
+    this.updatePlayerUrl(this.getVideoContentUrl() ?? this.getCourseVideoUrl());
   }
 
   selectedVideoUrl: string;
@@ -138,7 +136,12 @@ export class CoursesContentDetailComponent implements OnInit {
   }
 
   openModalReviewCourses() {
-    let getValueLocalStor = LocalStorageConfig.GetUser();
+    const getValueLocalStor = LocalStorageConfig.GetUser();
+    if (!getValueLocalStor) {
+      this.messengerService.warringWithIssue();
+      return;
+    }
+
     const modalRef = this.modalService.open(UserReviewCoursesComponent, { size: 'xl' });
     modalRef.componentInstance.reviewOfUser = '';
     modalRef.componentInstance.idCourse = this.idCourse;
@@ -165,7 +168,7 @@ export class CoursesContentDetailComponent implements OnInit {
     this.courseServices.getCourses(id).subscribe((res) => {
       if (res.retCode == 0 && res.systemMessage == "") {
         this.contentCourseDetail = res.data;
-        this.player.url = this.contentCourseDetail.fileUploadUrlStream;
+        this.updatePlayerUrl(this.getCourseVideoUrl());
       } else {
         this.messengerService.errorWithIssue();
       }
@@ -176,22 +179,23 @@ export class CoursesContentDetailComponent implements OnInit {
     this.courseServices.getContentCourseDetails(id).subscribe((res) => {
       if (res.retCode == 0 && res.systemMessage == "") {
         this.videoOfContent = res.data;
-        this.player.url = this.videoOfContent.fileUploadUrlStream;
+        this.updatePlayerUrl(this.getVideoContentUrl());
       } else {
         this.messengerService.errorWithIssue();
       }
     });
   }
 
-  onClickContentCourse(id: number) {
+  selectContentCourse(id: number) {
     this.activeItemIndex = id;
+    this.getDataOfContentDetails(id);
   }
 
   getListCommentOfCourse(idCourse: number) {
     this.courseServices.getListCourseEvaluation(idCourse).subscribe((res) => {
       if (res.retCode == 0 && res.systemMessage == "") {
         this.commentOfCourse = res.data;
-        this.player.url = this.videoOfContent?.fileUploadUrlStream;
+        this.updatePlayerUrl(this.getVideoContentUrl());
       } else {
         this.messengerService.errorWithIssue();
       }
@@ -236,6 +240,28 @@ export class CoursesContentDetailComponent implements OnInit {
         this.messengerService.errorWithIssue();
       }
     });
+  }
+
+  private updatePlayerUrl(url?: string | null) {
+    if (this.player && url) {
+      this.player.url = url;
+    }
+  }
+
+  private getCourseVideoUrl(): string | undefined {
+    if (!this.contentCourseDetail?.fileUrl) {
+      return undefined;
+    }
+
+    return this.contentCourseDetail.fileUploadUrlStream ?? undefined;
+  }
+
+  private getVideoContentUrl(): string | undefined {
+    if (!this.videoOfContent?.fileNameVideo) {
+      return undefined;
+    }
+
+    return this.videoOfContent.fileUploadUrlStream ?? undefined;
   }
 
 }

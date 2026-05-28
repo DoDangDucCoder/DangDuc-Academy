@@ -5,8 +5,6 @@ namespace HDNXUdemyServices.CommonFunction
 {
     public static class Generator
     {
-        private static readonly Random Rand = new();
-
         public static string GenerateCodeTracker(string controllerName, string actionName, string pKey)
         {
             return GenerateCodeTracking(controllerName, actionName, pKey, 9);
@@ -45,26 +43,27 @@ namespace HDNXUdemyServices.CommonFunction
 
             // Get cryptographically random sequence of bytes
             var bytes = new byte[length];
-            new RNGCryptoServiceProvider().GetBytes(bytes);
+            RandomNumberGenerator.Fill(bytes);
 
             // Build up a string using random bytes and character classes
             var res = new StringBuilder();
             foreach (byte b in bytes)
             {
                 // Randomly select a character class for each byte
-                if (Rand.Next(4) == 0)
+                var characterGroup = RandomNumberGenerator.GetInt32(4);
+                if (characterGroup == 0)
                 {
                     res.Append(lower[b % lower.Length]);
                 }
-                else if (Rand.Next(4) == 1)
+                else if (characterGroup == 1)
                 {
                     res.Append(upper[b % upper.Length]);
                 }
-                else if (Rand.Next(4) == 2)
+                else if (characterGroup == 2)
                 {
                     res.Append(number[b % number.Length]);
                 }
-                else if (Rand.Next(4) == 3)
+                else
                 {
                     res.Append(special[b % special.Length]);
                 }

@@ -12,9 +12,17 @@ export class fakebackendInterceptor implements HttpInterceptor {
     constructor() { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        const defaultUsers = [{ username: 'admin', email: 'admin@themesbrand.com', password: '123456' }];
+        const storedUsers = localStorage.getItem('users');
+        let users: any[] = defaultUsers;
 
-        // tslint:disable-next-line: max-line-length
-        const users: any[] = JSON.parse(localStorage.getItem('users')!) || [{ username: 'admin', email: 'admin@themesbrand.com', password: '123456' }];
+        if (storedUsers) {
+            try {
+                users = JSON.parse(storedUsers) || defaultUsers;
+            } catch {
+                localStorage.removeItem('users');
+            }
+        }
 
         // wrap in delayed observable to simulate server api call
         return of(null).pipe(mergeMap(() => {
