@@ -251,7 +251,7 @@ Copy `.env.example` and replace all `CHANGE_ME_*` placeholders before running ou
 
 Important local paths/settings:
 - PostgreSQL connection strings: `AppConfig:DefaultConnection` and `Serilog:ConnectionStrings:DefaultConnection`.
-- Video source path: `AppConfig:DiskBaseForVideo`, default `C:\VideoLMS`.
+- Video source path: `AppConfig:DiskBaseForVideo`; local Development config uses `backend/HDNXUdemyConvertVideoAPI/wwwroot/VideoUdemy`.
 - Converted HLS folders: `Folder:StorageMainVideo` and `Folder:StorageStreamVideo`.
 - File upload folder: `Folder:UploadSoftWareAndFile`.
 - Stripe/Cloudinary/OAuth keys are placeholders in `appsettings*.json`; configure through local environment/appsettings before testing those external flows.
