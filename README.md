@@ -1,15 +1,21 @@
-# HDNXUdemy Clone - Full Stack E-Learning Platform
+# DangDuc Academy - Full Stack E-Learning Platform
+
+## Overview
+
+DangDuc Academy is a full-stack e-learning platform for course management and video-based learning. It supports course discovery, user authentication, lesson tracking, and online video streaming.
+
+This personal project demonstrates backend architecture, REST API development, relational database design, and video streaming implementation.
 
 ## 📋 Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **Backend API** | .NET 8, Entity Framework Core, PostgreSQL |
-| **Frontend** | Angular 17, SCSS, Bootstrap |
+| **Backend API** | ASP.NET Core 8 Web API, Entity Framework Core, PostgreSQL |
+| **Frontend** | Angular 16, SCSS, Bootstrap |
 | **Admin Panel** | Angular 17, NgRx, Bootstrap |
 | **Real-time** | SignalR |
-| **Authentication** | JWT Bearer + Refresh Tokens |
-| **File Storage** | Cloudinary |
+| **Authentication** | JWT access tokens and refresh tokens |
+| **File Storage** | AWS S3, Cloudinary |
 | **Payment** | Stripe |
 | **Containerization** | Docker, Docker Compose |
 
@@ -19,7 +25,7 @@
 
 ### Environment Keys
 
-Legacy public keys have been removed from source. Configure new Google, Facebook, Firebase, Maps, and Stripe publishable keys using the placeholders documented in [Environment Keys](docs/environment-keys.md).
+For guidance on external key handling, see [Environment Keys](docs/environment-keys.md). Do not commit real credentials to the repository.
 
 ### Prerequisites
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -27,11 +33,13 @@ Legacy public keys have been removed from source. Configure new Google, Facebook
 - [PostgreSQL 15+](https://www.postgresql.org/download/)
 - [Docker](https://www.docker.com/) (optional, for containerized setup)
 
+Run each setup section from the repository root. Use separate terminals when running the backend and frontend at the same time.
+
 ### 1. Clone & Setup
 
 ```bash
-git clone <repository-url>
-cd UdemyClone
+git clone https://github.com/DoDangDucCoder/DangDuc-Academy.git
+cd DangDuc-Academy
 ```
 
 ### 2. Backend Setup
@@ -42,11 +50,13 @@ cd backend/HDNXUdemyAPI
 # Restore packages
 dotnet restore
 
-# Update connection string in appsettings.json
-# "ConnectionStrings": { "DefaultConnection": "Host=localhost;Port=5432;Database=hdnx_udemy;Username=postgres;Password=your_password" }
+# Set AppConfig:DefaultConnection to your local PostgreSQL connection string.
+
+# If the EF CLI is not installed
+dotnet tool install --global dotnet-ef --version 8.0.11
 
 # Run migrations
-dotnet ef database update
+dotnet ef database update --project ../HDNXUdemy/HDNXUdemyData.csproj --startup-project .
 
 # Run the API
 dotnet run
@@ -83,7 +93,7 @@ ng serve --port 4201
 
 ```bash
 # From root directory
-docker-compose up -d
+docker compose up -d
 ```
 
 The Compose stack starts PostgreSQL, Redis, Elasticsearch, the backend API, video API, frontend, and admin dashboard. Frontend is exposed on `http://localhost`, admin on `http://localhost:81`, backend on `http://localhost:5194`, video API on `http://localhost:5195`, and Elasticsearch on `http://localhost:9200`.
@@ -96,7 +106,7 @@ Phase 5 Kubernetes manifests live in `k8s/base` and can be rendered with:
 kubectl kustomize k8s/base
 ```
 
-Create the `hdnx-secrets` secret before applying the base, then deploy with:
+Use `k8s/base/secret.example.yaml` as a template to create the `hdnx-secrets` secret. Replace its sample values before applying the base, then deploy with:
 
 ```powershell
 kubectl apply -k k8s/base
@@ -106,59 +116,17 @@ kubectl apply -k k8s/base
 
 ## 🔑 API Keys & External Services Configuration
 
-### Google OAuth (Required for Google Login)
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Navigate to **APIs & Services** → **Credentials**
-4. Click **Create Credentials** → **OAuth 2.0 Client ID**
-5. Choose **Web Application**
-6. Add Authorized redirect URIs:
-   - `http://localhost:4200` (development)
-   - `https://your-domain.com` (production)
-7. Copy the **Client ID**
-8. Update in the following files:
-
-**Frontend** - `frontend/src/environments/environment.ts`:
-```typescript
-clientIdGoogle: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
-```
-
-**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
-```json
-"Authentication": {
-  "Google": {
-    "ClientId": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
-    "ClientSecret": "YOUR_GOOGLE_CLIENT_SECRET"
-  }
-}
-```
-
----
-
 ### Stripe Payment (Required for Course Purchases)
 
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)
 2. Sign up / Log in
 3. Navigate to **Developers** → **API Keys**
-4. Copy the **Publishable Key** (pk_test_...) and **Secret Key** (sk_test_...)
-
-**Frontend** - `frontend/src/environments/environment.ts`:
-```typescript
-stripePublicKey: 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY'
-```
-
-**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
-```json
-"Stripe": {
-  "SecretKey": "sk_test_YOUR_STRIPE_SECRET_KEY",
-  "PublishableKey": "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY"
-}
-```
+4. Copy the publishable and secret keys from the Stripe Dashboard.
+5. Configure the frontend publishable key and the backend `AppConfig:StripePublishableKey` and `AppConfig:StripeSecretKey` values through local or deployment configuration. See [Environment Keys](docs/environment-keys.md), and do not commit credentials.
 
 ---
 
-### Cloudinary (Required for Image/Video Uploads)
+### Cloudinary (Optional File Storage Provider)
 
 1. Go to [Cloudinary Console](https://cloudinary.com/console)
 2. Sign up / Log in
@@ -166,52 +134,11 @@ stripePublicKey: 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY'
 
 **Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
 ```json
-"Cloudinary": {
+"CloudinanySettings": {
   "CloudName": "YOUR_CLOUD_NAME",
-  "ApiKey": "YOUR_API_KEY",
-  "ApiSecret": "YOUR_API_SECRET"
+  "APIKey": "YOUR_API_KEY",
+  "APISecret": "YOUR_API_SECRET"
 }
-```
-
----
-
-### SMTP Email (Required for Forgot Password)
-
-The forgot password feature sends OTP codes via email. Configure your SMTP provider:
-
-**Option A: Gmail SMTP**
-1. Enable [2-Step Verification](https://myaccount.google.com/security)
-2. Generate an [App Password](https://myaccount.google.com/apppasswords)
-3. Use the generated password in config
-
-**Option B: Any SMTP Provider** (Mailgun, SendGrid, etc.)
-
-**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
-```json
-"EmailSettings": {
-  "SmtpHost": "smtp.gmail.com",
-  "SmtpPort": 587,
-  "SmtpUser": "your-email@gmail.com",
-  "SmtpPassword": "your-app-password",
-  "FromEmail": "your-email@gmail.com",
-  "FromName": "HDNX Academy"
-}
-```
-
-> **Note:** Currently the Forgot Password feature generates an OTP token stored in the database. The OTP is returned in the API response for development. In production, integrate the SMTP settings above to send the OTP via email.
-
----
-
-### Facebook Login (Optional)
-
-1. Go to [Facebook Developers](https://developers.facebook.com/)
-2. Create an App → Choose **Consumer** type
-3. Add **Facebook Login** product
-4. Copy the **App ID**
-
-**Frontend** - `frontend/src/environments/environment.ts`:
-```typescript
-facebookId: 'YOUR_FACEBOOK_APP_ID'
 ```
 
 ---
@@ -219,13 +146,14 @@ facebookId: 'YOUR_FACEBOOK_APP_ID'
 ## 📁 Project Structure
 
 ```
-UdemyClone/
+DangDuc-Academy/
 ├── backend/
 │   ├── HDNXUdemyAPI/          # Web API project (.NET 8)
+│   ├── HDNXUdemyConvertVideoAPI/ # Video processing and streaming API
 │   ├── HDNXUdemyServices/     # Business logic layer
 │   ├── HDNXUdemy/             # Data access layer (EF Core)
 │   └── HDNXUdemyModel/        # DTOs, Models, Request/Response
-├── frontend/                  # Angular 17 Student UI
+├── frontend/                  # Angular 16 Student UI
 ├── admin/                     # Angular 17 Admin Dashboard
 ├── docker-compose.yml
 └── README.md
