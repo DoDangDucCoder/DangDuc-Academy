@@ -15,6 +15,8 @@
 
 Frontend là ứng dụng **Angular 16 SPA** (Single Page Application) dành cho **học viên** của nền tảng HDNXUdemy. Giao diện được thiết kế theo phong cách e-learning hiện đại, hỗ trợ đầy đủ các chức năng: duyệt khóa học, xem video streaming HLS, mua khóa học qua Stripe, quản lý tài khoản, bookmark, đánh giá, Q&A real-time, và nhiều hơn nữa.
 
+> Legacy Google/Facebook/Stripe public keys đã được xoá khỏi source. Xem hướng dẫn thay key mới tại [`../docs/environment-keys.md`](../docs/environment-keys.md).
+
 - **Project name:** `hdnx-udemy-ng` (package.json) / `odemy-ng` (angular.json)
 - **Dev server:** http://localhost:4200
 - **Production URL:** https://web-hdnx.devproinsights.com
@@ -130,9 +132,7 @@ frontend/
 ├── package.json                     # Dependencies
 ├── tsconfig.json                    # TypeScript config
 ├── tsconfig.app.json                # App-specific TS config
-├── tsconfig.spec.json               # Test TS config
-├── tslint.json                      # Linting rules
-└── karma.conf.js                    # Karma test config
+└── tslint.json                      # Linting rules
 ```
 
 ---
@@ -249,8 +249,8 @@ User click Google/Facebook button
 ```
 
 **Social Auth Config:**
-- **Google:** `458553878162-...apps.googleusercontent.com`
-- **Facebook:** App ID `727016849494944`
+- **Google:** configure `FRONTEND_GOOGLE_CLIENT_ID`
+- **Facebook:** configure `FRONTEND_FACEBOOK_APP_ID`
 
 ---
 
@@ -277,10 +277,10 @@ export const environment = {
   production: false,
   baseUrl: 'http://localhost:5194/api/v1/',
   urlUploadFile: 'http://localhost:5148/api/v1/',
-  clientIdGoogle: '458553878162-...apps.googleusercontent.com',
-  facebookId: '727016849494944',
+  clientIdGoogle: '',
+  facebookId: '',
   baseUrlHub: 'http://localhost:5194/',
-  stripePublicKey: 'pk_test_...'
+  stripePublicKey: ''
 };
 ```
 
@@ -329,16 +329,6 @@ npm run buildPro
 ```bash
 npm run lint
 ```
-
-### 5. Unit Tests
-
-```bash
-ng test
-# hoặc
-npm test
-```
-
----
 
 ## 📦 Dependencies chính
 

@@ -11,7 +11,7 @@ import { LanguageService } from 'src/app/core/services/language.service';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
-import { cartList } from 'src/app/pages/manager-system/cart/data';
+const cartList: any[] = [];
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { notification } from './data';
 import { RootReducerState } from 'src/app/store';
@@ -19,6 +19,7 @@ import { Store } from '@ngrx/store';
 import { changeMode } from 'src/app/store/layouts/layout-action';
 import { getLayoutmode } from 'src/app/store/layouts/layout-selector';
 import { TokenStorageService } from 'src/app/core/services/token-storage.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 @Component({
   selector: 'app-topbar',
@@ -38,6 +39,7 @@ export class TopbarComponent {
 
   element: any;
   mode: string | undefined;
+  isDarkMode: boolean = false;
 
   total: any;
   subtotal: any = 0;
@@ -68,12 +70,18 @@ export class TopbarComponent {
     private router: Router,
     public _cookiesService: CookieService,
     public store: Store<RootReducerState>,
-    private TokenStorageService: TokenStorageService
+    private TokenStorageService: TokenStorageService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
     this.element = document.documentElement;
     this.userData = this.TokenStorageService.getUser();
+
+    // Subscribe to theme service for dark mode state
+    this.themeService.isDarkMode$.subscribe((isDark) => {
+      this.isDarkMode = isDark;
+    });
     this.cartData = cartList;
     this.cartData.map((x: any) => {
       x['total'] = (x['qty'] * x['price']).toFixed(2);
@@ -192,6 +200,7 @@ export class TopbarComponent {
       document.documentElement.setAttribute('data-bs-theme', 'light');
       document.documentElement.setAttribute('data-topbar', 'light');
       document.documentElement.classList.add('mode-auto');
+      localStorage.setItem('hdnx-admin-theme', 'light');
     } else {
       this.store.dispatch(changeMode({ mode }));
       this.store.select(getLayoutmode).subscribe((mode) => {
@@ -199,6 +208,10 @@ export class TopbarComponent {
       });
       document.documentElement.classList.remove('mode-auto');
       document.documentElement.setAttribute('data-topbar', mode);
+      // Persist theme preference and apply sidebar attributes
+      localStorage.setItem('hdnx-admin-theme', mode);
+      document.documentElement.setAttribute('data-layout-mode', mode);
+      document.documentElement.setAttribute('data-sidebar', mode);
     }
   }
 

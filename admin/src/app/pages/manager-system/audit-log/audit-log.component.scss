@@ -1,0 +1,12 @@
+.table td {
+  vertical-align: middle;
+}
+
+.audit-json {
+  max-width: 280px;
+  max-height: 120px;
+  overflow: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 12px;
+}

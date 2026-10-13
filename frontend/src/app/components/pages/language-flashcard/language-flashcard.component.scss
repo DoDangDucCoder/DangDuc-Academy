@@ -1,0 +1,250 @@
+.flashcard-page { min-height: 100vh; background: #f0f2f5; }
+.container { max-width: 700px; margin: 0 auto; padding: 0 20px; }
+
+// ── Stats Bar ─────────────────────────────────────────────────────────────
+.stats-bar {
+  background: #1c1d1f;
+  padding: 14px 20px;
+  .container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  .val { font-size: 1.3rem; font-weight: 800; }
+  .lbl { font-size: .72rem; opacity: .7; }
+  &.warn .val { color: #fbbf24; }
+}
+
+.progress-wrap {
+  flex: 1;
+  min-width: 160px;
+  .progress-label { font-size: .78rem; color: #aaa; margin-bottom: 4px; }
+  .progress-track { height: 6px; background: #333; border-radius: 4px; }
+  .progress-fill  { height: 100%; background: #4caf50; border-radius: 4px; transition: width .5s; }
+}
+
+// ── Flashcard Area ────────────────────────────────────────────────────────
+.flashcard-area {
+  max-width: 520px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.progress-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: .85rem;
+  color: #777;
+  .mini-progress {
+    flex: 1;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    div { height: 100%; background: #4f86c6; border-radius: 4px; transition: width .3s; }
+  }
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────
+.card-scene {
+  perspective: 1200px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.card-body {
+  width: 100%;
+  min-height: 300px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,.2,.2,1);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14);
+
+  &.flipped { transform: rotateY(180deg); }
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  text-align: center;
+
+  &.front {
+    background: linear-gradient(145deg, #1c2b4a, #2d4a8a);
+    color: #fff;
+  }
+
+  &.back {
+    background: #fff;
+    color: #1c1d1f;
+    transform: rotateY(180deg);
+  }
+}
+
+// Front face
+.lang-badge {
+  position: absolute;
+  top: 14px; left: 14px;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.card-level {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.85);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: .72rem;
+}
+
+.card-word {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.pronunciation {
+  font-size: 1rem;
+  color: rgba(255,255,255,.7);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.btn-audio {
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.4);
+  color: #fff;
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background .2s;
+  &:hover { background: rgba(255,255,255,.3); }
+}
+
+.flip-hint {
+  position: absolute;
+  bottom: 14px;
+  font-size: .75rem;
+  color: rgba(255,255,255,.5);
+  margin: 0;
+}
+
+// Back face
+.back-word { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; color: #1a237e; }
+.back-meaning { font-size: 1.2rem; font-weight: 600; color: #1c1d1f; margin-bottom: 16px; }
+.back-example {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: .88rem;
+  color: #555;
+  background: #f4f6fb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  width: 100%;
+  em { font-style: italic; }
+  span { color: #4f86c6; }
+}
+
+// ── Rating Buttons ────────────────────────────────────────────────────────
+.rating-btns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.btn-rate {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: inherit;
+  transition: transform .18s, opacity .18s;
+  &:hover { transform: translateY(-2px); opacity: .88; }
+
+  span { font-size: 1rem; font-weight: 700; color: #fff; }
+  small { font-size: .7rem; color: rgba(255,255,255,.75); font-weight: 600; }
+
+  &.again   { background: #ef4444; }
+  &.hard    { background: #f97316; }
+  &.good    { background: #3b82f6; }
+  &.perfect { background: #22c55e; }
+}
+
+.flip-cta { text-align: center; color: #999; font-size: .85rem; }
+
+// ── Done / No Cards ───────────────────────────────────────────────────────
+.session-done, .no-cards {
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.done-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  text-align: center;
+  box-shadow: 0 6px 28px rgba(0,0,0,.1);
+  max-width: 400px;
+  width: 100%;
+  .done-icon { font-size: 3.5rem; margin-bottom: 12px; }
+  h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+  p { color: #555; margin-bottom: 16px; }
+  .done-score { font-size: 2rem; font-weight: 800; color: #4f86c6; margin-bottom: 16px; }
+  .done-stats { display: flex; flex-direction: column; gap: 6px; color: #555; font-size: .9rem; margin-bottom: 20px; }
+}
+
+.btn-restart {
+  background: #4f86c6;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background .2s;
+  &:hover { background: #3a6db5; }
+}
+
+.loading-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; gap: 16px;
+  .spinner { width: 48px; height: 48px; border: 5px solid #e0e0e0; border-top-color: #4f86c6; border-radius: 50%; animation: spin .8s linear infinite; }
+  p { color: #666; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }

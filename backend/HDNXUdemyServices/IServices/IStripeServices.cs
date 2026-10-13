@@ -1,4 +1,4 @@
-﻿using HDNXUdemyData.Entities;
+using HDNXUdemyData.Entities;
 using HDNXUdemyData.Model;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Model;
@@ -24,5 +24,7 @@ namespace HDNXUdemyServices.IServices
         Task<bool> UpdateCouponPromotionCode(CouponPromotionCode model);
 
         Task<PagedResult<PromotionCodeModel>> GetListPromotions(int pageIndex, int pageSize);
+
+        Task<bool> RefundPayment(string paymentIntentId);
     }
 }

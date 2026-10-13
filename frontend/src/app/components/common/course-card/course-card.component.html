@@ -1,0 +1,81 @@
+<article class="cc-card" *ngIf="course">
+
+  <!-- ── GREEN HEADER BAR ──────────────────────────────── -->
+  <div class="cc-header">
+    <span class="cc-id">{{ idLabel }}</span>
+    <span class="cc-tech">
+      <i class="bx {{ techIcon }}"></i>
+      <span class="cc-tech-label">{{ course.categoryName || 'Course' }}</span>
+    </span>
+  </div>
+
+  <!-- ── DARK BODY ──────────────────────────────────────── -->
+  <div class="cc-body">
+    <p class="cc-desc">{{ course.shortDescription || course.introduce || 'Khám phá nội dung khóa học.' }}</p>
+
+    <div class="cc-meta">
+      <span><i class="bx bx-book-open"></i> {{ course.totalChapter || 0 }} bài học</span>
+      <span><i class="bx bx-user-voice"></i> {{ course.totalStudentRegister || 0 }} học viên</span>
+    </div>
+
+    <div class="cc-tags">
+      <span class="cc-tag" *ngIf="course.levelCourse">{{ course.levelCourse }}</span>
+      <span class="cc-tag" *ngIf="course.languages">{{ course.languages }}</span>
+    </div>
+
+    <!-- Progress bar (my-courses-list mode) -->
+    <div class="cc-progress" *ngIf="showProgress">
+      <div class="cc-progress-bar" [style.width.%]="course.processCourse || 0"></div>
+    </div>
+    <span class="cc-progress-label" *ngIf="showProgress">{{ course.processCourse || 0 }}% hoàn thành</span>
+  </div>
+
+  <!-- ── WHITE FOOTER ───────────────────────────────────── -->
+  <div class="cc-footer">
+    <div class="cc-footer-top">
+      <a [routerLink]="courseUrl" class="cc-title">{{ course.title }}</a>
+    </div>
+    <div class="cc-footer-mid">
+      <span class="cc-author">
+        <i class="bx bx-user-circle"></i>
+        {{ course.userName || 'Giảng viên' }}
+      </span>
+      <div class="cc-stars">
+        <i class="bx bxs-star" *ngFor="let s of starsArr; let i = index"
+           [class.filled]="i < avgScore"
+           [class.empty]="i >= avgScore"></i>
+        <span class="cc-score">{{ (course.averageScore || 0).toFixed(1) }}</span>
+      </div>
+    </div>
+    <div class="cc-footer-bot">
+      <div class="cc-price-block">
+        <span class="cc-price" [class.free]="course.isFree">{{ priceLabel }}</span>
+        <del class="cc-price-old" *ngIf="course.isDiscount && !course.isFree">{{ originalPriceLabel }}</del>
+      </div>
+      <div class="cc-actions">
+        <!-- Bookmark -->
+        <button class="cc-btn-icon" *ngIf="onBookmark" (click)="handleBookmark($event)"
+                [class.bookmarked]="course.isBookMark"
+                title="Bookmark">
+          <i class="bx" [ngClass]="course.isBookMark ? 'bxs-bookmark-star' : 'bx-bookmark'"></i>
+        </button>
+        <!-- Add to cart -->
+        <a class="cc-btn-cta" *ngIf="showAddToCart && !course.isPurchase"
+           href="javascript:void(0)" (click)="handleAddToCart($event)">
+          <i class="bx bx-cart-add"></i> Thêm giỏ
+        </a>
+        <!-- Go to course -->
+        <a class="cc-btn-cta go" *ngIf="showGoToCourse || course.isPurchase"
+           [routerLink]="courseUrl">
+          <i class="bx bx-play-circle"></i> Học ngay
+        </a>
+        <!-- Default explore -->
+        <a class="cc-btn-cta" *ngIf="!showAddToCart && !showGoToCourse && !course.isPurchase"
+           [routerLink]="courseUrl">
+          <i class="bx bx-right-arrow-alt"></i> Xem chi tiết
+        </a>
+      </div>
+    </div>
+  </div>
+
+</article>

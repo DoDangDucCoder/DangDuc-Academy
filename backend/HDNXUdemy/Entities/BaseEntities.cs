@@ -1,4 +1,4 @@
-﻿using HDNXUdemyModel.Constant;
+using HDNXUdemyModel.Constant;
 using NodaTime;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;

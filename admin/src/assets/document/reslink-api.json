@@ -84,7 +84,9 @@
     "RegisterUser": "authentication/register",
     "LoginNormalAccount": "authentication/login",
     "LoginWithGoogle": "authentication/login-google",
-    "LoginWithFaceBook": "authentication/login-facebook"
+    "LoginWithFaceBook": "authentication/login-facebook",
+    "RefreshToken": "authentication/refresh-token",
+    "RevokeToken": "authentication/revoke-token"
   },
   "PurchaseOrder": {
     "GenPurchaseOrder": "purchase-course/gen-purchase-code/{0}",
@@ -92,14 +94,30 @@
     "UpdateStatusPurchase": "purchase-course/purchase-course/{0}",
     "IsCheckCoursePurchase": "purchase-course/check-purchase-course/{0}",
     "GetListPurcharseCourses": "purchase-course/get-list-purchase-course/{0}/{1}",
-    "GetPurchaseCorseDetail" : "purchase-course/get-detail-purchase-course/{0}"
+    "GetPurchaseCorseDetail": "purchase-course/get-detail-purchase-course/{0}"
   },
-  "CouponPromotion" : {
+  "CouponPromotion": {
     "GetListCouponActiveOnSystem": "promotion/coupon-promotion-code/{0}/{1}",
     "CreatePromotionCoupon": "promotion/coupon-promotion",
     "UpdatePromotionCoupon": "promotion/coupon-promotion",
     "DeleteCouponForPromotion": "promotion/coupon-inactive/{0}",
     "ActiveCouponPromotion": "promotion/active-coupon-promotion/{0}",
     "GetListPromotions": "promotion/promotion-codes/{0}/{1}"
+  },
+  "Article": {
+    "GetPagedArticles": "article/paged/{0}/{1}",
+    "GetArticleById": "article/{0}",
+    "GetArticleBySlug": "article/slug/{0}",
+    "CreateArticle": "article",
+    "UpdateArticle": "article/{0}",
+    "DeleteArticle": "article/{0}"
+  },
+  "Refund": {
+    "ProcessRefund": "Refund/process",
+    "GetPendingRefunds": "Refund/pending"
+  },
+  "Payout": {
+    "GetPendingPayouts": "Payout/pending",
+    "ProcessPayout": "Payout/process"
   }
 }

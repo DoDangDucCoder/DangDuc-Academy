@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.Model;
@@ -566,5 +566,29 @@ namespace HDNXUdemyAPI.Controllers
             return result;
         }
 
+
+        /// <summary>
+        /// ExportStudentsToExcel – Download student list as Excel file
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("export/excel")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ExportStudentsToExcel()
+        {
+            var students = await _studentServices.GetListStudents();
+            var exportData = students.Select(s => new
+            {
+                s.Id,
+                Name = s.Name ?? "",
+                Email = s.Email ?? "",
+                Phone = s.Phone ?? "",
+                Role = s.RoleId,
+                IsActive = s.IsActive,
+                TypeLogin = s.TypeLogin
+            }).ToList();
+
+            var bytes = Helpers.ExcelExportHelper.ExportToExcel(exportData, "Students");
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"students_{DateTime.UtcNow:yyyyMMdd}.xlsx");
+        }
     }
 }

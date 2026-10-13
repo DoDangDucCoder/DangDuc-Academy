@@ -6,8 +6,8 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { Store } from '@ngrx/store';
-import { addticketlistData, deleteticketlistData, fetchsupporticketsData, fetchticketlistData, updateticketlistData } from 'src/app/store/Tickets/ticket.actions';
-import { selectData, selectlistData } from 'src/app/store/Tickets/ticket-selector';
+// import ticket.actions
+// import ticket-selector
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { cloneDeep } from 'lodash';
 import { assignesTickets } from 'src/app/core/data';
@@ -131,7 +131,7 @@ export class ListPromotionsComponent {
     if (this.listForm.valid) {
       if (this.listForm.get('id')?.value) {
         const updatedData = { assignedto: this.assignto, ...this.listForm.value };
-        this.store.dispatch(updateticketlistData({ updatedData }));
+        // this.store.dispatch(updateticketlistData({ updatedData }));
       }
       else {
         this.listForm.controls['id'].setValue((this.alltickets.length + 1).toString());
@@ -140,7 +140,7 @@ export class ListPromotionsComponent {
         this.listForm.patchValue({ createDate: createDate, dueDate: dueDate });
 
         const newData = { assignedto: this.assignto, ...this.listForm.value }
-        this.store.dispatch(addticketlistData({ newData }));
+        // this.store.dispatch(addticketlistData({ newData }));
       }
       this.assignto = [];
       this.listForm.reset();
@@ -159,9 +159,9 @@ export class ListPromotionsComponent {
   deleteData(id: string) {
     this.deleteRecordModal?.hide();
     if (id) {
-      this.store.dispatch(deleteticketlistData({ id: this.deleteId.toString() }));
+      // this.store.dispatch(deleteticketlistData({ id: this.deleteId.toString() }));
     }
-    this.store.dispatch(deleteticketlistData({ id: this.checkedValGet.toString() }));
+    // this.store.dispatch(deleteticketlistData({ id: this.checkedValGet.toString() }));
     this.deleteRecordModal?.hide();
     this.masterSelected = false
   }

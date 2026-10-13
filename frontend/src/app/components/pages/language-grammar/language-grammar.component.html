@@ -1,0 +1,73 @@
+<div class="grammar-page">
+  <!-- Banner -->
+  <section class="grammar-banner" [style.background]="'linear-gradient(135deg,' + meta.color + ',' + meta.color + 'cc)'">
+    <div class="container">
+      <span class="flag">{{ meta.flag }}</span>
+      <div>
+        <h1>Ngữ Pháp {{ meta.name }}</h1>
+        <p>Tra cứu nhanh cấu trúc ngữ pháp theo cấp độ</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grammar-layout container">
+    <!-- Section Tabs -->
+    <div class="section-tabs">
+      <button
+        *ngFor="let section of sections; let i = index"
+        class="section-tab"
+        [class.active]="selectedSection === i"
+        (click)="selectSection(i)"
+        [style.border-left-color]="selectedSection === i ? meta.color : 'transparent'"
+      >
+        <span class="tab-icon">{{ section.icon }}</span>
+        <span>{{ section.title }}</span>
+      </button>
+    </div>
+
+    <!-- Rules List -->
+    <main class="rules-panel" *ngIf="currentSection">
+      <h2 class="section-header">
+        {{ currentSection.icon }} {{ currentSection.title }}
+      </h2>
+
+      <div class="rule-card" *ngFor="let rule of currentSection.rules" (click)="selectRule(rule)">
+        <div class="rule-header">
+          <div class="rule-title-wrap">
+            <span class="level-badge" [style.background]="getLevelColor(rule.level)">{{ rule.level }}</span>
+            <h3>{{ rule.title }}</h3>
+          </div>
+          <i class="bx" [class.bx-chevron-down]="selectedRule?.id !== rule.id" [class.bx-chevron-up]="selectedRule?.id === rule.id"></i>
+        </div>
+
+        <!-- Structure highlight -->
+        <div class="rule-structure">
+          <code>{{ rule.structure }}</code>
+        </div>
+
+        <!-- Expanded detail -->
+        <div class="rule-detail" *ngIf="selectedRule?.id === rule.id">
+          <p class="rule-explanation">{{ rule.explanation }}</p>
+
+          <div class="examples-wrap">
+            <div class="example-item" *ngFor="let ex of rule.examples">
+              <div class="example-native">{{ ex.native }}</div>
+              <div class="example-trans">→ {{ ex.trans }}</div>
+            </div>
+          </div>
+
+          <div class="tip-box" *ngIf="rule.tips">
+            <i class="bx bxs-bulb"></i>
+            <span>{{ rule.tips }}</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Empty state if no grammar for this language -->
+    <div class="empty-grammar" *ngIf="sections.length === 0">
+      <div>🚧</div>
+      <p>Ngữ pháp {{ meta.name }} đang được cập nhật. Vui lòng quay lại sau!</p>
+    </div>
+  </div>
+</div>

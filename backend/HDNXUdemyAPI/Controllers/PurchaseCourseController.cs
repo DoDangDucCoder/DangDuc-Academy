@@ -21,6 +21,7 @@ namespace HDNXUdemyAPI.Controllers
     {
         private readonly IPurcharseCourseServices _purcharseCourseServices;
         private readonly IStripeServices _stripeServices;
+        private readonly IAuditLogService _auditLogService;
 
         /// <summary>
         /// PurchaseCourseController
@@ -28,10 +29,11 @@ namespace HDNXUdemyAPI.Controllers
         /// <param name="purcharseCourseServices"></param>
         /// <param name="stripeServices"></param>
         /// <exception cref="ProjectException"></exception>
-        public PurchaseCourseController(IPurcharseCourseServices purcharseCourseServices, IStripeServices stripeServices)
+        public PurchaseCourseController(IPurcharseCourseServices purcharseCourseServices, IStripeServices stripeServices, IAuditLogService auditLogService)
         {
             _purcharseCourseServices = purcharseCourseServices ?? throw new ProjectException(nameof(_purcharseCourseServices));
             _stripeServices = stripeServices ?? throw new ProjectException(nameof(_stripeServices));
+            _auditLogService = auditLogService;
         }
 
         /// <summary>
@@ -89,6 +91,7 @@ namespace HDNXUdemyAPI.Controllers
             }
 
             result.Data = await _purcharseCourseServices.CreateRequestPurchase(model);
+            await _auditLogService.WriteAsync(model.IdStudent, "Purchase.Create", "Purchase", result.Data.Id?.ToString(), null, new { result.Data.PurcharseCode, result.Data.IdStudent, result.Data.TotalPrice });
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -112,6 +115,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _purcharseCourseServices.UpdateStatusPurchase(id, model);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Purchase.UpdateStatus", "Purchase", id.ToString(), null, new { model.PurcharseStatus, model.Status });
             return result;
         }
 
@@ -239,6 +243,7 @@ namespace HDNXUdemyAPI.Controllers
             }
 
             result.Data = await _stripeServices.CreateCheckoutSession(model);
+            await _auditLogService.WriteAsync(model.IdStudent, "Purchase.CheckoutSession", "Purchase", null, null, new { model.IdStudent, model.TotalPrice, CourseCount = model.ListPurchaseCourseDetails?.Count ?? 0 });
             return Ok(result);
         }
     }

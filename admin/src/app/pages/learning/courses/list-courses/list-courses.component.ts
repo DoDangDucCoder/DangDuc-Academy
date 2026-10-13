@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { CourseServices } from 'src/app/core/services/course.service';
 import { Course } from 'src/app/models/models/course';
 import { environment } from 'src/environments/environment';
+import { ExportHelper } from 'src/app/core/helpers/export.helper';
 
 @Component({
   selector: 'app-list-courses',
@@ -62,20 +63,13 @@ export class ListCourseComponent {
   }
 
   ngOnInit(): void {
-    /**
-     * BreadCrumb
-     */
     this.breadCrumbItems = [
       { label: 'Course', active: true },
       { label: 'List of course', active: true }
     ];
 
-    // Fetch Data
     this.loadDataCourse();
 
-    /**
-     * Form Validation
-     */
     this.listForm = this.formBuilder.group({
       id: [''],
       img: [''],
@@ -89,7 +83,6 @@ export class ListCourseComponent {
       status: ['', [Validators.required]]
     });
   }
-
 
   loadDataCourse() {
     this.isLoading = true;
@@ -116,9 +109,6 @@ export class ListCourseComponent {
     document.querySelector('.backdrop3')?.classList.remove('show')
   }
 
-  /**
-* Range Slider Wise Data Filter
-*/
   valueChange(value: number, boundary: boolean): void {
     if (boundary) {
       this.minVal = value;
@@ -137,7 +127,6 @@ export class ListCourseComponent {
 
   uploadedFiles: any[] = [];
 
-  // File Upload
   imageURL: any;
   onUploadSuccess(event: any) {
     setTimeout(() => {
@@ -146,7 +135,6 @@ export class ListCourseComponent {
     }, 0);
   }
 
-  // File Remove
   removeFile(event: any) {
     this.uploadedFiles.splice(this.uploadedFiles.indexOf(event), 1);
   }
@@ -159,7 +147,7 @@ export class ListCourseComponent {
     } else {
       this.direction = 'asc';
     }
-    const sortedArray = [...this.courses]; // Create a new array
+    const sortedArray = [...this.courses];
     sortedArray.sort((a, b) => {
       const res = this.compare(a[column], b[column]);
       return this.direction === 'asc' ? res : -res;
@@ -170,9 +158,6 @@ export class ListCourseComponent {
     return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
   }
 
-  /**
-  * Save product
-  */
   saveProduct() {
     if (this.listForm.valid) {
       if (this.listForm.get('id')?.value) {
@@ -191,14 +176,11 @@ export class ListCourseComponent {
     }
   }
 
-
-  // Delete Product
   removeItem(id: any) {
     this.deleteID = id
     this.deleteRecordModal?.show()
   }
 
-  // confirm delete
   deleteData(id: any) {
     this.deleteRecordModal?.hide();
     if (id) {
@@ -207,19 +189,16 @@ export class ListCourseComponent {
     this.deleteRecordModal?.hide();
     this.masterSelected = false
   }
-  // filterdata
-  filterdata() {
 
+  filterdata() {
     if (this.term) {
       this.courses = this.courseList.filter((el: any) => el.name.toLowerCase().includes(this.term.toLowerCase()))
     } else {
       this.courses = this.courseList.slice(0, 10)
     }
-    // noResultElement
     this.updateNoResultDisplay();
   }
 
-  // no result 
   updateNoResultDisplay() {
     const noResultElement = document.querySelector('.noresult') as HTMLElement;
     const paginationElement = document.getElementById('pagination-element') as HTMLElement
@@ -232,7 +211,6 @@ export class ListCourseComponent {
     }
   }
 
-  // pagechanged
   pageChanged(event: PageChangedEvent): void {
     const startItem = (event.page - 1) * event.itemsPerPage;
     this.endItem = event.page * event.itemsPerPage;
@@ -247,8 +225,23 @@ export class ListCourseComponent {
     this.router.navigate([`/learning/courses/edit-course/${id}`]);
   }
 
-  goToOverview(id : number){
+  goToOverview(id: number) {
     this.router.navigate([`/learning/courses/course-overview/${id}`]);
+  }
+
+  exportCourses() {
+    if (!this.courseList || this.courseList.length === 0) return;
+    const exportData = this.courseList.map((c: any) => ({
+      ID: c.id,
+      Title: c.title || '',
+      Category: c.categoryName || '',
+      Price: c.priceOfCourse || 0,
+      DiscountPrice: c.priceOfDiscount || 0,
+      IsFree: c.isFree ? 'Yes' : 'No',
+      Level: c.levelCourse || '',
+      Status: c.status
+    }));
+    ExportHelper.exportToCSV(exportData, 'courses');
   }
 
 }

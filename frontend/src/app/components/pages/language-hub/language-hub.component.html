@@ -1,0 +1,68 @@
+<div class="lang-hub-page">
+
+  <!-- ── Hero ── -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Học Ngoại Ngữ Miễn Phí</h1>
+      <p class="hero-sub">Luyện đề thi chuẩn quốc tế · Flashcard thông minh · Bảng xếp hạng</p>
+      <div class="hero-flags">
+        <span *ngFor="let lang of languages" class="flag-badge" (click)="goToLanguage(lang.code)">
+          {{ lang.flag }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Language Cards ── -->
+  <section class="languages-section">
+    <div class="container">
+      <h2 class="section-title">Chọn Ngôn Ngữ</h2>
+      <div class="lang-grid">
+        <div
+          class="lang-card"
+          *ngFor="let lang of languages"
+          [style.background]="'linear-gradient(135deg,' + lang.gradientFrom + ',' + lang.gradientTo + ')'"
+          (click)="goToLanguage(lang.code)"
+        >
+          <div class="lang-flag">{{ lang.flag }}</div>
+          <div class="lang-info">
+            <h3 class="lang-name">{{ lang.name }}</h3>
+            <p class="lang-types">{{ lang.types }}</p>
+            <div class="lang-stats">
+              <span><i class="bx bx-file"></i> {{ lang.examCount | number }} đề thi</span>
+              <span><i class="bx bx-book"></i> {{ lang.vocabCount | number }}+ từ vựng</span>
+            </div>
+          </div>
+          <button class="lang-btn">Học ngay <i class="bx bx-right-arrow-alt"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ── -->
+  <section class="features-section">
+    <div class="container">
+      <h2 class="section-title">Tính Năng Nổi Bật</h2>
+      <div class="features-grid">
+        <div class="feature-card" *ngFor="let f of features">
+          <div class="feature-icon">{{ f.icon }}</div>
+          <h4>{{ f.title }}</h4>
+          <p>{{ f.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stats Bar ── -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item" *ngFor="let s of stats">
+          <span class="stat-value">{{ s.value }}</span>
+          <span class="stat-label">{{ s.label }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

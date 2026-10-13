@@ -81,7 +81,7 @@ export class AuthenticationService {
         );
     }
 
-    login(email: string, password: string) {
+    login(email: string, password: string, rememberMe = false) {
         const apiUrl = environment.baseUrl + LinkSettings.GetResLinkSetting(
             'Authentication',
             'LoginNormalAccount',
@@ -89,16 +89,8 @@ export class AuthenticationService {
 
         return this.http.post<RepositoryModel<LoginRegister>>(apiUrl, { email, password }, httpOptions).pipe(
             map((response) => {
-                if (response.retCode === 0 && response.systemMessage === '' && response.data) {
-                    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
-                    localStorage.removeItem('currentUser');
-                    if (response.data.token) {
-                        sessionStorage.setItem('auth-token', response.data.token);
-                        localStorage.removeItem('token');
-                    } else {
-                        sessionStorage.removeItem('auth-token');
-                        localStorage.removeItem('token');
-                    }
+                if (this.isSuccessResponse(response) && response.data) {
+                    this.persistSession(response.data, rememberMe);
                     this.currentUserSubject.next(response.data);
                 }
 
@@ -110,7 +102,13 @@ export class AuthenticationService {
 
     logout(): Observable<void> {
         this.store.dispatch(logout());
-        // Perform any additional logout logic, e.g., calling an API to invalidate the token
+
+        // Revoke refresh token on server before clearing local state
+        const currentUser = this.getStoredCurrentUser() as any;
+        if (currentUser?.refreshToken) {
+            const apiUrl = environment.baseUrl + LinkSettings.GetResLinkSetting('Authentication', 'RevokeToken');
+            this.http.post(apiUrl, { refreshToken: currentUser.refreshToken }, httpOptions).subscribe({ error: () => {} });
+        }
 
         localStorage.removeItem('currentUser');
         localStorage.removeItem('token');
@@ -125,6 +123,15 @@ export class AuthenticationService {
                 // Perform any additional logic after the logout is successful
             })
         );
+    }
+
+    clearLocalSession(): void {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth-token');
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('auth-token');
+        this.currentUserSubject.next(null);
     }
 
     resetPassword(email: string) {
@@ -160,5 +167,36 @@ export class AuthenticationService {
 
     private getErrorMessage(error: any, fallbackMessage: string): string {
         return error?.error?.systemMessage || error?.error?.message || error?.message || fallbackMessage;
+    }
+
+    private persistSession(user: LoginRegister, rememberMe: boolean): void {
+        const targetStorage = rememberMe ? localStorage : sessionStorage;
+        const otherStorage = rememberMe ? sessionStorage : localStorage;
+
+        targetStorage.setItem('currentUser', JSON.stringify(user));
+        otherStorage.removeItem('currentUser');
+
+        if (user.token) {
+            targetStorage.setItem('auth-token', user.token);
+            otherStorage.removeItem('auth-token');
+
+            if (rememberMe) {
+                localStorage.setItem('token', user.token);
+                sessionStorage.removeItem('token');
+            } else {
+                localStorage.removeItem('token');
+                sessionStorage.removeItem('token');
+            }
+        } else {
+            localStorage.removeItem('token');
+            localStorage.removeItem('auth-token');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('auth-token');
+        }
+    }
+
+    private isSuccessResponse<T>(response: RepositoryModel<T>): boolean {
+        const retCode = response?.retCode;
+        return retCode === 0 || `${retCode}`.toLowerCase() === 'successfull';
     }
 }

@@ -14,212 +14,37 @@
 <div class="blog-area ptb-100">
     <div class="container">
         <div class="row">
-            <div class="col-xxl-3 col-lg-3 col-md-6">
+            <div class="col-xxl-3 col-lg-3 col-md-6" *ngFor="let article of articles">
                 <div class="single-blog-post-box">
                     <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=700&q=80" alt="Students learning together">
+                        <a [routerLink]="['/detail-news', article.slug]" class="d-block">
+                            <img [src]="article.thumbnailUrl || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=700&q=80'" [alt]="article.title">
                         </a>
                     </div>
                     <div class="post-content">
-                        <a routerLink="/news" class="category">Education</a>
-                        <h3><a routerLink="/detail-news">It’s Time To Think Differently About Homeschooling</a></h3>
+                        <a [routerLink]="['/news']" class="category">News</a>
+                        <h3><a [routerLink]="['/detail-news', article.slug]">{{ article.title }}</a></h3>
+                        <p style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; color: #666; margin-bottom: 15px; font-size: 14px;">{{ article.description }}</p>
                         <ul class="post-content-footer d-flex justify-content-between align-items-center">
                             <li>
                                 <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>Alex Morgan</span>
+                                    <img src="assets/img/user1.jpg" class="rounded-circle" alt="image">
+                                    <span>{{ article.authorName || 'Admin' }}</span>
                                 </div>
                             </li>
-                            <li><i class='flaticon-calendar'></i> April 30, 2020</li>
+                            <li><i class='flaticon-calendar'></i> {{ article.createDate | date:'MMM dd, yyyy' }}</li>
                         </ul>
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80" alt="Online education on a laptop">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Online</a>
-                        <h3><a routerLink="/detail-news">What Is The MLB Summer Slugger Program?</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>Sarah Taylor</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 29, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80" alt="Teacher working with students">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Learning</a>
-                        <h3><a routerLink="/detail-news">28 Student-Centered Instructional Strategies</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>David Warner</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 28, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=700&q=80" alt="Team learning workshop">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Education</a>
-                        <h3><a routerLink="/detail-news">4 Steps To Quality Training In Times Of Urgency</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>Alex Morgan</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 30, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80" alt="Professional training session">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Online</a>
-                        <h3><a routerLink="/detail-news">100 Blended Learning Resources For Teachers</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>Sarah Taylor</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 29, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=80" alt="Instructor leading a classroom discussion">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Learning</a>
-                        <h3><a routerLink="/detail-news">20 Examples Of Project-Based Learning</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>David Warner</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 28, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=700&q=80" alt="Adult learners in a workshop">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Education</a>
-                        <h3><a routerLink="/detail-news">Instructional Design And Adult Learners</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>Alex Morgan</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 30, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=700&q=80" alt="Education conference discussion">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Online</a>
-                        <h3><a routerLink="/detail-news">Join ATD 2020 International Conference & EXPO</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>Sarah Taylor</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 29, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-3 col-md-6">
-                <div class="single-blog-post-box">
-                    <div class="post-image">
-                        <a routerLink="/detail-news" class="d-block">
-                            <img src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=700&q=80" alt="Online learning conference">
-                        </a>
-                    </div>
-                    <div class="post-content">
-                        <a routerLink="/news" class="category">Learning</a>
-                        <h3><a routerLink="/detail-news">2020 L&D On A Shoestring Online Conference</a></h3>
-                        <ul class="post-content-footer d-flex justify-content-between align-items-center">
-                            <li>
-                                <div class="post-author d-flex align-items-center">
-                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80" class="rounded-circle" alt="image">
-                                    <span>David Warner</span>
-                                </div>
-                            </li>
-                            <li><i class='flaticon-calendar'></i> April 28, 2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12 col-md-12">
+            
+            <div class="col-lg-12 col-md-12" *ngIf="totalPages() > 1">
                 <div class="pagination-area text-center">
-                    <a routerLink="/news" class="prev page-numbers"><i class='bx bx-chevrons-left'></i></a>
-                    <span class="page-numbers current" aria-current="page">1</span>
-                    <a routerLink="/news" class="page-numbers">2</a>
-                    <a routerLink="/news" class="page-numbers">3</a>
-                    <a routerLink="/news" class="page-numbers">4</a>
-                    <a routerLink="/news" class="next page-numbers"><i class='bx bx-chevrons-right'></i></a>
+                    <a href="javascript:void(0)" class="prev page-numbers" (click)="onPageChange(currentPage - 1)" [class.disabled]="currentPage === 1"><i class='bx bx-chevrons-left'></i></a>
+                    
+                    <a href="javascript:void(0)" class="page-numbers" *ngFor="let page of getPages()" [class.current]="currentPage === page" (click)="onPageChange(page)">{{page}}</a>
+                    
+                    <a href="javascript:void(0)" class="next page-numbers" (click)="onPageChange(currentPage + 1)" [class.disabled]="currentPage === totalPages()"><i class='bx bx-chevrons-right'></i></a>
                 </div>
             </div>
         </div>

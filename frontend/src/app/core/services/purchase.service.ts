@@ -34,4 +34,9 @@ export class PurchaseServices {
 
     }
 
+    getListPurcharseCourses(pageIndex: number, pageSize: number) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('PurchaseOrder', 'GetListPurcharseCourses', pageIndex, pageSize);
+        return this.transferHttp.get(ApiUrl).pipe(map((res: any) => res));
+    }
+
 }

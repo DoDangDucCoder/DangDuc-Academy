@@ -1,0 +1,54 @@
+/* Language Vocabulary Manager styles */
+
+.nav-tabs-custom .nav-link {
+  border-radius: 0;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &.active {
+    font-weight: 600;
+  }
+}
+
+.table-custom-effect tbody tr:hover {
+  background-color: rgba(var(--bs-success-rgb), 0.04);
+  transition: background-color 0.15s ease;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-header.bg-success,
+.modal-header.bg-warning {
+  border-radius: calc(0.375rem - 1px) calc(0.375rem - 1px) 0 0;
+}
+
+.font-monospace {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.csv-import-section {
+  background: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  .csv-header { display: flex; justify-content: space-between; align-items: center;
+    h5 { margin: 0; font-size: .9rem; font-weight: 700; }
+  }
+  .csv-body { margin-top: 8px; }
+  .csv-preview { font-size: .82rem; }
+}

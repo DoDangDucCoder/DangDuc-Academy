@@ -1,0 +1,68 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Audit Log</h4>
+    <button class="btn btn-primary" (click)="loadLogs(1)" [disabled]="isLoading">Refresh</button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-2">
+      <input class="form-control" placeholder="Action" [(ngModel)]="action" />
+    </div>
+    <div class="col-md-2">
+      <input class="form-control" placeholder="Entity name" [(ngModel)]="entityName" />
+    </div>
+    <div class="col-md-2">
+      <input type="number" class="form-control" placeholder="User id" [(ngModel)]="userId" />
+    </div>
+    <div class="col-md-2">
+      <input type="date" class="form-control" [(ngModel)]="fromDate" />
+    </div>
+    <div class="col-md-2">
+      <input type="date" class="form-control" [(ngModel)]="toDate" />
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+      <button class="btn btn-outline-primary flex-fill" (click)="loadLogs(1)">Filter</button>
+      <button class="btn btn-light" (click)="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="isLoading" class="text-muted">Loading...</div>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>Old</th>
+          <th>New</th>
+          <th>IP</th>
+          <th>User Agent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td>{{ log.createdAt | json }}</td>
+          <td>{{ log.userId || '-' }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ log.entityName }} #{{ log.entityId || '-' }}</td>
+          <td><pre class="audit-json">{{ prettyJson(log.oldValue) }}</pre></td>
+          <td><pre class="audit-json">{{ prettyJson(log.newValue) }}</pre></td>
+          <td>{{ log.ipAddress || '-' }}</td>
+          <td class="text-truncate" style="max-width: 260px">{{ log.userAgent || '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pagination
+    *ngIf="rowCount > pageSize"
+    [totalItems]="rowCount"
+    [(ngModel)]="pageIndex"
+    [itemsPerPage]="pageSize"
+    (pageChanged)="loadLogs($event.page)">
+  </pagination>
+</div>

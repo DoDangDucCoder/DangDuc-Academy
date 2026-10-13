@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
+using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
@@ -163,10 +164,24 @@ namespace HDNXUdemyServices.Services
             return _mapper.Map<List<UserModel>>(getData);
         }
 
+        public async Task<PagedResult<UserModel>> GetListStudentsPaged(int pageIndex, int pageSize)
+        {
+            var getData = await _userRepository.GetAsync(x => x.RoleId == (int)ERoles.Student);
+            var resultMapping = _mapper.Map<List<UserModel>>(getData);
+            return resultMapping.GetPagingPaged(pageIndex, pageSize, null);
+        }
+
         public async Task<List<UserModel>> GetListUserManager()
         {
             var getData = await _userRepository.GetAsync(x => x.RoleId == (int)ERoles.User || x.RoleId == (int)ERoles.Admin);
             return _mapper.Map<List<UserModel>>(getData);
+        }
+
+        public async Task<PagedResult<UserModel>> GetListUserManagerPaged(int pageIndex, int pageSize)
+        {
+            var getData = await _userRepository.GetAsync(x => x.RoleId == (int)ERoles.User || x.RoleId == (int)ERoles.Admin);
+            var resultMapping = _mapper.Map<List<UserModel>>(getData);
+            return resultMapping.GetPagingPaged(pageIndex, pageSize, null);
         }
 
         public async Task<List<UserModel>> GetListTeachers()

@@ -2,17 +2,13 @@
 <div class="inner-banner inner-bg5">
     <div class="container">
         <div class="inner-title text-center">
-            <h1>List Courses</h1>
+            <h1>My Courses</h1>
             <ul>
                 <li>
                     <a routerLink="/">Home</a>
                 </li>
-                <li>List Courses</li>
+                <li>My Courses</li>
             </ul>
-            <div class="inner-shape">
-                <img src="assets/images/inner-banner/inner-shape1.png" alt="shape" />
-                <img src="assets/images/inner-banner/inner-shape2.png" alt="shape" />
-            </div>
         </div>
     </div>
 </div>
@@ -22,86 +18,98 @@
     <div class="container">
         <div class="row">
             <div class="col-xl-3 col-lg-4 col-md-12">
-                <div class="author-profile-sidebar">
+                <div class="author-profile-sidebar" *ngIf="user">
                     <div class="author-user">
-                        <img [src]="user.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="author" />
+                        <img [src]="'assets/images/demo/avatar-placeholder.svg'" alt="author" />
                         <i class="bx bx-check-shield"></i>
                     </div>
                     <h3>{{user.name}}</h3>
                     <span>{{user.email}}</span>
                     <p>{{user.phone}}</p>
                     <div class="sp-title">HDNX {{user.userId}} <i class="ri-folders-line"></i></div>
-                    <div class="author-content">
+
+                    <!-- Progress Summary -->
+                    <div class="author-content mt-3" style="border-top: 1px solid #eee; padding-top: 15px;">
                         <div class="content-left">
-                            <span>Followers</span>
-                            <h3>2941</h3>
+                            <span>Total Courses</span>
+                            <h3>{{courses.length}}</h3>
                         </div>
                         <div class="content-right">
-                            <button type="submit">Follow</button>
+                            <span>Completed</span>
+                            <h3>{{getCompletedCount()}}</h3>
                         </div>
                     </div>
-                    <ul class="social-link">
-                        <li>
-                            <a href="https://www.facebook.com/" target="_blank" class="facebook">
-                                <i class="bx bxl-facebook-circle"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://twitter.com/" target="_blank" class="twitter">
-                                <i class="bx bxl-twitter"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://www.linkedin.com/" target="_blank" class="linkedin">
-                                <i class="bx bxl-linkedin-square"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://www.instagram.com/" target="_blank" class="instagram">
-                                <i class="bx bxl-instagram"></i>
-                            </a>
-                        </li>
-                    </ul>
                 </div>
             </div>
             <div class="col-xl-9 col-lg-8 col-md-12">
+                <!-- Empty state -->
+                <div *ngIf="courses.length === 0" class="text-center py-5">
+                    <i class="bx bx-book-open" style="font-size: 64px; color: #ccc;"></i>
+                    <h4 class="mt-3">No courses yet</h4>
+                    <p class="text-muted">Start learning by enrolling in a course!</p>
+                    <a routerLink="/" class="default-btn"><i class="flaticon-right-arrow"></i> Browse Courses</a>
+                </div>
+
                 <div class="row">
-                    <div *ngFor="let item of courses" class="col-xl-4 col-lg-4 col-md-6">
-                        <div class="single-courses-box">
+                    <div *ngFor="let item of courses" class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                        <div class="single-courses-box" style="border-radius: 12px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.08);">
                             <div class="courses-image">
                                 <a routerLink="/detail-courses/{{item.id}}" class="d-block image">
-                                    <img [src]="item.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image" />
+                                    <img [src]="item.pictureUrl || 'assets/images/demo/course-placeholder.svg'" alt="image" />
                                 </a>
-                                <a routerLink="/" class="fav"><i class="flaticon-heart"></i></a>
                             </div>
-                            <div class="courses-content">
-                                <div class="course-author d-flex align-items-center">
-                                <img [src]="'assets/images/demo/avatar-instructor.svg' | assetUrl" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
-                                    <span>{{item.userName || 'HDNX Academy'}}</span>
+                            <div class="courses-content" style="padding: 15px;">
+                                <div class="course-author d-flex align-items-center mb-2">
+                                    <img src="assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" style="width: 28px; height: 28px;" />
+                                    <span class="ms-2" style="font-size: 13px;">{{item.userName || 'Giảng viên'}}</span>
                                 </div>
-                                <h3>
+                                <h3 style="font-size: 15px; line-height: 1.4; margin-bottom: 8px;">
                                     <a routerLink="/detail-courses/{{item.id}}">{{item.title}}</a>
                                 </h3>
-                                <p>
-                                    {{item.shortDescription}}
-                                </p>
-                                <div class="progress mt-2">
-                                    <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        25%
+
+                                <!-- Progress Bar -->
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted">Progress</small>
+                                        <small class="fw-bold" [ngClass]="getProgress(item.id) === 100 ? 'text-success' : 'text-primary'">
+                                            {{getProgress(item.id)}}%
+                                        </small>
+                                    </div>
+                                    <div class="progress" style="height: 8px; border-radius: 4px; background: #e9ecef;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                             [ngClass]="getProgressClass(getProgress(item.id))"
+                                             role="progressbar"
+                                             [style.width.%]="getProgress(item.id)"
+                                             [attr.aria-valuenow]="getProgress(item.id)"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-center" *ngIf="getProgress(item.id) === 100">
+                                        <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>Completed</span>
+                                    </div>
+                                    <div class="mt-2 text-center" *ngIf="getCertificate(item.id)">
+                                        <button type="button" class="btn btn-sm btn-outline-success" style="font-size: 12px;" (click)="downloadCertificate(item.id)">
+                                            <i class="bx bx-download me-1"></i>Download Certificate
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 text-center" *ngIf="getProgress(item.id) > 0 && getProgress(item.id) < 100">
+                                        <a routerLink="/detail-courses/{{item.id}}" class="btn btn-sm btn-outline-primary" style="font-size: 12px;">
+                                            <i class="bx bx-play-circle me-1"></i>Continue Learning
+                                        </a>
+                                    </div>
+                                    <div class="mt-2 text-center" *ngIf="getProgress(item.id) === 0">
+                                        <a routerLink="/detail-courses/{{item.id}}" class="btn btn-sm btn-primary" style="font-size: 12px;">
+                                            <i class="bx bx-play me-1"></i>Start Course
+                                        </a>
+                                    </div>
+                                    <div class="mt-2 text-center" *ngIf="canRefund(item.id)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger mt-2" style="font-size: 12px; width: 100%;" (click)="requestRefund(item.id)">
+                                            <i class="bx bx-undo me-1"></i>Request Refund
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-12 col-md-12">
-                        <div class="pagination-area text-center">
-                            <a routerLink="/courses" class="prev page-numbers"><i class="bx bx-chevrons-left"></i></a>
-                            <span class="page-numbers current" aria-current="page">1</span>
-                            <a routerLink="/courses" class="page-numbers">2</a>
-                            <a routerLink="/courses" class="page-numbers">3</a>
-                            <a routerLink="/courses" class="page-numbers">4</a>
-                            <a routerLink="/courses" class="next page-numbers"><i class="bx bx-chevrons-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -109,4 +117,3 @@
         </div>
     </div>
 </div>
-

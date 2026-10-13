@@ -3,10 +3,10 @@
         <div class="page-title-content">
             <ul>
                 <li><a routerLink="/">Home</a></li>
-                <li><a routerLink="/">Blog</a></li>
-                <li>It’s Time To Think Differently About Homeschooling</li>
+                <li><a routerLink="/news">News</a></li>
+                <li>{{ article?.title || 'Loading...' }}</li>
             </ul>
-            <h2>Blog Details</h2>
+            <h2>News Details</h2>
         </div>
     </div>
     <div class="shape9"><img src="assets/img/shape8.svg" alt="image"></div>
@@ -26,56 +26,23 @@
                                 <li>
                                     <i class='bx bx-folder-open'></i>
                                     <span>Category</span>
-                                    <a routerLink="/blog-1">Fashion</a>
+                                    <a routerLink="/news">News</a>
                                 </li>
                                 <li>
                                     <i class='bx bx-group'></i>
                                     <span>View</span>
-                                    <a routerLink="/">813,454</a>
+                                    <span>{{ article?.viewCount || 0 }}</span>
                                 </li>
                                 <li>
                                     <i class='bx bx-calendar'></i>
                                     <span>Last Updated</span>
-                                    <a routerLink="/">25/04/2020</a>
+                                    <span>{{ article?.updateDate | date:'dd/MM/yyyy' }}</span>
                                 </li>
                             </ul>
                         </div>
-                        <h3>It’s Time To Think Differently About Homeschooling</h3>
-                        <p>Quuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quia non numquam eius modi tempora incidunt ut labore et dolore magnam dolor sit amet, consectetur adipisicing.</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in  sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>
-                        <blockquote class="wp-block-quote">
-                            <p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</p>
-                            <cite>Tom Cruise</cite>
-                        </blockquote>
-                        <p>Quuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quia non numquam eius modi tempora incidunt ut labore et dolore magnam dolor sit amet, consectetur adipisicing.</p>
-                        <ul class="wp-block-gallery columns-3">
-                            <li class="blocks-gallery-item">
-                                <figure>
-                                    <img src="assets/img/blog/img15.jpg" alt="image">
-                                </figure>
-                            </li>
-                            <li class="blocks-gallery-item">
-                                <figure>
-                                    <img src="assets/img/blog/img14.jpg" alt="image">
-                                </figure>
-                            </li>
-                            <li class="blocks-gallery-item">
-                                <figure>
-                                    <img src="assets/img/blog/img13.jpg" alt="image">
-                                </figure>
-                            </li>
-                        </ul>
-                        <h3>Four major elements that we offer:</h3>
-                        <ul class="features-list">
-                            <li><i class='bx bx-badge-check'></i> Scientific skills for getting a better result</li>
-                            <li><i class='bx bx-badge-check'></i> Communication skills to getting in touch</li>
-                            <li><i class='bx bx-badge-check'></i> A career overview opportunity available</li>
-                            <li><i class='bx bx-badge-check'></i> A good work environment for work</li>
-                        </ul>
-                        <h3>Setting the mood with incense</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in  sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>
-                        <h3>The rise of marketing and why you need it</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.</p>
+                        <h3>{{ article?.title }}</h3>
+                        <div [innerHTML]="article?.content"></div>
+                        <!-- Content injected via innerHTML above -->
                     </div>
                     <div class="article-footer">
                         <div class="article-tags">
@@ -98,15 +65,14 @@
                         <div class="author-profile-header"></div>
                         <div class="author-profile">
                             <div class="author-profile-title">
-                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80" class="shadow-sm" alt="image">
+                                <img src="assets/img/user1.jpg" class="shadow-sm" alt="image">
                                 <div class="author-profile-title-details">
                                     <div class="author-profile-details">
-                                        <h4>Chris Orwig</h4>
-                                        <span class="d-block">Photographer, Author, Writer</span>
+                                        <h4>{{ article?.authorName || 'Admin' }}</h4>
+                                        <span class="d-block">Author</span>
                                     </div>
                                 </div>
                             </div>
-                            <p>Chris Orwig is a celebrated photographer, author, and writer who brings passion to everything he does.</p>
                         </div>
                     </div>
                     <div class="odemy-post-navigation">

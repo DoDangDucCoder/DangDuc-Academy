@@ -17,6 +17,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Threading.RateLimiting;
 using static HDNXUdemyConvertVideoAPI.ProjectExtensisons.ApplicationSwaggerExtension;
+using HDNXUdemyModel.Base;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace HDNXUdemyConvertVideoAPI
 {
@@ -46,7 +49,11 @@ namespace HDNXUdemyConvertVideoAPI
             builder.Services.AddControllers();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
-            builder.Services.AddDbContext<ProjectContext>();
+            
+            var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(ProjectConfig.ConnectionString ?? string.Empty);
+            dataSourceBuilder.UseNodaTime();
+            var dataSource = dataSourceBuilder.Build();
+            builder.Services.AddDbContext<ProjectContext>(options => options.UseNpgsql(dataSource, x => x.UseNodaTime()));
             builder.Services.AddAutoMapper(_ => { }, AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddMvc().AddNewtonsoftJson(options =>
             {
@@ -82,6 +89,7 @@ namespace HDNXUdemyConvertVideoAPI
             builder.Services.AddApplicationServicesExtension();
             builder.Services.CustomerApplicationJWTExtension();
             builder.Services.AddAuthorization();
+            builder.Services.AddHealthChecks();
             builder.Services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -166,6 +174,8 @@ namespace HDNXUdemyConvertVideoAPI
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapHealthChecks("/health/live");
+            app.MapHealthChecks("/health/ready");
             app.MapControllers();
             app.Run();
         }

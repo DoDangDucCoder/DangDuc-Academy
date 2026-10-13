@@ -240,3 +240,26 @@
     }
     
 }
+.main-banner-courses-list .single-courses-box .courses-box-footer {
+    li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0;
+
+        &:last-child { justify-content: flex-end; }
+
+        i {
+            position: static;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}

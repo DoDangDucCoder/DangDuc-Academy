@@ -1,4 +1,4 @@
-﻿using CloudinaryDotNet;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Exception;
@@ -106,7 +106,43 @@ namespace HDNXUdemyServices.Services
                 _cloudinary = new Cloudinary(accountCloud);
                 var deleteParams = new DeletionParams(publicId);
                 var result = await _cloudinary.DestroyAsync(deleteParams);
+
                 return result;
+            }
+            catch (Exception ex)
+            {
+                throw new ProjectAwsException("Cloud storage is unavailable.", ex);
+            }
+        }
+
+        public async Task<ResponseUploadWithCloudinary> AddRawFileToCloudAsync(IFormFile formFile)
+        {
+            EnsureCloudinaryConfigured();
+            if (formFile == null || formFile.Length <= 0)
+            {
+                throw new ProjectBadRequestException("File is required.");
+            }
+
+            try
+            {
+                var accountCloud = new Account(ProjectConfig.CloudName, ProjectConfig.APIKey, ProjectConfig.APISecret);
+                var uploadResult = new RawUploadResult();
+                _cloudinary = new Cloudinary(accountCloud);
+                using var stream = formFile.OpenReadStream();
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(formFile.FileName, stream)
+                };
+
+                uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                var resultData = new ResponseUploadWithCloudinary()
+                {
+                    UrlPicture = uploadResult.SecureUrl?.AbsoluteUri ?? string.Empty,
+                    PublicId = uploadResult.PublicId
+                };
+
+                return resultData;
             }
             catch (Exception ex)
             {

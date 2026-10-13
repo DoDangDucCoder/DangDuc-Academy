@@ -1,4 +1,5 @@
-﻿using HDNXUdemyModel.Model;
+using HDNXUdemyModel.Model;
+using HDNXUdemyModel.Base;
 using HDNXUdemyModel.ResponModel;
 using Microsoft.AspNetCore.Http;
 
@@ -58,9 +59,13 @@ namespace HDNXUdemyServices.IServices
 
         Task<List<CourseModel>> GetListCourseForAdmin();
 
+        Task<PagedResult<CourseModel>> GetListCourseForAdminPaged(int pageIndex, int pageSize);
+
         Task<GetCourseWithDetailsContent> GetDetailCourse(long id, bool isAdmin);
 
         Task<List<CourseModel>> GetListCourseAsCategory(long idCategory);
+
+        Task<PagedResult<CourseModel>> GetListCourseAsCategoryPaged(long idCategory, int pageIndex, int pageSize);
 
         Task<List<CourseModel>> GetListCourseOfStudent(long idStudent);
 
@@ -75,5 +80,7 @@ namespace HDNXUdemyServices.IServices
         Task<bool> UpdateInformationDetailsTheadQuestionCourse(long id, DetailTheadQuestionCourseModel model);
 
         Task<List<DetailTheadQuestionCourseModel>> GetListDetailsTheadQuestionCourse(long idThear);
+
+        Task<PagedResult<CourseModel>> SearchCourses(HDNXUdemyModel.RequestModel.SearchCoursesRequest request, int pageIndex, int pageSize);
     }
 }

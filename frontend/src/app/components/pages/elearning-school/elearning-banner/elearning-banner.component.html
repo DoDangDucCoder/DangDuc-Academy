@@ -23,13 +23,13 @@
                                 <div class="courses-content">
                                     <div class="course-author d-flex align-items-center">
                                         <img src="assets/images/demo/avatar-instructor.svg" class="rounded-circle" alt="image">
-                                        <span>{{item.userName || 'HDNX Academy'}}</span>
+                                        <span>{{item.userName || 'Giảng viên'}}</span>
                                     </div>
                                     <h3><a routerLink="/detail-courses/{{item.id}}">{{item.title}}</a></h3>
                                     <p>{{item.shortDescription}}</p>
                                     <ul class="courses-box-footer d-flex justify-content-between align-items-center">
-                                        <li><i class='flaticon-agenda'></i> {{item.totalChapter || 0}} Lessons</li>
-                                        <li><i class='flaticon-people'></i> {{item.totalStudentRegister || 0}} Students</li>
+                                        <li><i class="flaticon-agenda" aria-hidden="true"></i><span>{{item.totalChapter || 0}} Lessons</span></li>
+                                        <li><i class="flaticon-people" aria-hidden="true"></i><span>{{item.totalStudentRegister || 0}} Students</span></li>
                                     </ul>
                                 </div>
                             </div>

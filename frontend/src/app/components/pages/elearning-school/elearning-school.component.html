@@ -1,9 +1,65 @@
 <app-hdnx-loading [show]="isLoading">
+    <!-- Flash Sale Banner -->
+    <div class="flash-sale-banner" *ngIf="showFlashSale">
+        <div class="container">
+            <div class="flash-sale-content">
+                <div class="flash-sale-left">
+                    <span class="flash-badge"><i class="bx bx-bolt-circle"></i> FLASH SALE</span>
+                    <span class="flash-text">New courses from <strong>₫99,000</strong> | Ends in</span>
+                </div>
+                <div class="flash-countdown">
+                    <div class="count-box"><span>{{ countdownHours }}</span><small>Hrs</small></div>
+                    <div class="count-sep">:</div>
+                    <div class="count-box"><span>{{ countdownMinutes }}</span><small>Min</small></div>
+                    <div class="count-sep">:</div>
+                    <div class="count-box"><span>{{ countdownSeconds }}</span><small>Sec</small></div>
+                </div>
+                <button class="flash-close" (click)="showFlashSale = false"><i class="bx bx-x"></i></button>
+            </div>
+        </div>
+    </div>
+
     <app-elearning-banner [featuredCourses]="homeDataOfProject?.listContentData?.[0]?.listDataOfContent || []"></app-elearning-banner>
 
     <div class="partner-area pt-100 pb-70 border-bottom">
         <div class="container">
             <app-partner [listPartner]="homeDataOfProject?.partners"></app-partner>
+        </div>
+    </div>
+
+    <!-- Trending Now Section -->
+    <div class="trending-section ptb-50" *ngIf="trendingCourses.length > 0">
+        <div class="container">
+            <div class="section-title">
+                <span class="sub-title"><i class="bx bx-trending-up"></i> Trending Now</span>
+                <h2>What students are viewing right now</h2>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4" *ngFor="let course of trendingCourses">
+                    <div class="trending-card">
+                        <a [routerLink]="'/course-detail/' + course.id" class="trending-thumb-wrap">
+                            <img [src]="course.pictureUrl || 'assets/images/demo/course-placeholder.svg'" loading="lazy" alt="" class="trending-thumb" />
+                            <span class="trending-badge" *ngIf="course.isDiscount">Sale</span>
+                        </a>
+                        <div class="trending-body">
+                            <h4><a [routerLink]="'/course-detail/' + course.id">{{ course.title }}</a></h4>
+                            <p class="trending-author">{{ course.userName || 'Instructor' }}</p>
+                            <div class="trending-rating">
+                                <i class="bx bxs-star"></i>
+                                <span>{{ course.averageRating || '4.5' }}</span>
+                                <span class="rating-count">({{ course.totalStudentRegister || 0 }})</span>
+                            </div>
+                            <div class="trending-price">
+                                <span *ngIf="course.isFree" class="free-badge">Free</span>
+                                <ng-container *ngIf="!course.isFree">
+                                    <span class="current-price">{{ (course.isDiscount ? course.priceOfDiscount : course.priceOfCourse) | currency:'VND':'symbol':'1.0-0' }}</span>
+                                    <span class="original-price" *ngIf="course.isDiscount"><del>{{ course.priceOfCourse | currency:'VND':'symbol':'1.0-0' }}</del></span>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

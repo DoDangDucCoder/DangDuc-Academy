@@ -15,7 +15,7 @@ export class AuthenticationEffects {
       exhaustMap(({ email, first_name, password }) =>
         this.AuthenticationService.register(email, first_name, password).pipe(
           map((response) => {
-            if (response.retCode === 0 && response.systemMessage === '') {
+            if (this.isSuccessResponse(response)) {
               this.router.navigate(['/auth/login']);
               return RegisterSuccess({ user: { email, name: first_name } });
             }
@@ -31,10 +31,15 @@ export class AuthenticationEffects {
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(login),
-      exhaustMap(({ email, password }) =>
-        this.AuthenticationService.login(email, password).pipe(
+      exhaustMap(({ email, password, rememberMe }) =>
+        this.AuthenticationService.login(email, password, rememberMe).pipe(
           map((response) => {
-            if (response.retCode === 0 && response.systemMessage === '' && response.data) {
+            if (this.isSuccessResponse(response) && response.data) {
+              if (!this.isAdmin(response.data)) {
+                this.AuthenticationService.clearLocalSession();
+                return loginFailure({ error: 'Tai khoan nay khong co quyen truy cap trang quan tri.' });
+              }
+
               this.router.navigate(['/']);
               return loginSuccess({ user: response.data });
             }
@@ -69,5 +74,16 @@ export class AuthenticationEffects {
 
     const value = error as { error?: { systemMessage?: string; message?: string }; message?: string };
     return value?.error?.systemMessage || value?.error?.message || value?.message || fallbackMessage;
+  }
+
+  private isAdmin(user: any): boolean {
+    const roleId = Number(user?.roleId);
+    const roleName = `${user?.roleName ?? user?.role ?? ''}`.toLowerCase();
+    return roleId === 0 || roleName === 'admin';
+  }
+
+  private isSuccessResponse(response: any): boolean {
+    const retCode = response?.retCode;
+    return retCode === 0 || `${retCode}`.toLowerCase() === 'successfull';
   }
 }

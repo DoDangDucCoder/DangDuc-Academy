@@ -1,372 +1,343 @@
-<div class="course-container page-title-content">
-    <ul>
-        <li><a routerLink="/">Home</a></li>
-        <li>
-            <a routerLink="/">{{ contentCourseDetail?.categoryName }}</a>
-        </li>
-        <li>{{ contentCourseDetail?.title }}</li>
-    </ul>
+<!-- ─── STICKY COURSE HEADER ──────────────────────────────────────── -->
+<div class="lp-header">
+  <a routerLink="/" class="lp-back-btn" aria-label="Quay lại trang chủ">
+    <i class="bx bx-arrow-back"></i>
+  </a>
+  <div class="lp-header-title" [title]="contentCourseDetail?.title || ''">
+    {{ contentCourseDetail?.title }}
+  </div>
+  <div class="lp-header-progress">
+    <div class="lp-progress-track">
+      <div class="lp-progress-fill" [style.width.%]="courseProgress"></div>
+    </div>
+    <span class="lp-progress-label">{{ courseProgress }}%</span>
+  </div>
+  <button class="lp-cert-btn" *ngIf="courseProgress === 100"
+          (click)="generateAndDownloadCertificate()" [disabled]="isCertLoading">
+    <i class="bx" [ngClass]="isCertLoading ? 'bx-loader-alt bx-spin' : 'bx-award'"></i>
+    Chứng chỉ
+  </button>
 </div>
 
-<div class="video-player-padding">
-    <div class="col-xxl-9 col-xl-9 col-lg-8 col-md-12 col-sm-12 col-12">
-        <div class="ratio ratio-16x9">
-            <div #artplayer></div>
+<!-- ─── MAIN LAYOUT ───────────────────────────────────────────────── -->
+<div class="lp-main" [class.sidebar-closed]="!sidebarOpen">
+
+  <!-- LEFT: Video + Tabs ─────────────────────────────────────────── -->
+  <div class="lp-content">
+
+    <!-- Video Player -->
+    <div class="lp-video-wrap" id="main-video-player">
+      <div #artplayer class="lp-player" role="region" aria-label="Video player"></div>
+      <div class="lp-countdown" *ngIf="showCountdown">
+        <div class="lp-countdown-card">
+          <p>Bài tiếp theo sau <strong>{{ countdownSeconds }}</strong>s...</p>
+          <button class="btn btn-sm btn-outline-light" (click)="cancelCountdown()">Huỷ</button>
         </div>
-
-        <div class="progress col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-2">
-            <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                25%
-            </div>
-        </div>
-        <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-            <div class="courses-details-desc course-container-view">
-                <ul class="nav-tabset">
-                    <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab1' }">
-                        <span (click)="switchTab($event, 'tab1')"> Thông tin khoá học </span>
-                    </li>
-                    <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab2' }">
-                        <span (click)="switchTab($event, 'tab2')"> Tài liệu </span>
-                    </li>
-                    <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab3' }">
-                        <span (click)="switchTab($event, 'tab3')"> Tác giả </span>
-                    </li>
-                    <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab4' }">
-                        <span (click)="switchTab($event, 'tab4')"> Đánh giá khoá học </span>
-                    </li>
-                    <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab5' }">
-                        <span (click)="switchTab($event, 'tab5')"> Câu hỏi khoá học </span>
-                    </li>
-                </ul>
-                <div class="tabs-container">
-                    <div class="pane" id="tab1" *ngIf="currentTab === 'tab1'">
-                        <div class="courses-overview">
-                            <div>{{ contentCourseDetail?.description }}</div>
-                        </div>
-                    </div>
-                    <div class="pane" id="tab2" *ngIf="currentTab === 'tab2'">
-                        <div class="courses-curriculum">
-                            <h3>Tài liệu khoá học</h3>
-                            <ul>
-                                <li>
-                                    <a routerLink="/detail-content-course" routerLinkActive="active" [routerLinkActiveOptions]="{
-                                            exact: true
-                                        }" class="popup-youtube d-flex justify-content-between align-items-center">
-                                        <span class="courses-name">Tài liệu số 1</span>
-                                        <div class="courses-meta">
-                                            <span class="status">Tải xuống</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a routerLink="/detail-content-course" routerLinkActive="active" [routerLinkActiveOptions]="{
-                                            exact: true
-                                        }" class="popup-youtube d-flex justify-content-between align-items-center">
-                                        <span class="courses-name">Tài liệu số 1</span>
-                                        <div class="courses-meta">
-                                            <span class="status">Tải xuống</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a routerLink="/detail-content-course" routerLinkActive="active" [routerLinkActiveOptions]="{
-                                            exact: true
-                                        }" class="popup-youtube d-flex justify-content-between align-items-center">
-                                        <span class="courses-name">Tài liệu số 1</span>
-                                        <div class="courses-meta">
-                                            <span class="status">Tải xuống</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a routerLink="/detail-content-course" routerLinkActive="active" [routerLinkActiveOptions]="{
-                                            exact: true
-                                        }" class="popup-youtube d-flex justify-content-between align-items-center">
-                                        <span class="courses-name">Tài liệu số 1</span>
-                                        <div class="courses-meta">
-                                            <span class="status">Tải xuống</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a routerLink="/detail-content-course" routerLinkActive="active" [routerLinkActiveOptions]="{
-                                            exact: true
-                                        }" class="popup-youtube d-flex justify-content-between align-items-center">
-                                        <span class="courses-name">Tài liệu số 1</span>
-                                        <div class="courses-meta">
-                                            <span class="status">Tải xuống</span>
-                                        </div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="pane" id="tab3" *ngIf="currentTab === 'tab3'">
-                        <div class="courses-instructor">
-                            <div class="single-advisor-box">
-                                <div class="row align-items-center">
-                                    <div class="col-lg-4 col-md-4">
-                                        <div class="advisor-image">
-                                            <img [src]="contentCourseDetail?.author?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="image" />
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-8 col-md-8">
-                                        <div class="advisor-content">
-                                            <h3>{{contentCourseDetail?.author.email}}</h3>
-                                            <span class="sub-title">{{contentCourseDetail?.author.name}}</span>
-                                            <p>
-                                                {{contentCourseDetail?.author.phone}}
-                                            </p>
-                                            <ul class="social-link">
-                                                <li>
-                                                    <a href="#" class="d-block" target="_blank"><i class="bx bxl-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" class="d-block" target="_blank"><i class="bx bxl-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" class="d-block" target="_blank"><i class="bx bxl-instagram"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" class="d-block" target="_blank"><i class="bx bxl-linkedin"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pane" id="tab4" *ngIf="currentTab === 'tab4'">
-                        <div class="courses-reviews">
-                            <h3>Đánh giá</h3>
-                            <div class="rating">
-                                <ngx-stars [readonly]="true" [size]="2" [color]="'#ffd000'" [maxStars]="5" [initialStars]="contentCourseDetail?.averageScore"></ngx-stars>
-                            </div>
-                            <div class="rating-count">
-                                <span>Trung bình {{contentCourseDetail?.averageScore}} sao dựa trên {{contentCourseDetail?.totalVoteOfCourse}} đánh giá.</span>
-                            </div>
-                            <div class="row">
-                                <div class="side">
-                                    <div>5 star</div>
-                                </div>
-                                <div class="middle">
-                                    <div class="bar-container progress">
-                                        <div class="bar-5"></div>
-                                    </div>
-                                </div>
-                                <div class="side right">
-                                    <div>{{contentCourseDetail.vote5Star}}</div>
-                                </div>
-                                <div class="side">
-                                    <div>4 star</div>
-                                </div>
-                                <div class="middle">
-                                    <div class="bar-container">
-                                        <div class="bar-4"></div>
-                                    </div>
-                                </div>
-                                <div class="side right">
-                                    <div>{{contentCourseDetail.vote4Star}}</div>
-                                </div>
-                                <div class="side">
-                                    <div>3 star</div>
-                                </div>
-                                <div class="middle">
-                                    <div class="bar-container">
-                                        <div class="bar-3"></div>
-                                    </div>
-                                </div>
-                                <div class="side right">
-                                    <div>{{contentCourseDetail.vote3Star}}</div>
-                                </div>
-                                <div class="side">
-                                    <div>2 star</div>
-                                </div>
-                                <div class="middle">
-                                    <div class="bar-container">
-                                        <div class="bar-2"></div>
-                                    </div>
-                                </div>
-                                <div class="side right">
-                                    <div>{{contentCourseDetail.vote2Star}}</div>
-                                </div>
-                                <div class="side">
-                                    <div>1 star</div>
-                                </div>
-                                <div class="middle">
-                                    <div class="bar-container">
-                                        <div class="bar-1"></div>
-                                    </div>
-                                </div>
-                                <div class="side right">
-                                    <div>{{contentCourseDetail.vote1Star}}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="courses-review-comments">
-                            <div>
-                                <h3>
-                                    {{contentCourseDetail?.totalVoteOfCourse}} Đánh giá
-                                    <a href="javascript:void(0)" (click)="openModalReviewCourses()" *ngIf="isComment; else commented"><i class="bx bxs-conversation font-size-icon"></i></a>
-                                </h3>
-                            </div>
-
-                            <div class="user-review" *ngFor="let itemComment of commentOfCourse">
-                                <img [src]="itemComment?.users?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" alt="image" />
-                                <div class="review-rating">
-                                    <span class="d-inline-block">{{itemComment?.users?.name}}</span>
-                                    <div class="review-stars">
-                                        <ngx-stars [readonly]="true" [size]="1" [color]="'#ffd000'" [maxStars]="5" [initialStars]="itemComment?.voteStartNumber"></ngx-stars>
-                                    </div>
-
-                                </div>
-                                <span class="d-block sub-comment">Excellent</span>
-                                <p>
-                                    {{itemComment?.commentEvaluation}}
-                                </p>
-                                <div class="courses-review">
-                                    <div class="reactions">
-                                        <button class="btn react" (click)="likeForComment(itemComment.id)"><i class="bx bxs-like" ></i>{{itemComment?.like}}</button>
-                                        <button class="btn react" (click)="disLikeForComment(itemComment.id)"><i class="bx bxs-dislike" ></i>{{itemComment?.disLike}}</button>
-                                    </div>
-                                    <a href="javascript:void(0)" (click)="replayComment()">Trả lời</a>
-                                    <span class="is-mute">6 giờ</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pane" id="tab5" *ngIf="currentTab === 'tab5'">
-                        <div class="courses-review-comments content-comment">
-                            <h3>{{theadQuestionOfCourse?.length}} Câu hỏi</h3>
-                            <div class="block">
-                                <div class="block-header">
-                                    <div class="title">
-                                        <h2>Bình luận</h2>
-                                        <div class="tag">{{theadQuestionOfCourse?.length}}</div>
-                                    </div>
-                                    <div class="group-radio">
-                                        <span class="button-radio">
-                                            <input id="latest" name="latest" type="radio" checked />
-                                            <label for="latest">Mới nhất</label>
-                                        </span>
-                                        <div class="divider"></div>
-                                        <span class="button-radio">
-                                            <input id="popular" name="latest" type="radio" />
-                                            <label for="popular">Phổ biến</label>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="writing" *ngIf="!isDisplayReplay">
-                                    <div contenteditable="true" class="textarea" autofocus spellcheck="true" [mention]="listNameRegister">
-
-                                    </div>
-                                    <div class="footer">
-                                        <div class="text-format">
-                                            <button class="btn"><i class="bx bx-bold"></i></button>
-                                            <button class="btn"><i class="bx bx-italic"></i></button>
-                                            <button class="btn"><i class="bx bx-underline"></i></button>
-                                            <button class="btn"><i class="bx bx-list-ul"></i></button>
-                                        </div>
-                                        <div class="group-button">
-                                            <button class="btn"><i class="bx bx-purchase-tag"></i></button>
-                                            <button class="btn primary">Bình luận</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="comment" *ngFor="let item of theadQuestionOfCourse">
-                                    <div class="user-banner">
-                                        <div class="user">
-                                            <div class="avatar">
-                                                <img [src]="item?.user?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" />
-                                                <span class="stat grey"></span>
-                                            </div>
-                                            <h5>{{item?.user?.name}}</h5>
-                                        </div>
-                                        <button class="btn dropdown"><i class="ri-more-line"></i></button>
-                                    </div>
-                                    <div class="content">
-                                        <p>
-                                            {{item?.comment}}
-                                        </p>
-                                    </div>
-                                    <div class="footer">
-                                        <button class="btn"><i class="ri-emotion-line"></i></button>
-                                        <div class="reactions">
-                                            <button class="btn react"><i class="bx bxs-like"></i>4</button>
-                                            <button class="btn react"><i class="bx bxs-dislike"></i>1</button>
-                                            <button class="btn react" (click)="openModalCommentUser()">
-                                                <i class="bx bxs-conversation"></i>{{item?.totalCommentForThead}}
-                                            </button>
-                                        </div>
-                                        <div class="divider"></div>
-                                        <a href="javascript:void(0)" (click)="replayComment()">Trả lời</a>
-                                        <div class="divider"></div>
-                                        <span class="is-mute">6 giờ</span>
-                                    </div>
-                                    <div class="writing replay-comment" *ngIf="isDisplayReplay">
-                                        <div contenteditable="true" class="textarea" autofocus spellcheck="false">
-                                            <p>Hi <a class="tagged-user">@Jo</a></p>
-                                        </div>
-                                        <div class="footer">
-                                            <div class="text-format">
-                                                <button class="btn"><i class="bx bx-bold"></i></button>
-                                                <button class="btn"><i class="bx bx-italic"></i></button>
-                                                <button class="btn"><i class="bx bx-underline"></i></button>
-                                                <button class="btn"><i class="bx bx-list-ul"></i></button>
-                                            </div>
-                                            <div class="group-button">
-                                                <button class="btn"><i class="bx bx-purchase-tag"></i></button>
-                                                <button class="btn primary">Gửi</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="load">
-                                    <button class="btn react"><i class="bx bx-refresh"></i>Tải thêm</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-12 col-sm-12 col-12">
-        <div class="list-container courses-curriculum-content-detail">
-            <div ngbAccordion [closeOthers]="true">
-                <div ngbAccordionItem *ngFor="let item of contentCourseDetail?.listContentCourseDetails" [collapsed]="item.id !== 0">
-                    <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton>
-                            <div style="display: grid">
-                                <h3>{{ item?.name }}</h3>
-                                <h5>{{ contentCourseDetail?.listContentCourseDetails?.length }} bài học / 21 phút</h5>
-                            </div>
-                        </button>
-                    </h2>
-                    <div ngbAccordionCollapse>
-                        <div ngbAccordionBody>
-                            <ng-template>
-                                <ul>
-                                    <li class="list-group-content" ngbTooltip="{{ itemContent?.nameSubContent }}" [class.active]="itemContent.id === activeItemIndex" (click)="selectContentCourse(itemContent.id)" *ngFor="let itemContent of item?.contentAndContentDetails">
-                                        <a href="javascript:void(0)" class="locked popup-youtube d-flex justify-content-between align-items-center">
-                                            <span class="courses-name">{{ itemContent?.nameSubContent }}</span>
-                                            <div class="courses-meta">
-                                                <span class="duration">{{ itemContent?.timeOfContent }}</span>
-                                                <span class="status locked"><i class="flaticon-password"></i></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </ng-template>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+    <!-- Prev / Next Navigation -->
+    <div class="lp-nav">
+      <button class="lp-nav-btn lp-nav-prev" (click)="goToPrevLesson()" [disabled]="!hasPrevLesson()">
+        <i class="bx bx-chevron-left"></i> Bài trước
+      </button>
+      <span class="lp-nav-counter" *ngIf="videoOfContent">
+        {{ getCurrentLessonIndex() + 1 }} / {{ getTotalLessons() }}
+      </span>
+      <button class="lp-nav-btn lp-nav-next" (click)="goToNextLesson()" [disabled]="!hasNextLesson()">
+        Bài tiếp <i class="bx bx-chevron-right"></i>
+      </button>
     </div>
+
+    <!-- Subtitle Panel (Instructor Only) -->
+    <div class="lp-subtitle-panel" *ngIf="isInstructorOrAdmin">
+      <h6><i class="bx bx-captions"></i> Quản lý Phụ đề</h6>
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        <input type="text" #subLang class="form-control form-control-sm" placeholder="Ngôn ngữ (VD: Tiếng Việt)" style="max-width:180px" />
+        <input type="text" #subLabel class="form-control form-control-sm" placeholder="Nhãn (VD: VI)" style="max-width:90px" />
+        <input type="file" #subFile class="form-control form-control-sm" accept=".vtt" style="max-width:260px" />
+        <button class="btn btn-primary btn-sm" (click)="uploadSubtitle(subLang.value, subLabel.value, subFile)">Tải lên</button>
+      </div>
+      <div class="mt-2" *ngIf="subtitles.length > 0">
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge bg-secondary d-flex align-items-center gap-1" *ngFor="let sub of subtitles">
+            {{ sub.language }} ({{ sub.label }})
+            <i class="bx bx-x" style="cursor:pointer" (click)="deleteSubtitle(sub.id!)"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="lp-tabs">
+      <div class="lp-tab-bar" role="tablist">
+        <button class="lp-tab" [class.active]="currentTab === 'tab1'" (click)="switchTab($event, 'tab1')">Thông tin</button>
+        <button class="lp-tab" [class.active]="currentTab === 'tab2'" (click)="switchTab($event, 'tab2')">Tài liệu</button>
+        <button class="lp-tab" [class.active]="currentTab === 'tab3'" (click)="switchTab($event, 'tab3')">Tác giả</button>
+        <button class="lp-tab" [class.active]="currentTab === 'tab4'" (click)="switchTab($event, 'tab4')">Đánh giá</button>
+        <button class="lp-tab" [class.active]="currentTab === 'tab5'" (click)="switchTab($event, 'tab5')">Câu hỏi</button>
+        <button class="lp-tab" [class.active]="currentTab === 'tab6'" (click)="switchTab($event, 'tab6')">Bài tập</button>
+        <button class="lp-tab" [class.active]="currentTab === 'tab7'" (click)="switchTab($event, 'tab7')">
+          📝 Ghi chú <span class="lp-tab-badge" *ngIf="courseNotes.length > 0">{{ courseNotes.length }}</span>
+        </button>
+      </div>
+
+      <div class="lp-tab-content">
+
+        <!-- TAB 1: Thông tin -->
+        <div *ngIf="currentTab === 'tab1'" class="lp-pane">
+          <div class="lp-description">{{ contentCourseDetail?.description || 'Chưa có mô tả cho khoá học này.' }}</div>
+          <div class="lp-stats" *ngIf="contentCourseDetail">
+            <div class="lp-stat">
+              <div class="lp-stat-value">{{ getTotalLessons() }}</div>
+              <div class="lp-stat-label">Bài học</div>
+            </div>
+            <div class="lp-stat">
+              <div class="lp-stat-value">{{ courseProgress }}%</div>
+              <div class="lp-stat-label">Hoàn thành</div>
+            </div>
+            <div class="lp-stat">
+              <div class="lp-stat-value">
+                <i class="bx bx-certification text-success" *ngIf="courseProgress === 100"></i>
+                <i class="bx bx-lock-alt text-muted" *ngIf="courseProgress < 100"></i>
+              </div>
+              <div class="lp-stat-label">{{ courseProgress === 100 ? 'Có chứng chỉ' : 'Chưa đủ điều kiện' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Tài liệu -->
+        <div *ngIf="currentTab === 'tab2'" class="lp-pane">
+          <div class="lp-empty-state">
+            <i class="bx bx-folder-open"></i>
+            <p>Chưa có tài liệu</p>
+            <small>Giảng viên sẽ cập nhật tài liệu sớm</small>
+          </div>
+        </div>
+
+        <!-- TAB 3: Tác giả -->
+        <div *ngIf="currentTab === 'tab3'" class="lp-pane">
+          <div class="lp-author">
+            <img [src]="contentCourseDetail?.author?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'"
+                 fallbackSrc="/assets/images/demo/avatar-placeholder.svg"
+                 class="lp-author-avatar" alt="Tác giả" />
+            <div class="lp-author-info">
+              <h4>{{ contentCourseDetail?.author?.name || contentCourseDetail?.author?.email }}</h4>
+              <span class="lp-author-role">Giảng viên</span>
+              <div class="lp-author-contacts">
+                <span *ngIf="contentCourseDetail?.author?.email">
+                  <i class="bx bx-envelope"></i> {{ contentCourseDetail?.author?.email }}
+                </span>
+                <span *ngIf="contentCourseDetail?.author?.phone">
+                  <i class="bx bx-phone"></i> {{ contentCourseDetail?.author?.phone }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: Đánh giá -->
+        <div *ngIf="currentTab === 'tab4'" class="lp-pane">
+          <div class="lp-review-header">
+            <h5>Đánh giá khoá học</h5>
+            <button class="btn btn-primary btn-sm" (click)="openModalReviewCourses()">
+              <i class="bx bx-star"></i> Viết đánh giá
+            </button>
+          </div>
+          <div *ngIf="commentOfCourse.length === 0" class="lp-empty-state">
+            <i class="bx bx-star"></i>
+            <p>Chưa có đánh giá</p>
+          </div>
+          <div class="lp-review-list">
+            <div class="lp-review-item" *ngFor="let item of commentOfCourse">
+              <img [src]="item?.users?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'"
+                   fallbackSrc="/assets/images/demo/avatar-placeholder.svg"
+                   class="lp-review-avatar" alt="avatar" />
+              <div class="lp-review-body">
+                <strong>{{ item?.users?.name }}</strong>
+                <p>{{ item?.commentEvaluation }}</p>
+                <div class="lp-review-stars">
+                  <i class="bx bxs-star" *ngFor="let s of [1,2,3,4,5]; let i = index"
+                     [class.text-warning]="i < (item?.voteStartNumber || 0)"
+                     [class.text-muted]="i >= (item?.voteStartNumber || 0)"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5: Câu hỏi -->
+        <div *ngIf="currentTab === 'tab5'" class="lp-pane">
+          <div class="lp-qa-header">
+            <h5>Câu hỏi &amp; Thảo luận</h5>
+            <button class="btn btn-outline-primary btn-sm" (click)="openModalCommentUser()">
+              <i class="bx bx-plus"></i> Đặt câu hỏi
+            </button>
+          </div>
+          <div *ngIf="theadQuestionOfCourse.length === 0" class="lp-empty-state">
+            <i class="bx bx-chat"></i>
+            <p>Chưa có câu hỏi nào</p>
+          </div>
+          <div class="lp-qa-list">
+            <div class="lp-qa-item" *ngFor="let item of theadQuestionOfCourse">
+              <img [src]="item?.user?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'"
+                   fallbackSrc="/assets/images/demo/avatar-placeholder.svg"
+                   class="lp-qa-avatar" alt="avatar" />
+              <div class="lp-qa-body">
+                <strong>{{ item?.user?.name }}</strong>
+                <p>{{ item?.comment }}</p>
+                <div class="lp-qa-actions">
+                  <button class="btn btn-link btn-sm p-0" (click)="replayComment()">
+                    <i class="bx bx-reply"></i> Trả lời ({{ item?.totalCommentForThead || 0 }})
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 6: Bài tập -->
+        <div *ngIf="currentTab === 'tab6'" class="lp-pane">
+          <h5>Bài Tập</h5>
+          <div *ngIf="isLoadingAssignments" class="lp-loading">
+            <i class="bx bx-loader-alt bx-spin"></i> Đang tải...
+          </div>
+          <div *ngIf="!isLoadingAssignments && assignments.length === 0" class="lp-empty-state">
+            <i class="bx bx-task"></i>
+            <p>Chưa có bài tập</p>
+          </div>
+          <div class="lp-assignment-list">
+            <div class="lp-assignment-item" *ngFor="let a of assignments">
+              <div class="lp-assignment-header">
+                <div>
+                  <h6>{{ a.title }} <span class="badge bg-secondary">{{ a.maxScore }} điểm</span></h6>
+                  <p class="text-muted mb-1">{{ a.description }}</p>
+                  <small *ngIf="a.dueDate" class="text-muted">Hạn nộp: {{ a.dueDate | date:'mediumDate' }}</small>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" (click)="viewAssignment(a)">Nộp bài</button>
+              </div>
+              <div class="lp-submission-form" *ngIf="selectedAssignment?.id === a.id">
+                <textarea class="form-control mb-2" rows="3" [(ngModel)]="submissionText" placeholder="Nội dung bài làm..."></textarea>
+                <input type="text" class="form-control mb-2" [(ngModel)]="submissionFileUrl" placeholder="Link file (tuỳ chọn)">
+                <div class="d-flex gap-2">
+                  <button class="btn btn-success btn-sm" (click)="submitAssignment()" [disabled]="isLoadingAssignments">Nộp bài</button>
+                  <button class="btn btn-secondary btn-sm" (click)="selectedAssignment = null">Huỷ</button>
+                </div>
+                <div class="lp-submission-result" *ngIf="mySubmission">
+                  <strong class="text-success">Bài đã nộp</strong> — {{ mySubmission.submittedAt | date:'short' }}
+                  <p class="mb-1">{{ mySubmission.submissionText }}</p>
+                  <div *ngIf="mySubmission.score !== null && mySubmission.score !== undefined">
+                    Điểm: <span class="badge bg-success">{{ mySubmission.score }}/{{ a.maxScore }}</span>
+                    · {{ mySubmission.feedback }}
+                  </div>
+                  <small class="text-warning" *ngIf="mySubmission.score === null || mySubmission.score === undefined">
+                    ⏳ Chờ chấm điểm
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 7: Ghi chú -->
+        <div *ngIf="currentTab === 'tab7'" class="lp-pane">
+          <div class="lp-note-form">
+            <h6>Thêm ghi chú tại <strong class="text-primary">{{ formatNoteTimestamp(newNoteTimestamp) }}</strong></h6>
+            <textarea class="form-control mb-2" rows="3" [(ngModel)]="newNoteContent"
+                      placeholder="Nhập ghi chú của bạn..."></textarea>
+            <button class="btn btn-primary btn-sm" (click)="addCourseNote()" [disabled]="!newNoteContent.trim() || isAddingNote">
+              <i class="bx" [ngClass]="isAddingNote ? 'bx-loader-alt bx-spin' : 'bx-save'"></i>
+              {{ isAddingNote ? 'Đang lưu...' : 'Lưu ghi chú' }}
+            </button>
+          </div>
+          <div *ngIf="isLoadingNotes" class="lp-loading"><i class="bx bx-loader-alt bx-spin"></i> Đang tải...</div>
+          <div *ngIf="!isLoadingNotes && courseNotes.length === 0" class="lp-empty-state">
+            <i class="bx bx-note"></i>
+            <p>Chưa có ghi chú</p>
+            <small>Ghi chú lưu kèm thời điểm trong video</small>
+          </div>
+          <div class="lp-note-list">
+            <div class="lp-note-item" *ngFor="let note of courseNotes">
+              <button class="lp-note-ts" (click)="jumpToNoteTimestamp(note.timestamp)">
+                <i class="bx bx-play-circle"></i> {{ formatNoteTimestamp(note.timestamp) }}
+              </button>
+              <p>{{ note.content }}</p>
+              <button class="lp-note-del" (click)="deleteNote(note.id)">
+                <i class="bx bx-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.lp-tab-content -->
+    </div><!-- /.lp-tabs -->
+  </div><!-- /.lp-content -->
+
+  <!-- RIGHT: Sidebar ─────────────────────────────────────────────── -->
+  <div class="lp-sidebar" [class.closed]="!sidebarOpen">
+
+    <!-- Toggle button — nằm ở cạnh trái sidebar -->
+    <button class="lp-sidebar-toggle" (click)="toggleSidebar()"
+            [attr.aria-label]="sidebarOpen ? 'Đóng sidebar' : 'Mở sidebar'">
+      <i class="bx" [ngClass]="sidebarOpen ? 'bx-chevron-right' : 'bx-chevron-left'"></i>
+    </button>
+
+    <div class="lp-sidebar-head">
+      <span>📚 Nội dung khoá học</span>
+      <span class="lp-sidebar-progress" [class.done]="courseProgress === 100">{{ courseProgress }}%</span>
+    </div>
+    <div class="lp-sidebar-body">
+      <div ngbAccordion [closeOthers]="true">
+        <div ngbAccordionItem
+             *ngFor="let section of contentCourseDetail?.listContentCourseDetails"
+             [collapsed]="section.id !== 0">
+          <h2 ngbAccordionHeader>
+            <button ngbAccordionButton class="lp-section-btn">
+              <span class="lp-section-name">{{ section?.name }}</span>
+              <span class="lp-section-count">{{ section?.contentAndContentDetails?.length }} bài</span>
+            </button>
+          </h2>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template>
+                <div class="lp-lesson-list">
+                  <div class="lp-lesson-item"
+                       *ngFor="let lesson of section?.contentAndContentDetails"
+                       [class.active]="lesson.id === activeItemIndex"
+                       [class.completed]="lesson.isCompleted"
+                       (click)="selectContentCourse(lesson.id)"
+                       [ngbTooltip]="lesson?.nameSubContent">
+                    <span class="lp-lesson-icon">
+                      <i class="bx bx-check-circle" *ngIf="lesson.isCompleted"></i>
+                      <i class="bx bx-play-circle" *ngIf="!lesson.isCompleted && lesson.id === activeItemIndex"></i>
+                      <i class="bx bx-circle" *ngIf="!lesson.isCompleted && lesson.id !== activeItemIndex"></i>
+                    </span>
+                    <span class="lp-lesson-name">{{ lesson?.nameSubContent }}</span>
+                    <span class="lp-lesson-dur">{{ lesson?.timeOfContent }}</span>
+                    <input type="checkbox" class="lp-lesson-check"
+                           [checked]="lesson.isCompleted"
+                           (click)="toggleLessonComplete($event, lesson)" />
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.lp-sidebar-body -->
+  </div><!-- /.lp-sidebar -->
+
+</div><!-- /.lp-main -->
+
+<!-- ─── CERTIFICATE BOTTOM BANNER ───────────────────────────────── -->
+<div class="lp-cert-banner" *ngIf="courseProgress === 100">
+  <span>🎓 Chúc mừng! Bạn đã hoàn thành khoá học.</span>
+  <button class="lp-cert-download" (click)="generateAndDownloadCertificate()" [disabled]="isCertLoading">
+    <i class="bx" [ngClass]="isCertLoading ? 'bx-loader-alt bx-spin' : 'bx-download'"></i>
+    {{ isCertLoading ? 'Đang tạo...' : 'Tải Chứng Chỉ PDF' }}
+  </button>
 </div>
+
 <ng-template #commented>
-    <a href="javascript:void(0)" (click)="openModalReviewCourses()"><i class="bx bx-conversation font-size-icon"></i></a>
+  <a href="javascript:void(0)" (click)="openModalReviewCourses()"><i class="bx bx-conversation"></i></a>
 </ng-template>

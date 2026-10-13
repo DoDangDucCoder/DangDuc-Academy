@@ -1,0 +1,33 @@
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY HDNXUdemyConvertVideoAPI/HDNXUdemyConvertVideoAPI.csproj HDNXUdemyConvertVideoAPI/
+COPY HDNXUdemy/HDNXUdemyData.csproj HDNXUdemy/
+COPY HDNXUdemyModel/HDNXUdemyModel.csproj HDNXUdemyModel/
+COPY HDNXUdemyServices/HDNXUdemyServices.csproj HDNXUdemyServices/
+RUN dotnet restore HDNXUdemyConvertVideoAPI/HDNXUdemyConvertVideoAPI.csproj
+
+COPY . .
+RUN dotnet publish HDNXUdemyConvertVideoAPI/HDNXUdemyConvertVideoAPI.csproj -c Release -o /app/publish --no-restore
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && adduser --disabled-password --gecos "" appuser \
+    && mkdir -p logs DataProtectionKeys wwwroot \
+    && chown -R appuser:appuser /app
+
+COPY --from=build --chown=appuser:appuser /app/publish .
+USER appuser
+
+ENV ASPNETCORE_URLS=http://+:5195
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+EXPOSE 5195
+
+ENTRYPOINT ["dotnet", "HDNXUdemyConvertVideoAPI.dll"]

@@ -8346,19 +8346,26 @@ Responsive CSS
 }
 
 .single-courses-box .courses-box-footer li {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 !important;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .single-courses-box .courses-box-footer li:last-child {
+    justify-content: flex-end;
     text-align: right;
 }
 
-.single-courses-box .courses-box-footer li:last-child i {
+.single-courses-box .courses-box-footer li i {
+    position: static !important;
+    flex-shrink: 0;
+    line-height: 1;
     left: auto !important;
-    right: auto;
+    right: auto !important;
 }
 
 .courses-slides-two .owl-stage {
@@ -8479,4 +8486,121 @@ Responsive CSS
             }
         }
     }
+}
+
+/* ==========================================
+   DARK MODE THEME
+   ========================================== */
+
+body.dark-theme {
+    background-color: #1a1d23 !important;
+    color: #e4e6eb !important;
+}
+
+body.dark-theme .navbar-area,
+body.dark-theme .header-area {
+    background-color: #21252b !important;
+    border-bottom: 1px solid #3a3f47 !important;
+}
+
+body.dark-theme .footer-area {
+    background-color: #21252b !important;
+    color: #b0b3b8 !important;
+}
+
+body.dark-theme .user-all-form {
+    background-color: #282c34 !important;
+    border-color: #3a3f47 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+body.dark-theme .form-control {
+    background-color: #2d3239 !important;
+    border-color: #3a3f47 !important;
+    color: #e4e6eb !important;
+}
+
+body.dark-theme .form-control:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+}
+
+body.dark-theme .card,
+body.dark-theme .single-courses-box,
+body.dark-theme .courses-box {
+    background-color: #282c34 !important;
+    border-color: #3a3f47 !important;
+}
+
+body.dark-theme .courses-content h3 a,
+body.dark-theme .courses-content h3,
+body.dark-theme h1, body.dark-theme h2,
+body.dark-theme h3, body.dark-theme h4,
+body.dark-theme h5, body.dark-theme h6 {
+    color: #e4e6eb !important;
+}
+
+body.dark-theme p,
+body.dark-theme span,
+body.dark-theme label {
+    color: #b0b3b8 !important;
+}
+
+body.dark-theme a:not(.default-btn) {
+    color: #818cf8 !important;
+}
+
+body.dark-theme .ptb-100 {
+    background-color: #1a1d23 !important;
+}
+
+body.dark-theme .banner-section,
+body.dark-theme .hero-banner {
+    background-color: #21252b !important;
+}
+
+body.dark-theme .single-categories-box {
+    background-color: #282c34 !important;
+    border-color: #3a3f47 !important;
+}
+
+body.dark-theme .dropdown-menu {
+    background-color: #282c34 !important;
+    border-color: #3a3f47 !important;
+}
+
+body.dark-theme .dropdown-item {
+    color: #e4e6eb !important;
+}
+
+body.dark-theme .dropdown-item:hover {
+    background-color: #3a3f47 !important;
+}
+
+body.dark-theme .table {
+    color: #e4e6eb !important;
+    --bs-table-bg: #282c34;
+    --bs-table-border-color: #3a3f47;
+}
+
+body.dark-theme .breadcrumb-area {
+    background-color: #21252b !important;
+}
+
+body.dark-theme .sub-title span {
+    color: #9ca3af !important;
+}
+
+body.dark-theme .border-profile {
+    border-color: #3a3f47 !important;
+}
+
+body.dark-theme .modal-content {
+    background-color: #282c34 !important;
+    border-color: #3a3f47 !important;
+    color: #e4e6eb !important;
+}
+
+body.dark-theme .btn-close {
+    filter: invert(1) !important;
 }

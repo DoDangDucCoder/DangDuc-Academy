@@ -96,6 +96,20 @@ export const MENU: MenuItem[] = [
                 isCollapsed: true,
                 link: '/learning/list-course-learning-online',
             },
+            {
+                id: 35,
+                label: 'Đề Thi Ngoại Ngữ',
+                parentId: 24,
+                isCollapsed: true,
+                link: '/learning/language-exams',
+            },
+            {
+                id: 36,
+                label: 'Từ Vựng',
+                parentId: 24,
+                isCollapsed: true,
+                link: '/learning/language-vocabulary',
+            },
 
         ]
     },
@@ -109,6 +123,18 @@ export const MENU: MenuItem[] = [
                 id: 40,
                 label: 'MENUITEMS.APPS.LIST.LISTINVOICE',
                 link: '/purchase-order/list-purchase-order',
+                parentId: 39
+            },
+            {
+                id: 41,
+                label: 'Refund Requests',
+                link: '/refund-requests',
+                parentId: 39
+            },
+            {
+                id: 42,
+                label: 'Payout Requests',
+                link: '/payout-requests',
                 parentId: 39
             }
         ]
@@ -147,4 +173,18 @@ export const MENU: MenuItem[] = [
             },
         ]
     },
+    {
+        id: 102,
+        label: 'Blog / Articles',
+        icon: 'ph-article',
+        parentId: 8,
+        subItems: [
+            {
+                id: 103,
+                label: 'List Articles',
+                link: '/articles',
+                parentId: 102
+            }
+        ]
+    }
 ]

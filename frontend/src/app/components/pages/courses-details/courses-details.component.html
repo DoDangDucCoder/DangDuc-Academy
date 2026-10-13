@@ -8,22 +8,29 @@
             </ul>
             <h2>{{courseContentCourse?.title}}</h2>
             <div class="rating">
-                <i class="bx bxs-star"></i>
-                <i class="bx bxs-star"></i>
-                <i class="bx bxs-star"></i>
-                <i class="bx bxs-star"></i>
-                <i class="bx bxs-star"></i>
+                <i *ngFor="let filled of ratingStars" class="bx" [ngClass]="filled ? 'bxs-star' : 'bx-star'"></i>
                 <div class="rating-count me-2">
-                    <span>4.0 ({{courseContentCourse?.totalVoteOfCourse}})</span>
+                    <span>{{ averageRating }} ({{courseContentCourse?.totalVoteOfCourse || 0}} ratings)</span>
                 </div>
-                <i class="bx bx-equalizer"></i>
-                <div class="rating-count me-2">Nguyễn Minh Tuấn</div>
-                <i class="bx bx-equalizer"></i>
-                <div class="rating-count">{{courseContentCourse?.totalStudentRegister}} Học viên</div>
+                <i class="bx bx-user"></i>
+                <div class="rating-count me-2">{{ authorName }}</div>
+                <i class="bx bx-group"></i>
+                <div class="rating-count">{{courseContentCourse?.totalStudentRegister || 0}} students</div>
             </div>
         </div>
     </div>
 
+    <!-- What You'll Learn -->
+    <div class="container mt-4" *ngIf="whatYouLearn.length > 0">
+        <div class="what-youll-learn-box">
+            <h3>What you'll learn</h3>
+            <div class="row">
+                <div class="col-md-6" *ngFor="let item of whatYouLearn">
+                    <div class="learn-item"><i class="bx bx-check"></i> {{ item }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <app-hdnx-loading [show]="isLoading">
         <div class="container course-detail-body">
@@ -43,6 +50,9 @@
                             <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab4' }">
                                 <span (click)="switchTab($event, 'tab4')">Course review</span>
                             </li>
+                            <li class="nav-tab" [ngClass]="{ active: currentTab === 'tab5' }">
+                                <span (click)="switchTab($event, 'tab5')">Quiz / Live / Certificate</span>
+                            </li>
                         </ul>
                         <div class="tabs-container">
                             <div class="pane" id="tab1" *ngIf="currentTab === 'tab1'">
@@ -59,7 +69,7 @@
                                                 <a href="javascript:void(0)" class="popup-youtube d-flex justify-content-between align-items-center">
                                                     <span class="courses-name">{{item.nameSubContent}}</span>
                                                     <div class="courses-meta">
-                                                        <span class="questions">5 question</span>
+                                                        <span class="duration">{{ item.timeOfContent || '00:00' }}</span>
                                                         <span *ngIf="item.isLearningFree" class="status" (click)="openGallery()">Preview</span>
                                                     </div>
                                                 </a>
@@ -104,146 +114,99 @@
                             </div>
                             <div class="pane" id="tab4" *ngIf="currentTab === 'tab4'">
                                 <div class="courses-reviews">
-                                    <h3>Review</h3>
-                                    <div class="rating">
-                                        <span class="bx bxs-star checked"></span>
-                                        <span class="bx bxs-star checked"></span>
-                                        <span class="bx bxs-star checked"></span>
-                                        <span class="bx bxs-star checked"></span>
-                                        <span class="bx bxs-star"></span>
+                                    <h3>Student feedback</h3>
+                                    <div class="review-summary-box">
+                                        <div class="review-big-score">
+                                            <span class="big-number">{{ courseContentCourse?.averageScore || averageRating }}</span>
+                                            <div class="rating">
+                                                <i *ngFor="let filled of ratingStars" class="bx" [ngClass]="filled ? 'bxs-star' : 'bx-star'"></i>
+                                            </div>
+                                            <span class="review-label">Course Rating</span>
+                                        </div>
+                                        <div class="review-bars">
+                                            <div class="bar-row" *ngFor="let star of [5,4,3,2,1]">
+                                                <div class="bar-label">{{ star }} star</div>
+                                                <div class="bar-container"><div class="bar-fill" [style.width.%]="getStarPercent(star)"></div></div>
+                                                <div class="bar-count">{{ getStarCount(star) }}</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="rating-count">
-                                        <span>Trung bình 4.1 dựa trên 1000 đánh giá.</span>
-                                    </div>
-                                    <div class="row">
-                                        <div class="side">
-                                            <div>5 star</div>
-                                        </div>
-                                        <div class="middle">
-                                            <div class="bar-container">
-                                                <div class="bar-5"></div>
-                                            </div>
-                                        </div>
-                                        <div class="side right">
-                                            <div>02</div>
-                                        </div>
-                                        <div class="side">
-                                            <div>4 star</div>
-                                        </div>
-                                        <div class="middle">
-                                            <div class="bar-container">
-                                                <div class="bar-4"></div>
-                                            </div>
-                                        </div>
-                                        <div class="side right">
-                                            <div>03</div>
-                                        </div>
-                                        <div class="side">
-                                            <div>3 star</div>
-                                        </div>
-                                        <div class="middle">
-                                            <div class="bar-container">
-                                                <div class="bar-3"></div>
-                                            </div>
-                                        </div>
-                                        <div class="side right">
-                                            <div>04</div>
-                                        </div>
-                                        <div class="side">
-                                            <div>2 star</div>
-                                        </div>
-                                        <div class="middle">
-                                            <div class="bar-container">
-                                                <div class="bar-2"></div>
-                                            </div>
-                                        </div>
-                                        <div class="side right">
-                                            <div>05</div>
-                                        </div>
-                                        <div class="side">
-                                            <div>1 star</div>
-                                        </div>
-                                        <div class="middle">
-                                            <div class="bar-container">
-                                                <div class="bar-1"></div>
-                                            </div>
-                                        </div>
-                                        <div class="side right">
-                                            <div>00</div>
-                                        </div>
+
+                                    <!-- Review Filter -->
+                                    <div class="review-filter mb-3">
+                                        <button class="filter-btn" [class.active]="reviewFilter === 0" (click)="reviewFilter = 0">All</button>
+                                        <button class="filter-btn" *ngFor="let s of [5,4,3,2,1]" [class.active]="reviewFilter === s" (click)="reviewFilter = s">
+                                            {{ s }} <i class="bx bxs-star"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="courses-review-comments">
-                                    <h3>3 Reviews</h3>
-                                    <div class="user-review">
-                                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80" alt="image" />
-                                        <div class="review-rating">
-                                            <div class="review-stars">
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                            </div>
-                                            <span class="d-inline-block">James Anderson</span>
-                                        </div>
-                                        <span class="d-block sub-comment">Excellent</span>
-                                        <p>
-                                            Very well built theme, couldn't be happier with it. Can't wait for future
-                                            updates to see what else they add in.
-                                        </p>
+                                    <h3>{{ courseContentCourse?.totalVoteOfCourse || 0 }} Reviews</h3>
+                                    <div *ngIf="!courseContentCourse?.totalVoteOfCourse" class="text-muted py-3">
+                                        No reviews yet. Be the first to review this course!
                                     </div>
-                                    <div class="user-review">
-                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80" alt="image" />
-                                        <div class="review-rating">
-                                            <div class="review-stars">
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star"></i>
-                                                <i class="bx bxs-star"></i>
+                                </div>
+                            </div>
+                            <div class="pane" id="tab5" *ngIf="currentTab === 'tab5'">
+                                <div class="courses-overview">
+                                    <div *ngIf="phase4Message" class="alert alert-info">{{ phase4Message }}</div>
+
+                                    <h3>Quizzes</h3>
+                                    <div *ngIf="quizzes.length === 0" class="text-muted mb-3">No quiz published for this course yet.</div>
+                                    <div class="mb-4" *ngFor="let quiz of quizzes">
+                                        <h4>{{ quiz.title }}</h4>
+                                        <p>{{ quiz.description }}</p>
+                                        <p>Passing score: {{ quiz.passingScore }}%</p>
+                                        <div class="mb-3" *ngFor="let question of quiz.questions">
+                                            <strong>{{ question.questionText }}</strong>
+                                            <div class="form-check" *ngFor="let answer of question.answers">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="radio"
+                                                    [name]="'question-' + question.id"
+                                                    [checked]="quizAnswers[question.id] === answer.id"
+                                                    (change)="selectAnswer(question.id, answer.id)">
+                                                <label class="form-check-label">{{ answer.answerText }}</label>
                                             </div>
-                                            <span class="d-inline-block">Sarah Taylor</span>
                                         </div>
-                                        <span class="d-block sub-comment">Video Quality!</span>
-                                        <p>Was really easy to implement and they quickly answer my additional questions!</p>
+                                        <button class="default-btn" (click)="submitQuiz(quiz)">Submit quiz<span></span></button>
                                     </div>
-                                    <div class="user-review">
-                                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80" alt="image" />
-                                        <div class="review-rating">
-                                            <div class="review-stars">
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                            </div>
-                                            <span class="d-inline-block">David Warner</span>
-                                        </div>
-                                        <span class="d-block sub-comment">Perfect Coding!</span>
-                                        <p>
-                                            Stunning design, very dedicated crew who welcome new ideas suggested by
-                                            customers, nice support.
-                                        </p>
+
+                                    <div *ngIf="quizResult" class="alert" [ngClass]="quizResult.isPassed ? 'alert-success' : 'alert-warning'">
+                                        Score: {{ quizResult.score }} / {{ quizResult.totalScore }}.
+                                        {{ quizResult.isPassed ? 'Passed' : 'Not passed' }}
                                     </div>
-                                    <div class="user-review">
-                                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80" alt="image" />
-                                        <div class="review-rating">
-                                            <div class="review-stars">
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star checked"></i>
-                                                <i class="bx bxs-star"></i>
-                                            </div>
-                                            <span class="d-inline-block">King Kong</span>
-                                        </div>
-                                        <span class="d-block sub-comment">Perfect Video!</span>
-                                        <p>
-                                            Stunning design, very dedicated crew who welcome new ideas suggested by
-                                            customers, nice support.
-                                        </p>
+
+                                    <h3>Live Classes</h3>
+                                    <div *ngIf="liveClasses.length === 0" class="text-muted mb-3">No live class scheduled yet.</div>
+                                    <div class="table-responsive mb-4" *ngIf="liveClasses.length > 0">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Start</th>
+                                                    <th>End</th>
+                                                    <th>Meeting</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let liveClass of liveClasses">
+                                                    <td>{{ liveClass.title }}</td>
+                                                    <td>{{ liveClass.startTime | json }}</td>
+                                                    <td>{{ liveClass.endTime | json }}</td>
+                                                    <td><a [href]="liveClass.meetingUrl" target="_blank">Join</a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
+
+                                    <h3>Certificate</h3>
+                                    <p class="text-muted">Certificate can be generated after all active lessons are completed.</p>
+                                    <div class="d-flex gap-2">
+                                        <button class="default-btn" *ngIf="!certificate" (click)="generateCertificate()">Generate certificate<span></span></button>
+                                        <button class="default-btn" *ngIf="certificate" (click)="downloadCertificate()">Download certificate<span></span></button>
+                                    </div>
+                                    <p *ngIf="certificate" class="mt-2">Certificate code: {{ certificate.certificateCode }}</p>
                                 </div>
                             </div>
                         </div>
@@ -266,7 +229,7 @@
                                     <div class="courses-content">
                                         <div class="course-author d-flex align-items-center">
                                             <img [src]="courseContentCourse?.author?.pictureUrl | assetUrl:'assets/images/demo/avatar-placeholder.svg'" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
-                                            <span>{{courseContentCourse?.author?.name || 'HDNX Academy'}}</span>
+                                            <span>{{courseContentCourse?.author?.name || 'Giảng viên'}}</span>
                                         </div>
                                         <h3>
                                             <a routerLink="/detail-courses/{{item?.id}}">{{item?.title}}</a>
@@ -281,7 +244,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-12">
+                <div class="col-lg-3 col-md-12 sidebar-sticky">
                     <div class="courses-details-info">
                         <div class="image">
                             <lightgallery [settings]="settings" [onBeforeSlide]="onBeforeSlide" [onInit]="onInit">
@@ -303,14 +266,17 @@
                         <ul class="info">
                             <li class="price">
                                 <div class="d-flex justify-content-center align-items-center">
-                                    {{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfDiscount | currency: 'VND':'symbol':'1.0-0') : (courseContentCourse?.priceOfCourse | currency: 'VND':'symbol':'1.0-0')}}
+                                    <ng-container *ngIf="courseContentCourse?.isFree; else paidCoursePrice">Miễn phí</ng-container>
+                                    <ng-template #paidCoursePrice>
+                                        {{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfDiscount | currency: 'VND':'symbol':'1.0-0') : (courseContentCourse?.priceOfCourse | currency:'VND':'symbol':'1.0-0')}}
+                                    </ng-template>
                                     <span style="font-size: smaller"><del>{{courseContentCourse?.isDiscount == true ? (courseContentCourse?.priceOfCourse | currency: 'VND':'symbol':'1.0-0') : ''}}</del></span>
                                 </div>
                             </li>
                             <li>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span><i class="flaticon-teacher"></i> Author</span>
-                                    Nguyễn Minh Tuấn
+                                    {{ authorName }}
                                 </div>
                             </li>
                             <li>
@@ -337,12 +303,25 @@
                                     Lifetime
                                 </div>
                             </li>
+                            <li>
+                                <div class="course-includes-section">
+                                    <h5>This course includes:</h5>
+                                    <ul class="includes-list">
+                                        <li><i class="bx bx-video"></i> {{ courseContentCourse?.duration || 'N/A' }} of video</li>
+                                        <li><i class="bx bx-file"></i> {{ totalLessons }} lessons</li>
+                                        <li><i class="bx bx-download"></i> Downloadable resources</li>
+                                        <li><i class="bx bx-infinite"></i> Full lifetime access</li>
+                                        <li><i class="bx bx-mobile"></i> Access on mobile & TV</li>
+                                        <li><i class="bx bx-certification"></i> Certificate of completion</li>
+                                    </ul>
+                                </div>
+                            </li>
                             <li [hidden]="!courseContentCourse?.isPurchase">
                                 <div class="cart-buttons">
                                     <div class="row align-items-center">
                                         <div class="col-lg-12 col-sm-12 col-md-12">
                                             <div class="shopping-coupon-code">
-                                                <input type="text" class="form-control" placeholder="Mã giảm giá" name="coupon-code" id="coupon-code" />
+                                                <input type="text" class="form-control" placeholder="Coupon code" name="coupon-code" id="coupon-code" />
                                                 <button type="submit">Apply</button>
                                             </div>
                                         </div>
@@ -352,8 +331,16 @@
                         </ul>
 
                         <div class="btn-box">
-                            <a [hidden]="courseContentCourse?.isPurchase" href="javascript:void(0);" class="default-btn" (click)="addCourseToCart()"><i class="flaticon-shopping-cart"></i>Add to cart<span></span></a>
-                            <a [hidden]="!courseContentCourse?.isPurchase" routerLink="/detail-content-course/{{courseContentCourse?.id}}" class="default-btn"><i class="flaticon-shopping-cart"></i>Go to the course<span></span></a>
+                            <a [hidden]="canAccessCourse" href="javascript:void(0);" class="default-btn" (click)="addCourseToCart()"><i class="flaticon-shopping-cart"></i>Add to cart<span></span></a>
+                            <a [hidden]="canAccessCourse" href="javascript:void(0);" class="default-btn buy-now-btn" (click)="addCourseToCart()"><i class="bx bx-zap"></i>Buy Now<span></span></a>
+                            <a [hidden]="!canAccessCourse" routerLink="/detail-content-course/{{courseContentCourse?.id}}" class="default-btn"><i class="bx bx-play-circle"></i>Go to the course<span></span></a>
+                        </div>
+                        <div class="money-back-guarantee">
+                            <i class="bx bx-shield-quarter"></i>
+                            <div>
+                                <strong>30-Day Money-Back Guarantee</strong>
+                                <p>Full refund within 30 days, no questions asked.</p>
+                            </div>
                         </div>
 
                         <div class="courses-share">
@@ -377,6 +364,28 @@
             </div>
         </div>
     </app-hdnx-loading>
+
+    <!-- Related Courses -->
+    <div class="container mt-5" *ngIf="relatedCourses.length > 0">
+        <h3 class="related-title">Students also bought</h3>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4" *ngFor="let rc of relatedCourses">
+                <div class="related-course-card">
+                    <a [routerLink]="'/course-detail/' + rc.id">
+                        <img [src]="rc.pictureUrl || 'assets/images/demo/course-placeholder.svg'" loading="lazy" alt="" class="related-thumb" />
+                    </a>
+                    <div class="related-body">
+                        <h4><a [routerLink]="'/course-detail/' + rc.id">{{ rc.title }}</a></h4>
+                        <p class="related-author">{{ rc.userName || 'Instructor' }}</p>
+                        <div class="related-price">
+                            <span *ngIf="rc.isFree">Free</span>
+                            <span *ngIf="!rc.isFree">{{ rc.priceOfCourse | currency:'VND':'symbol':'1.0-0' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 

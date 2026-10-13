@@ -32,11 +32,11 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 // component
-import { RealEstateComponent } from './real-estate/real-estate.component';
+import { ELearningComponent } from './e-learning/e-learning.component';
 
 @NgModule({
   declarations: [
-    RealEstateComponent
+    ELearningComponent
   ],
   imports: [
     CommonModule,

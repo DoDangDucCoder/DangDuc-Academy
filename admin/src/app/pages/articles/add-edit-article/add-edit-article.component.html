@@ -1,0 +1,63 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="{{isEditMode ? 'Edit Article' : 'Create Article'}}" [breadcrumbItems]="[{ label: 'Articles' }, { label: isEditMode ? 'Edit Article' : 'Create Article', active: true }]"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">{{isEditMode ? 'Edit Article' : 'Create Article'}}</h4>
+                <div class="flex-shrink-0">
+                    <a routerLink="/articles" class="btn btn-secondary"><i class="ri-arrow-left-line align-bottom me-1"></i> Back to List</a>
+                </div>
+            </div><!-- end card header -->
+            <div class="card-body">
+                <form [formGroup]="articleForm" (ngSubmit)="onSubmit()">
+                    <div class="row gy-4">
+                        <div class="col-xxl-6 col-md-6">
+                            <div>
+                                <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title" formControlName="title" placeholder="Enter article title" [ngClass]="{ 'is-invalid': submitted && f['title'].errors }">
+                                <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+                                    <div *ngIf="f['title'].errors['required']">Title is required</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xxl-6 col-md-6">
+                            <div>
+                                <label for="thumbnailUrl" class="form-label">Thumbnail URL</label>
+                                <input type="text" class="form-control" id="thumbnailUrl" formControlName="thumbnailUrl" placeholder="Enter image URL">
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div>
+                                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="description" formControlName="description" rows="3" placeholder="Enter short description" [ngClass]="{ 'is-invalid': submitted && f['description'].errors }"></textarea>
+                                <div *ngIf="submitted && f['description'].errors" class="invalid-feedback">
+                                    <div *ngIf="f['description'].errors['required']">Description is required</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div>
+                                <label class="form-label">Content <span class="text-danger">*</span></label>
+                                <ckeditor [editor]="Editor" formControlName="content" [ngClass]="{ 'is-invalid': submitted && f['content'].errors }"></ckeditor>
+                                <div *ngIf="submitted && f['content'].errors" class="invalid-feedback d-block">
+                                    <div *ngIf="f['content'].errors['required']">Content is required</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-light me-2" routerLink="/articles">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,10 +6,10 @@ export const environment = {
   production: false,
   baseUrl: 'http://localhost:5194/api/v1/',  // Thay đổi từ https://localhost:44319
   urlUploadFile: 'http://localhost:5148/api/v1/',  // Thay đổi từ https://localhost:44349
-  clientIdGoogle: '458553878162-a7m0q6jreoirc837m3dp06mtmv5t5cu7.apps.googleusercontent.com',
-  facebookId: '727016849494944',
+  clientIdGoogle: '506434420847-s7bcj6i2qqklv99ge93ubdhhl50e3son.apps.googleusercontent.com',
+  facebookId: '',
   baseUrlHub: 'http://localhost:5194/',  // Thay đổi từ https://localhost:44319
-  stripePublicKey: 'pk_test_51N6HwWLcCqr269TdVni7gwhS4QTPyR4UilZqxouP3KjAIRuPx66on5f97oraQ9zY3wFrzfuJKgc3s3eLzAaihKtb00K8D1MLh8'
+  stripePublicKey: 'pk_test_51TiZJKJ7vs5Bw00NRojdusuKp0cCVkQ76jM8OnAsr5U77uBeCsBlFYdf0eZl3btvc4TF7wrfWdgcxldZ0nJFBWCO00EtdM6Hgq'
 };
 
 /*

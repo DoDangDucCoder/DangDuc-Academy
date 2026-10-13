@@ -1,4 +1,4 @@
-﻿using EFCore.BulkExtensions;
+using EFCore.BulkExtensions;
 using HDNXUdemyData.Entities;
 using HDNXUdemyData.EntitiesContext;
 using HDNXUdemyModel.Constant;
@@ -34,17 +34,17 @@ namespace HDNXUdemyData.GenericRepository
 
         public IEnumerable<T> GetAll()
         {
-            return _projectContext.Set<T>().Where(x => x.Status == (int)EStatus.Active);
+            return _projectContext.Set<T>().AsNoTracking().Where(x => x.Status == (int)EStatus.Active);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _projectContext.Set<T>().Where(x => x.Status == (int)EStatus.Active).ToListAsync();
+            return await _projectContext.Set<T>().AsNoTracking().Where(x => x.Status == (int)EStatus.Active).ToListAsync();
         }
 
         public IEnumerable<T> Get(Expression<Func<T, bool>> expression)
         {
-            return _projectContext.Set<T>().Where(expression);
+            return _projectContext.Set<T>().AsNoTracking().Where(expression);
         }
 
         public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> expression)
@@ -55,12 +55,12 @@ namespace HDNXUdemyData.GenericRepository
 
         public T GetObject(Expression<Func<T, bool>> expression)
         {
-            return _projectContext.Set<T>().Where(expression).FirstOrDefault()!;
+            return _projectContext.Set<T>().AsNoTracking().Where(expression).FirstOrDefault()!;
         }
 
         public async Task<T> GetObjectAsync(Expression<Func<T, bool>> expression)
         {
-            return (await _projectContext.Set<T>().Where(expression).FirstOrDefaultAsync())!;
+            return (await _projectContext.Set<T>().AsNoTracking().Where(expression).FirstOrDefaultAsync())!;
         }
 
         private bool Insert(T pObj)

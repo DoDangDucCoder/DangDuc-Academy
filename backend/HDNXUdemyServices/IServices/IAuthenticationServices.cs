@@ -1,4 +1,4 @@
-﻿using HDNXUdemyModel.RequestModel;
+using HDNXUdemyModel.RequestModel;
 using HDNXUdemyModel.ResponModel;
 using Microsoft.AspNetCore.Http;
 
@@ -17,5 +17,13 @@ namespace HDNXUdemyServices.IServices
         Task<ResponeLogin> GeneralToken(string email, HttpContext httpContext);
 
         Task<bool> IsActiveAccountAfterRegister(string email, long id);
+
+        Task<ResponeLogin> RefreshAccessToken(string refreshToken, HttpContext httpContext);
+
+        Task<bool> RevokeRefreshToken(string refreshToken);
+
+        Task<bool> ForgotPassword(string email);
+
+        Task<bool> ResetPassword(string email, string token, string newPassword);
     }
 }

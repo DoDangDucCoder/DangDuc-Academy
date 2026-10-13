@@ -155,4 +155,15 @@ export class CourseServices {
         const ApiUrl = LinkSettings.GetResLinkSetting('Course', 'GetListDetailsTheadQuestionCourse', id);
         return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<DetailTheadQuestionCourse[]>) => res));
     }
+
+    searchCourses(keyword: string, pageIndex: number = 1, pageSize: number = 10) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Course', 'SearchCourses');
+        return this.transferHttp.get(ApiUrl + '?keyword=' + encodeURIComponent(keyword) + '&pageIndex=' + pageIndex + '&pageSize=' + pageSize)
+            .pipe(map((res: any) => res));
+    }
+
+    getStudentProcess() {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Course', 'GetListStudentProcess');
+        return this.transferHttp.get(ApiUrl).pipe(map((res: any) => res));
+    }
 }

@@ -8,8 +8,8 @@ import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { Store } from '@ngrx/store';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { cloneDeep } from 'lodash';
-import { addagentData, deleteagentData, fetchagentData, updateagentData } from 'src/app/store/Agent/agent.action';
-import { selectagentData } from 'src/app/store/Agent/agent-selector';
+// import agent.action
+// import agent-selector
 import { addinstructorlistData, deleteinstructorlistData, updateinstructorlistData } from 'src/app/store/Learning-instructor/instructor.action';
 import { StudentUser } from 'src/app/models/models/student-user';
 import { StudentServices } from 'src/app/core/services/student.service';

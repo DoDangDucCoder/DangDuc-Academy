@@ -1,0 +1,84 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Instructor Dashboard</h4>
+    <div class="d-flex align-items-center gap-2">
+      <div class="input-group" style="max-width: 460px">
+        <select class="form-select" [(ngModel)]="instructorId" [disabled]="isLoadingInstructors">
+          <option [ngValue]="0">Select instructor</option>
+          <option *ngFor="let instructor of instructors" [ngValue]="instructor.id">
+            {{ instructor.name || instructor.email }} #{{ instructor.id }}
+          </option>
+        </select>
+        <button class="btn btn-primary" (click)="load()">Load</button>
+      </div>
+      <a routerLink="/learning/courses/assignment-manager" class="btn btn-outline-primary">Manage Assignments</a>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="isLoading" class="text-muted">Loading...</div>
+  <div *ngIf="!isLoading && !error && !dashboard" class="alert alert-info">Select an instructor to view dashboard metrics.</div>
+
+  <div class="row g-3" *ngIf="dashboard">
+    <div class="col-md-3">
+      <div class="metric">
+        <span>Total Courses</span>
+        <strong>{{ dashboard.totalCourses }}</strong>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="metric">
+        <span>Total Students</span>
+        <strong>{{ dashboard.totalStudents }}</strong>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="metric">
+        <span>Revenue</span>
+        <strong>{{ dashboard.totalRevenue | currency }}</strong>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="metric">
+        <span>Completion</span>
+        <strong>{{ dashboard.completionRate }}%</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2" *ngIf="dashboard">
+    <div class="col-lg-8">
+      <h5>Courses</h5>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Students</th>
+            <th>Revenue</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let course of dashboard.courses">
+            <td>{{ course.title || course.courseId }}</td>
+            <td>{{ course.students }}</td>
+            <td>{{ course.revenue | currency }}</td>
+            <td>{{ course.averageRating }}</td>
+          </tr>
+          <tr *ngIf="!dashboard.courses.length">
+            <td colspan="4" class="text-muted">No course metrics yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-lg-4">
+      <h5>Recent Reviews</h5>
+      <div class="review" *ngFor="let review of dashboard.recentReviews">
+        <strong>Course #{{ review.courseId }}</strong>
+        <span>{{ review.rating }}/5</span>
+        <p>{{ review.comment || 'No comment' }}</p>
+      </div>
+      <div *ngIf="!dashboard.recentReviews.length" class="text-muted">No recent reviews.</div>
+    </div>
+  </div>
+</div>

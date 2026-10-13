@@ -52,7 +52,31 @@ export class AuthenticationServices {
         return this.currentUser() != null;
     }
 
-    logoutWithAccount(){
+    refreshToken(refreshToken: string) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'RefreshToken');
+        return this.transferHttp.post(ApiUrl, { refreshToken }).pipe(map((res: RepositoryModel<LoginRegister>) => res));
+    }
+
+    revokeToken(refreshToken: string) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'RevokeToken');
+        return this.transferHttp.post(ApiUrl, { refreshToken }).pipe(map((res: RepositoryModel<boolean>) => res));
+    }
+
+    forgotPassword(email: string) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'ForgotPassword');
+        return this.transferHttp.post(ApiUrl, { email }).pipe(map((res: RepositoryModel<boolean>) => res));
+    }
+
+    resetPassword(email: string, token: string, newPassword: string) {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Authentication', 'ResetPassword');
+        return this.transferHttp.post(ApiUrl, { email, token, newPassword }).pipe(map((res: RepositoryModel<boolean>) => res));
+    }
+
+    logoutWithAccount() {
+        const currentUser = this.currentUser();
+        if (currentUser?.refreshToken) {
+            this.revokeToken(currentUser.refreshToken).subscribe({ error: () => {} });
+        }
         LocalStorageConfig.RemoveUser('currentUser');
         LocalStorageConfig.RemoveAllDataListCourse();
         this.updateAfterLogin(null);

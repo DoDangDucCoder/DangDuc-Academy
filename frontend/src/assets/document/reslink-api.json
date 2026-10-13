@@ -20,6 +20,7 @@
     "UpdateStatusCourse": "master-course/course/status/{0}",
     "UpdateInformationCourse": "master-course/course/{0}",
     "GetListAllCourse": "master-course/course",
+    "SearchCourses": "master-course/course/search/1/10",
     "GetCourses": "master-course/course/{0}/{1}",
     "CreateContentCourse": "master-course/course-content",
     "UpdateStatusContentCourse": "master-course/course-content/status/{0}",
@@ -92,6 +93,25 @@
     "CreateRequestPurchase": "purchase-course/create-purchase",
     "UpdateStatusPurchase": "purchase-course/purchase-course/{0}",
     "IsCheckCoursePurchase": "purchase-course/check-purchase-course/{0}",
+    "GetListPurcharseCourses": "purchase-course/get-list-purchase-course/{0}/{1}",
     "StripeCreateCheckoutSession": "purchase-course/create-stripe-checkout-session"
+  },
+  "Refund": {
+    "RequestRefund": "Refund/request",
+    "GetRefundsByStudent": "Refund/student/{0}"
+  },
+  "Payout": {
+    "GetBalance": "Payout/balance",
+    "RequestPayout": "Payout/request"
+  },
+  "Article": {
+    "GetPagedArticles": "article/paged/{0}/{1}",
+    "GetArticleById": "article/{0}",
+    "GetArticleBySlug": "article/slug/{0}"
+  },
+  "Subtitle": {
+    "GetByContentDetail": "Subtitle/content-detail/{0}",
+    "AddSubtitle": "Subtitle/content-detail/{0}",
+    "DeleteSubtitle": "Subtitle/{0}"
   }
 }

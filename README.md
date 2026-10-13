@@ -1,227 +1,269 @@
-# HDNXUdemy - E-Learning Full-stack Platform
+# HDNXUdemy Clone - Full Stack E-Learning Platform
 
-<p align="center">
-  <strong>Nền tảng học trực tuyến full-stack phục vụ local demo đồ án</strong>
-</p>
+## 📋 Tech Stack
 
-<p align="center">
-  <img src="https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 8" />
-  <img src="https://img.shields.io/badge/Angular-16%20%2F%2017-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
-  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white" alt="Stripe" />
-</p>
+| Layer | Technology |
+|-------|-----------|
+| **Backend API** | .NET 8, Entity Framework Core, PostgreSQL |
+| **Frontend** | Angular 17, SCSS, Bootstrap |
+| **Admin Panel** | Angular 17, NgRx, Bootstrap |
+| **Real-time** | SignalR |
+| **Authentication** | JWT Bearer + Refresh Tokens |
+| **File Storage** | Cloudinary |
+| **Payment** | Stripe |
+| **Containerization** | Docker, Docker Compose |
 
 ---
 
-## Giới thiệu
+## 🚀 Getting Started
 
-**HDNXUdemy** là nền tảng học trực tuyến theo mô hình Udemy Clone.
+### Environment Keys
 
-- Học viên có thể xem danh sách khóa học, đăng ký/mua khóa học và học video trực tuyến.
-- Admin quản lý khóa học, danh mục, học viên, đơn mua, nội dung bài học, coupon và promotion.
-- Hệ thống gồm Backend .NET 8, Frontend Angular 16, Admin Angular 17 và PostgreSQL.
-- Dự án phù hợp chạy local để demo các luồng chính của một hệ thống E-Learning.
+Legacy public keys have been removed from source. Configure new Google, Facebook, Firebase, Maps, and Stripe publishable keys using the placeholders documented in [Environment Keys](docs/environment-keys.md).
 
-## Công nghệ sử dụng
+### Prerequisites
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Node.js 18+](https://nodejs.org/) & npm
+- [PostgreSQL 15+](https://www.postgresql.org/download/)
+- [Docker](https://www.docker.com/) (optional, for containerized setup)
 
-| Layer | Technology |
-|---|---|
-| Backend API | .NET 8 Web API |
-| ConvertVideo API | .NET 8 |
-| Frontend | Angular 16 |
-| Admin | Angular 17 |
-| Database | PostgreSQL |
-| Cache/Job optional | Redis |
-| Payment | Stripe |
-| Storage | Local video storage / cloud config |
-
-## Kiến trúc hệ thống
-
-```mermaid
-flowchart LR
-    User[Student / User] --> FE[Frontend Angular 16 :4200]
-    Admin[Admin] --> AD[Admin Angular 17 :4201]
-    FE --> API[Backend API .NET 8 :5194]
-    AD --> API
-    API --> DB[(PostgreSQL :5432)]
-    API --> Redis[(Redis :6379 optional)]
-    API --> Convert[ConvertVideo API .NET 8 :5148]
-    Convert --> Storage[Video Storage]
-    API --> Stripe[Stripe Payment]
-```
-
-## Cấu trúc thư mục
-
-| Thư mục | Mô tả |
-|---|---|
-| `backend/` | Solution .NET 8 gồm API chính, service, data layer, model và ConvertVideo API |
-| `frontend/` | Ứng dụng Angular 16 cho học viên |
-| `admin/` | Ứng dụng Angular 17 cho trang quản trị |
-| `backend/scripts/` | Script hỗ trợ seed/demo data |
-| `LOCAL_SETUP.md` | Ghi chú setup local và checklist demo |
-
-## Tính năng chính
-
-### Học viên
-
-- Xem, tìm kiếm và lọc khóa học theo danh mục.
-- Xem chi tiết khóa học, nội dung bài học, giảng viên và đánh giá.
-- Đăng ký/mua khóa học, thanh toán qua Stripe.
-- Học video trực tuyến bằng HLS player.
-- Quản lý tài khoản, khóa học đã mua, bookmark, Q&A và đánh giá.
-
-### Admin
-
-- Dashboard tổng quan doanh thu, học viên, khóa học và đơn mua.
-- Quản lý khóa học, nội dung bài học, upload video và trạng thái hiển thị.
-- Quản lý người dùng, danh mục, banner, tin tức, coupon và promotion.
-- Quản lý đơn mua, thanh toán, cấu hình hệ thống và file upload.
-
-### Backend
-
-- REST API với Swagger/OpenAPI.
-- Xác thực JWT và phân quyền theo vai trò.
-- Entity Framework Core kết nối PostgreSQL.
-- Xử lý thanh toán Stripe và webhook.
-- Convert video MP4 sang HLS bằng FFmpeg.
-- Hỗ trợ Redis, Hangfire, SignalR và cấu hình lưu trữ local/cloud.
-
-## Yêu cầu hệ thống
-
-| Công cụ | Phiên bản khuyến nghị |
-|---|---|
-| .NET SDK | 8.0+ |
-| Node.js | 18 LTS |
-| Angular CLI | 16.x cho Frontend, 17.x cho Admin |
-| PostgreSQL | 15+ |
-| Redis | 7.x, optional cho local demo |
-| FFmpeg | 6.x+ cho xử lý video |
-
-## Hướng dẫn chạy local
-
-### 1. Clone repository
+### 1. Clone & Setup
 
 ```bash
-git clone https://github.com/<your-username>/UdemyClone.git
+git clone <repository-url>
 cd UdemyClone
 ```
 
-### 2. Cấu hình môi trường
-
-- Copy `.env.example` nếu cần và thay các giá trị `CHANGE_ME_*`.
-- Cập nhật PostgreSQL connection string trong `backend/HDNXUdemyAPI/appsettings.Development.json`.
-- Kiểm tra các cấu hình local path cho video/upload nếu chạy luồng upload hoặc convert video.
-- Không commit secret thật như Stripe secret key, Cloudinary secret, AWS secret, SMTP credential hoặc OAuth client secret.
-
-### 3. Chạy Backend API
+### 2. Backend Setup
 
 ```bash
-cd backend
+cd backend/HDNXUdemyAPI
+
+# Restore packages
 dotnet restore
-dotnet run --project HDNXUdemyAPI
+
+# Update connection string in appsettings.json
+# "ConnectionStrings": { "DefaultConnection": "Host=localhost;Port=5432;Database=hdnx_udemy;Username=postgres;Password=your_password" }
+
+# Run migrations
+dotnet ef database update
+
+# Run the API
+dotnet run
+# API will be available at http://localhost:5194
 ```
 
-API chính chạy tại:
-
-```text
-http://localhost:5194
-```
-
-### 4. Chạy ConvertVideo API
-
-```bash
-cd backend
-dotnet run --project HDNXUdemyConvertVideoAPI
-```
-
-ConvertVideo API chạy tại:
-
-```text
-http://localhost:5148
-```
-
-### 5. Chạy Frontend
+### 3. Frontend Setup
 
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
-npm start
+
+# Start development server
+ng serve
+# App will be available at http://localhost:4200
 ```
 
-Frontend chạy tại:
-
-```text
-http://127.0.0.1:4200
-```
-
-### 6. Chạy Admin
+### 4. Admin Panel Setup
 
 ```bash
 cd admin
+
+# Install dependencies
 npm install
-npm start -- --host 127.0.0.1 --port 4201
+
+# Start development server
+ng serve --port 4201
+# Admin will be available at http://localhost:4201
 ```
 
-Admin chạy tại:
-
-```text
-http://127.0.0.1:4201/
-```
-
-## URL local demo
-
-| Ứng dụng | URL |
-|---|---|
-| Frontend | http://127.0.0.1:4200 |
-| Admin | http://127.0.0.1:4201/ |
-| Backend API | http://localhost:5194 |
-| Backend Swagger | http://localhost:5194/swagger |
-| ConvertVideo API | http://localhost:5148 |
-| ConvertVideo Swagger | http://localhost:5148/swagger |
-| PostgreSQL | localhost:5432 |
-| Redis optional | localhost:6379 |
-
-## Database local demo
-
-Nếu có file backup PostgreSQL, restore vào database local sạch trước khi demo:
+### 5. Docker Setup (Alternative)
 
 ```bash
-createdb -h localhost -p 5432 -U postgres HDNXUdemy
-psql -h localhost -p 5432 -U postgres -d HDNXUdemy -f hdnx_udemy_backup_final_20260529.sql
+# From root directory
+docker-compose up -d
 ```
 
-Lưu ý:
+The Compose stack starts PostgreSQL, Redis, Elasticsearch, the backend API, video API, frontend, and admin dashboard. Frontend is exposed on `http://localhost`, admin on `http://localhost:81`, backend on `http://localhost:5194`, video API on `http://localhost:5195`, and Elasticsearch on `http://localhost:9200`.
 
-- Không chạy lệnh reset hoặc restore lên database thật.
-- Sau khi restore backup đã đúng schema, không cần chạy EF migration.
-- Chỉ chạy migration khi tạo database mới từ migrations và đã kiểm tra schema.
+### 6. Kubernetes Base
 
-## Tài khoản demo
+Phase 5 Kubernetes manifests live in `k8s/base` and can be rendered with:
 
-| Role | Email | Password |
-|---|---|---|
-| Admin | `admin@themesbrand.com` | `123456` |
-| Student | `student@hdnx.local` | `123456` |
+```powershell
+kubectl kustomize k8s/base
+```
 
-Script tham khảo: `backend/scripts/seed-demo-data.ps1`.
+Create the `hdnx-secrets` secret before applying the base, then deploy with:
 
-## Ghi chú local demo
+```powershell
+kubectl apply -k k8s/base
+```
 
-- Redis là optional cho các luồng cơ bản như xem khóa học, đăng nhập và CRUD chính.
-- Với Angular dev server, nên mở trang root trước rồi điều hướng trong app để tránh lỗi deep link.
-- JWT logout hiện chủ yếu xóa token phía client; token đã cấp vẫn hợp lệ đến khi hết hạn.
-- Dependency audit có thể còn cảnh báo ở một số package frontend/toolchain; chấp nhận cho local demo, cần xử lý trước production.
-- Không đóng gói `node_modules/`, `dist/`, `bin/`, `obj/`, `.vs/`, `.codex-run/`, `qa-artifacts/`, `logs/` hoặc `*.log`.
+---
 
-## Tài liệu chi tiết
+## 🔑 API Keys & External Services Configuration
 
-| Tài liệu | Nội dung |
-|---|---|
-| [Backend README](./backend/README.md) | Kiến trúc API, cấu hình backend, entities và services |
-| [Frontend README](./frontend/README.md) | Giao diện học viên, components, routing và services |
-| [Admin README](./admin/README.md) | Dashboard quản trị, modules, state management và API integration |
-| [LOCAL_SETUP.md](./LOCAL_SETUP.md) | Checklist setup local và các lưu ý khi demo |
+### Google OAuth (Required for Google Login)
 
-## License
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Navigate to **APIs & Services** → **Credentials**
+4. Click **Create Credentials** → **OAuth 2.0 Client ID**
+5. Choose **Web Application**
+6. Add Authorized redirect URIs:
+   - `http://localhost:4200` (development)
+   - `https://your-domain.com` (production)
+7. Copy the **Client ID**
+8. Update in the following files:
 
-Dự án được phát triển cho mục đích học tập, nghiên cứu và demo đồ án.
+**Frontend** - `frontend/src/environments/environment.ts`:
+```typescript
+clientIdGoogle: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+```
+
+**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
+```json
+"Authentication": {
+  "Google": {
+    "ClientId": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "ClientSecret": "YOUR_GOOGLE_CLIENT_SECRET"
+  }
+}
+```
+
+---
+
+### Stripe Payment (Required for Course Purchases)
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Sign up / Log in
+3. Navigate to **Developers** → **API Keys**
+4. Copy the **Publishable Key** (pk_test_...) and **Secret Key** (sk_test_...)
+
+**Frontend** - `frontend/src/environments/environment.ts`:
+```typescript
+stripePublicKey: 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY'
+```
+
+**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
+```json
+"Stripe": {
+  "SecretKey": "sk_test_YOUR_STRIPE_SECRET_KEY",
+  "PublishableKey": "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY"
+}
+```
+
+---
+
+### Cloudinary (Required for Image/Video Uploads)
+
+1. Go to [Cloudinary Console](https://cloudinary.com/console)
+2. Sign up / Log in
+3. Copy **Cloud Name**, **API Key**, and **API Secret** from the dashboard
+
+**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
+```json
+"Cloudinary": {
+  "CloudName": "YOUR_CLOUD_NAME",
+  "ApiKey": "YOUR_API_KEY",
+  "ApiSecret": "YOUR_API_SECRET"
+}
+```
+
+---
+
+### SMTP Email (Required for Forgot Password)
+
+The forgot password feature sends OTP codes via email. Configure your SMTP provider:
+
+**Option A: Gmail SMTP**
+1. Enable [2-Step Verification](https://myaccount.google.com/security)
+2. Generate an [App Password](https://myaccount.google.com/apppasswords)
+3. Use the generated password in config
+
+**Option B: Any SMTP Provider** (Mailgun, SendGrid, etc.)
+
+**Backend** - `backend/HDNXUdemyAPI/appsettings.json`:
+```json
+"EmailSettings": {
+  "SmtpHost": "smtp.gmail.com",
+  "SmtpPort": 587,
+  "SmtpUser": "your-email@gmail.com",
+  "SmtpPassword": "your-app-password",
+  "FromEmail": "your-email@gmail.com",
+  "FromName": "HDNX Academy"
+}
+```
+
+> **Note:** Currently the Forgot Password feature generates an OTP token stored in the database. The OTP is returned in the API response for development. In production, integrate the SMTP settings above to send the OTP via email.
+
+---
+
+### Facebook Login (Optional)
+
+1. Go to [Facebook Developers](https://developers.facebook.com/)
+2. Create an App → Choose **Consumer** type
+3. Add **Facebook Login** product
+4. Copy the **App ID**
+
+**Frontend** - `frontend/src/environments/environment.ts`:
+```typescript
+facebookId: 'YOUR_FACEBOOK_APP_ID'
+```
+
+---
+
+## 📁 Project Structure
+
+```
+UdemyClone/
+├── backend/
+│   ├── HDNXUdemyAPI/          # Web API project (.NET 8)
+│   ├── HDNXUdemyServices/     # Business logic layer
+│   ├── HDNXUdemy/             # Data access layer (EF Core)
+│   └── HDNXUdemyModel/        # DTOs, Models, Request/Response
+├── frontend/                  # Angular 17 Student UI
+├── admin/                     # Angular 17 Admin Dashboard
+├── docker-compose.yml
+└── README.md
+```
+
+## 🎯 Features
+
+### Student Frontend
+- 🔐 JWT Authentication (Register/Login/Forgot Password)
+- 🌙 Dark Mode toggle
+- 🔍 Live course search with autocomplete
+- 📚 Course browsing by category
+- 📊 Student progress tracking with visual progress bars
+- 🛒 Shopping cart & checkout (Stripe)
+- 🔔 Real-time notifications (SignalR)
+- ⭐ Course ratings & reviews
+- 📑 Bookmark courses
+- 👨‍🏫 Training online (live sessions)
+
+### Admin Panel
+- 📊 Dashboard with analytics
+- 📚 Course CRUD management
+- 👥 User management
+- 🌙 Dark mode (Light/Dark/Auto)
+- 📥 Export data (CSV/Excel)
+- 🔔 Notification management
+- 💰 Purchase order tracking
+
+---
+
+## 🏥 Health Checks
+
+The API exposes health check endpoints:
+- `GET /health/live` - API liveness probe
+- `GET /health/ready` - Database readiness probe
+
+---
+
+## 📝 License
+
+This project is for educational purposes.

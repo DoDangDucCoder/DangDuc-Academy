@@ -154,7 +154,7 @@ const sellerOverview = [
 ]
 
 
-import { ChartOptions } from "../../../app/store/Seller/seller.model"
+export type ChartOptions = any;
 
 // Seller-1 chart
 const seller1Chart: ChartOptions = {

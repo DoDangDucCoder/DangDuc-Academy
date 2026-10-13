@@ -111,7 +111,7 @@ export class MessengerServices {
     Swal.fire({
       title: 'Sweet!',
       text: 'Modal with a custom image.',
-      imageUrl: 'assets/images/logo-sm.png',
+      imageUrl: 'assets/brand/dangduc-icon-vector.svg',
       imageHeight: 50,
       confirmButtonColor: 'rgb(3, 142, 220)',
       showCancelButton: true,

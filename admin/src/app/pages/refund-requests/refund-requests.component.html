@@ -1,0 +1,66 @@
+<app-breadcrumbs title="Pending Refund Requests" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div *ngIf="isLoading" class="text-center my-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div *ngIf="!isLoading && pendingRefunds.length === 0" class="text-center my-4">
+                    <h5>No pending refund requests.</h5>
+                </div>
+
+                <div class="table-responsive" *ngIf="!isLoading && pendingRefunds.length > 0">
+                    <table class="table align-middle table-nowrap table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Request ID</th>
+                                <th scope="col">Student</th>
+                                <th scope="col">Course</th>
+                                <th scope="col">Purchase Date</th>
+                                <th scope="col">Request Date</th>
+                                <th scope="col">Reason</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let request of pendingRefunds">
+                                <td>{{request.id}}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <h5 class="fs-14 my-1"><a href="javascript:void(0);" class="text-reset">{{request.student?.fullName}}</a></h5>
+                                            <span class="text-muted">{{request.student?.email}}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <!-- Assume request.purchaseCourse has course info if mapped properly -->
+                                    <h5 class="fs-14 my-1">{{request.purchaseCourse?.idCourse}}</h5>
+                                    <span class="text-muted">Total: {{request.purchaseCourse?.totalPrice | currency}}</span>
+                                </td>
+                                <td>{{request.purchaseCourse?.purchaseDate | date:'mediumDate'}}</td>
+                                <td>{{request.requestDate | date:'mediumDate'}}</td>
+                                <td>{{request.reason}}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-success" (click)="processRefund(request, true)">
+                                            Approve
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger" (click)="processRefund(request, false)">
+                                            Reject
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

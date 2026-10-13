@@ -1,0 +1,156 @@
+<div class="exam-do-page" *ngIf="!loading; else loadingTpl">
+
+  <!-- ── Top Bar ── -->
+  <header class="exam-topbar">
+    <div class="topbar-left">
+      <span class="exam-title-short">{{ examData?.exam?.title }}</span>
+      <span class="progress-text">{{ answeredCount }}/{{ allQuestions.length }} câu</span>
+    </div>
+    <div class="timer-wrap" [class.warning]="timeWarning">
+      <i class="bx bx-time-five"></i>
+      <span class="timer">{{ timeDisplay }}</span>
+    </div>
+    <button class="btn-submit-top" (click)="submitExam()" [disabled]="isSubmitting">
+      <i class="bx bx-send"></i> Nộp Bài
+    </button>
+  </header>
+
+  <!-- ── Progress Bar ── -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" [style.width.%]="progress"></div>
+  </div>
+
+  <!-- ── Part Navigation Tabs ── -->
+  <div class="part-tabs" *ngIf="parts.length > 1">
+    <button
+      class="part-tab"
+      *ngFor="let part of parts; let i = index"
+      [class.active]="selectedPartIndex === i"
+      (click)="selectPart(i)"
+    >
+      <span class="part-tab-name">{{ part.title }}</span>
+      <span class="part-tab-count"
+        [class.part-tab-count--done]="partAnsweredCount(i) === part.questions.length">
+        {{ partAnsweredCount(i) }}/{{ part.questions.length }}
+      </span>
+    </button>
+  </div>
+
+  <div class="exam-layout">
+
+    <!-- ── Question Panel ── -->
+    <main class="question-panel" *ngIf="currentQuestion">
+
+      <!-- Part Context (nếu nhiều part) -->
+      <div class="part-context" *ngIf="parts.length > 1 && currentPart">
+        <span class="part-context-label">{{ currentPart.title }}</span>
+        <span *ngIf="currentPart.description" class="part-context-desc">— {{ currentPart.description }}</span>
+      </div>
+
+      <!-- Audio Player -->
+      <div class="audio-player" *ngIf="currentQuestion?.audioUrl">
+        <audio #audioRef [src]="currentQuestion!.audioUrl" preload="auto"></audio>
+        <button class="audio-play-btn" (click)="toggleAudio(audioRef)">
+          <i class="bx" [class.bx-play-circle]="!isPlaying" [class.bx-pause-circle]="isPlaying"></i>
+          {{ isPlaying ? 'Tạm dừng' : 'Nghe audio' }}
+        </button>
+        <div class="audio-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="audioProgress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image -->
+      <img *ngIf="currentQuestion.questionImage" [src]="currentQuestion.questionImage"
+           class="question-img" alt="question image">
+
+      <!-- Question -->
+      <div class="question-header">
+        <span class="q-number">Câu {{ currentIndex + 1 }}</span>
+        <p class="q-text">{{ currentQuestion.questionText }}</p>
+      </div>
+
+      <!-- Options -->
+      <div class="options-list">
+        <div
+          class="option-item"
+          *ngFor="let opt of currentQuestion.options"
+          [class.selected]="getSelected(currentQuestion.id) === opt.id"
+          (click)="selectAnswer(currentQuestion.id, opt.id)"
+        >
+          <span class="opt-label">{{ opt.label }}</span>
+          <span class="opt-text">{{ opt.answerText }}</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="q-nav">
+        <button class="btn-nav" (click)="goTo(currentIndex - 1)" [disabled]="currentIndex === 0">
+          <i class="bx bx-left-arrow-alt"></i> Câu trước
+        </button>
+        <button class="btn-nav btn-next" (click)="goTo(currentIndex + 1)"
+                [disabled]="currentIndex === allQuestions.length - 1">
+          Câu sau <i class="bx bx-right-arrow-alt"></i>
+        </button>
+      </div>
+    </main>
+
+    <!-- ── Sidebar Navigation ── -->
+    <aside class="q-sidebar">
+      <h4>Điều Hướng Câu Hỏi</h4>
+
+      <!-- Per-part groups nếu nhiều part -->
+      <ng-container *ngIf="parts.length > 1">
+        <div *ngFor="let part of parts; let pi = index" class="sidebar-part-group">
+          <div class="sidebar-part-title"
+            [class.active-part]="pi === selectedPartIndex"
+            (click)="selectPart(pi)">
+            {{ part.title }}
+            <span class="sidebar-part-progress">{{ partAnsweredCount(pi) }}/{{ part.questions.length }}</span>
+          </div>
+          <div class="q-grid">
+            <button
+              class="q-dot"
+              *ngFor="let q of part.questions; let li = index"
+              [class.current]="localToGlobal(li) === currentIndex && pi === selectedPartIndex"
+              [class.answered]="isAnswered(q.id)"
+              (click)="goTo(localToGlobal(li)); selectedPartIndex = pi"
+            >{{ localToGlobal(li) + 1 }}</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Flat list nếu 1 part -->
+      <ng-container *ngIf="parts.length <= 1">
+        <div class="q-grid">
+          <button
+            class="q-dot"
+            *ngFor="let q of allQuestions; let i = index"
+            [class.current]="i === currentIndex"
+            [class.answered]="isAnswered(q.id)"
+            (click)="goTo(i)"
+          >{{ i + 1 }}</button>
+        </div>
+      </ng-container>
+
+      <div class="q-legend">
+        <span class="dot answered"></span> Đã trả lời
+        <span class="dot current" style="margin-left:10px"></span> Đang xem
+        <span class="dot unanswered" style="margin-left:10px"></span> Chưa làm
+      </div>
+      <button class="btn-submit-full" (click)="submitExam()" [disabled]="isSubmitting">
+        <i class="bx bx-send"></i>
+        {{ isSubmitting ? 'Đang nộp...' : 'Nộp Bài' }}
+      </button>
+    </aside>
+
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <p>Đang chuẩn bị đề thi...</p>
+  </div>
+</ng-template>

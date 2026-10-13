@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.dotnet/
+**/.nuget/
+**/.codex-smoke/
+**/*.user
+**/*.log
+**/DataProtectionKeys/
+**/wwwroot/uploads/
+.git/
+.gitignore
+Dockerfile*

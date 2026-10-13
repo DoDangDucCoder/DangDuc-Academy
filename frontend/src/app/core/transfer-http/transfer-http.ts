@@ -10,42 +10,30 @@ import { LocalStorageConfig } from '../../library/clientconfig/localstorageconfi
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 
-
 @Injectable()
-
 export class TransferHttp {
   private readonly Host: string;
   private baseUrl = environment.baseUrl;
 
   constructor(
     private http: HttpClient,
-    private router: Router,) {
+    private router: Router
+  ) {
     this.Host = this.baseUrl;
   }
 
+  // ─── Public HTTP Methods ──────────────────────────────────────────────────
   get<T>(url: string, contentType?: EContentType) {
     return this.mapshare(this.http.get<T>(this.Host + url, this.jwt(contentType)));
   }
 
   getFile(url: string, contentType?: EContentType) {
-    // tslint:disable-next-line: prefer-const
-    let sContent: string = this.contentType(contentType === undefined ? EContentType.json : contentType);
-    let httpHeaders = new HttpHeaders({
-      'Content-Type': sContent
-    });
-
-    const returnToken = this.getAccessToken();
-    if (returnToken) {
-      httpHeaders = new HttpHeaders(
-        {
-          // tslint:disable-next-line: object-literal-key-quotes
-          'Authorization': `Bearer ${returnToken}`,
-          'Content-Type': sContent
-        },
-      );
-    }
-    // return this.mapshare(this.http.get(this.Host + url, { observe:'response', responseType: 'blob' }));
-    return this.http.get(this.Host + url, { headers: httpHeaders, observe: 'response', responseType: 'blob' })
+    return this.http
+      .get(this.Host + url, {
+        headers: this.buildHeaders(contentType, true),
+        observe: 'response',
+        responseType: 'blob',
+      })
       .pipe(map((res: any) => res));
   }
 
@@ -54,7 +42,7 @@ export class TransferHttp {
   }
 
   postUpload(url: string, body: FormData) {
-    return (this.mapshare(this.http.post(this.Host + url, body, this.jwtUploadFile())));
+    return this.mapshare(this.http.post(this.Host + url, body, this.jwtUploadFile()));
   }
 
   put(url: string, body: any, contentType?: EContentType) {
@@ -69,146 +57,153 @@ export class TransferHttp {
     return this.mapshare(this.http.delete(this.Host + url, this.jwt(contentType)));
   }
 
+  // ─── Internal Pipeline ────────────────────────────────────────────────────
   private mapshare(data: Observable<any>) {
     return data.pipe(
       map(res => res),
-      catchError(error => this.handleAuthError(error))
+      catchError(error => this.handleHttpError(error))
     );
   }
 
-  private handleAuthError(error: HttpErrorResponse) {
-    if (!navigator.onLine) {
-      Swal.fire({
-        title: 'Có lỗi xảy ra?',
-        text: 'Lỗi về đường truyền internet vui lòng kiểm tra lại',
-        icon: 'question',
-        iconColor: '#1ea6d3',
-        confirmButtonColor: '#4b93ff',
-        showCancelButton: true,
-      });
-      return throwError(() => error);
-    }
-    // handle your auth error or rethrow
-    if (error.status === 401) {
-      ConfigForApp.isLoadingButton = false;
-      // this.notification.error('Thông báo lỗi!', 'Code 401: ' + error.statusText + '<br>' + error.error.messenger.message);
-      // this.router.navigate(['/error']);
-      LocalStorageConfig.RemoveUser('currentUser');
-      LocalStorageConfig.RemoveAllDataListCourse();
-      this.router.navigate(['/login']);
-      return throwError(() => error);
-    }
+  /**
+   * Centralized HTTP error handler.
+   * - 0    → Mất kết nối internet
+   * - 400  → Dữ liệu đầu vào không hợp lệ
+   * - 401  → Hết phiên đăng nhập → logout
+   * - 403  → Không có quyền truy cập
+   * - 404  → Không tìm thấy tài nguyên
+   * - 429  → Gửi quá nhiều yêu cầu
+   * - 500  → Lỗi máy chủ
+   * - 503  → Dịch vụ tạm thời không khả dụng
+   */
+  private handleHttpError(error: HttpErrorResponse): Observable<never> {
+    ConfigForApp.isLoadingButton = false;
 
-    if (error.status === 400) {
-      ConfigForApp.isLoadingButton = false;
-      // this.notification.error('Thông báo lỗi!', 'Thông số truyền vào không có hoặc không đúng <br> Code 400: ' + error.message);
-      // this.router.navigate(['/error']);
-      Swal.fire({
-        title: 'Có lỗi xảy ra?',
-        text: `${error.message}- thông số truyền vào có vẻ không đúng, vui lòng load lại trang và đăng nhập lại`,
-        icon: 'error',
-        iconColor: '#1ea6d3',
-        confirmButtonColor: '#4b93ff',
-        showCancelButton: true,
-      });
+    // Offline / network error
+    if (!navigator.onLine || error.status === 0) {
+      this.showError(
+        'Mất kết nối mạng',
+        'Vui lòng kiểm tra đường truyền internet và thử lại.',
+        'warning'
+      );
       return throwError(() => error);
     }
 
-    if (error.status === 500) {
-      ConfigForApp.isLoadingButton = false;
-      if (error.error.messenger == null || undefined) {
-
-        Swal.fire({
-          title: 'Có lỗi xảy ra?',
-          text: `${error.message}`,
-          icon: 'question',
-          iconColor: '#1ea6d3',
-          confirmButtonColor: '#4b93ff',
-          showCancelButton: true,
-        });
-        return throwError(() => error);
-
-      } else {
-        Swal.fire({
-          title: 'Có lỗi xảy ra?',
-          text: `${error.error.messenger.message}`,
-          icon: 'question',
-          iconColor: '#1ea6d3',
-          confirmButtonColor: '#4b93ff',
-          showCancelButton: true,
-        });
-        return throwError(() => error);
+    switch (error.status) {
+      case 400: {
+        const msg =
+          error.error?.systemMessage ||
+          error.error?.message ||
+          'Dữ liệu gửi lên không hợp lệ. Vui lòng kiểm tra lại.';
+        this.showError('Yêu cầu không hợp lệ (400)', msg, 'error');
+        break;
       }
-    } else if (error.status === 0) {
-      ConfigForApp.isLoadingButton = false;
-      Swal.fire({
-        title: 'Có lỗi xảy ra?',
-        text: `${error.message}`,
-        icon: 'question',
-        iconColor: '#1ea6d3',
-        confirmButtonColor: '#4b93ff',
-        showCancelButton: true,
-      });
-      return throwError(() => error);
+
+      case 401: {
+        // Token hết hạn hoặc chưa đăng nhập → logout và về trang login
+        LocalStorageConfig.RemoveUser('currentUser');
+        LocalStorageConfig.RemoveAllDataListCourse();
+        this.router.navigate(['/login']);
+        break; // Không hiện dialog — redirect là đủ
+      }
+
+      case 403: {
+        this.showError(
+          'Không có quyền truy cập (403)',
+          'Bạn không có quyền thực hiện hành động này.',
+          'error'
+        );
+        break;
+      }
+
+      case 404: {
+        // Không hiện dialog cho 404 (bình thường trong nhiều trường hợp)
+        console.warn(`[404] Resource not found: ${error.url}`);
+        break;
+      }
+
+      case 429: {
+        this.showError(
+          'Quá nhiều yêu cầu (429)',
+          'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau vài giây.',
+          'warning'
+        );
+        break;
+      }
+
+      case 500:
+      case 502: {
+        const serverMsg =
+          error.error?.systemMessage ||
+          error.error?.message ||
+          'Đã có lỗi xảy ra ở máy chủ. Vui lòng thử lại sau.';
+        this.showError('Lỗi máy chủ (500)', serverMsg, 'error');
+        break;
+      }
+
+      case 503: {
+        this.showError(
+          'Dịch vụ tạm ngưng (503)',
+          'Hệ thống đang bảo trì. Vui lòng quay lại sau.',
+          'info'
+        );
+        break;
+      }
+
+      default: {
+        this.showError(
+          `Lỗi không xác định (${error.status})`,
+          error.message || 'Đã có lỗi xảy ra, vui lòng thử lại.',
+          'error'
+        );
+        break;
+      }
     }
+
     return throwError(() => error);
   }
 
-  private jwt(contentType?: EContentType) {
-    // create authorization header with jwt token
-    const sContent: string = this.contentType(contentType === undefined ? EContentType.json : contentType);
-    let httpHeaders = new HttpHeaders({
-      'Content-Type': sContent,
+  private showError(title: string, text: string, icon: 'error' | 'warning' | 'info' | 'question') {
+    Swal.fire({
+      title,
+      text,
+      icon,
+      confirmButtonText: 'Đồng ý',
+      confirmButtonColor: '#4f86c6',
+      showCancelButton: false,
+      timer: icon === 'warning' || icon === 'info' ? 4000 : undefined,
     });
-
-    const returnToken = this.getAccessToken();
-    if (returnToken) {
-      httpHeaders = new HttpHeaders(
-        {
-          // tslint:disable-next-line: object-literal-key-quotes
-          'Authorization': 'Bearer ' + returnToken,
-          'Content-Type': sContent
-        },
-      );
-    }
-    return { headers: httpHeaders };
   }
 
+  // ─── Header Builders ──────────────────────────────────────────────────────
+  private jwt(contentType?: EContentType) {
+    return { headers: this.buildHeaders(contentType) };
+  }
 
   private jwtUploadFile() {
-    // create authorization header with jwt token
+    const headers = new HttpHeaders();
+    const token = this.getAccessToken();
+    return { headers: token ? headers.set('Authorization', `Bearer ${token}`) : headers };
+  }
 
-    let httpHeaders = new HttpHeaders();
-    const returnToken = this.getAccessToken();
-
-    if (returnToken) {
-      httpHeaders = new HttpHeaders(
-        {
-          // tslint:disable-next-line: object-literal-key-quotes
-          'Authorization': 'Bearer ' + returnToken,
-        },
-      );
-    }
-    return { headers: httpHeaders };
+  private buildHeaders(contentType?: EContentType, forBlob = false): HttpHeaders {
+    const type = this.resolveContentType(contentType);
+    let headers = new HttpHeaders();
+    if (!forBlob) headers = headers.set('Content-Type', type);
+    const token = this.getAccessToken();
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+    return headers;
   }
 
   private getAccessToken(): string | null {
-    const currentUser = LocalStorageConfig.GetUser();
-    return currentUser?.token ?? null;
+    return LocalStorageConfig.GetUser()?.token ?? null;
   }
 
-  private contentType(typeValue: EContentType) {
-    // tslint:disable-next-line: prefer-const
-    let result = 'application/json; charset=utf-8';
+  private resolveContentType(typeValue?: EContentType): string {
     switch (typeValue) {
-      case EContentType.json:
-        return result;
-      case EContentType.urlencoded:
-        return 'application/x-www-form-urlencoded; charset=utf-8';
-      case EContentType.formdata:
-        return 'multipart/form-data';
-      default:
-        return result;
+      case EContentType.urlencoded: return 'application/x-www-form-urlencoded; charset=utf-8';
+      case EContentType.formdata:   return 'multipart/form-data';
+      default:                      return 'application/json; charset=utf-8';
     }
   }
 }

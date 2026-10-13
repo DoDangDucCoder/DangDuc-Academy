@@ -1,6 +1,6 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { addinstructorgridDataSuccess, addinstructorlistDataSuccess, deleteinstructorgridSuccess, deleteinstructorlistSuccess, fetchinstructorListData, fetchinstructorListFailure, fetchinstructorListSuccess, fetchinstructorgridData, fetchinstructorgridFailure, fetchinstructorgridSuccess, updateinstructorgridDataSuccess, updateinstructorlistDataSuccess } from './instructor.action';
-import { deleteOrderSuccess } from '../Orders/order.action';
+
 
 export interface InstructorState {
     instructorlist: any[];

@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.Exception;
@@ -8,6 +8,7 @@ using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -22,17 +23,25 @@ namespace HDNXUdemyAPI.Controllers
     {
         private readonly ICourseServices _courseServices;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMemoryCache _cache;
+        private readonly ICourseSearchIndexService _courseSearchIndexService;
+        private readonly IAuditLogService _auditLogService;
 
         /// <summary>
         /// CourseController
         /// </summary>
         /// <param name="courseServices"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="cache"></param>
         /// <exception cref="ProjectException"></exception>
-        public CourseController(ICourseServices courseServices, IHttpContextAccessor httpContextAccessor)
+        public CourseController(ICourseServices courseServices, IHttpContextAccessor httpContextAccessor, IMemoryCache cache,
+            ICourseSearchIndexService courseSearchIndexService, IAuditLogService auditLogService)
         {
             _courseServices = courseServices ?? throw new ProjectException(nameof(_courseServices));
             _httpContextAccessor = httpContextAccessor ?? throw new ProjectException(nameof(_httpContextAccessor));
+            _cache = cache;
+            _courseSearchIndexService = courseSearchIndexService;
+            _auditLogService = auditLogService;
         }
 
         /// <summary>
@@ -54,6 +63,8 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _courseServices.CreateCourse(model);
+            await _courseSearchIndexService.IndexCourse(result.Data);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Course.Create", "Course", result.Data.Id.ToString(), null, result.Data);
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -78,6 +89,8 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _courseServices.UpdateStatusCourse(id, status, processCourse);
+            await _courseSearchIndexService.DeleteCourse(id);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Course.UpdateStatus", "Course", id.ToString(), null, new { status, processCourse });
             return Ok(result);
         }
 
@@ -101,6 +114,9 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _courseServices.UpdateInformationCourse(id, model);
+            model.Id = id;
+            await _courseSearchIndexService.IndexCourse(model);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Course.Update", "Course", id.ToString(), null, model);
             return Ok(result);
         }
 
@@ -119,8 +135,81 @@ namespace HDNXUdemyAPI.Controllers
                 SystemMessage = string.Empty,
                 StatusCode = (int)HttpStatusCode.Created
             };
+            var cacheKey = "courses_all";
+            if (_cache.TryGetValue(cacheKey, out List<CourseModel>? cachedCourses) && cachedCourses != null)
+            {
+                result.Data = cachedCourses;
+                return result;
+            }
 
             result.Data = await _courseServices.GetListCourseForAdmin();
+            _cache.Set(cacheKey, result.Data, TimeSpan.FromMinutes(5));
+            return result;
+        }
+
+        /// <summary>
+        /// GetListAllCoursePaged – Paginated version
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [HttpGet("course/paged/{pageIndex}/{pageSize}")]
+        public async Task<RepositoryModel<PagedResult<CourseModel>>> GetListAllCoursePaged(int pageIndex, int pageSize)
+        {
+            RepositoryModel<PagedResult<CourseModel>> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = new PagedResult<CourseModel>(),
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _courseServices.GetListCourseForAdminPaged(pageIndex, pageSize);
+            return result;
+        }
+
+        /// <summary>
+        /// SearchCourses – Advanced search with filters
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [HttpGet("course/search/{pageIndex}/{pageSize}")]
+        [AllowAnonymous]
+        public async Task<RepositoryModel<PagedResult<CourseModel>>> SearchCourses([FromQuery] HDNXUdemyModel.RequestModel.SearchCoursesRequest request, int pageIndex, int pageSize)
+        {
+            RepositoryModel<PagedResult<CourseModel>> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = new PagedResult<CourseModel>(),
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _courseSearchIndexService.SearchCourses(request, pageIndex, pageSize)
+                ?? await _courseServices.SearchCourses(request, pageIndex, pageSize);
+            return result;
+        }
+
+        /// <summary>
+        /// Reindex all active courses into Elasticsearch.
+        /// </summary>
+        [HttpPost("course/search/reindex")]
+        [Authorize(Roles = "Admin")]
+        public async Task<RepositoryModel<int>> ReindexCourses()
+        {
+            RepositoryModel<int> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = await _courseSearchIndexService.ReindexAllCourses(),
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+            await _auditLogService.WriteAsync(CurrentUserId(), "Course.Reindex", "Course", null, null, result.Data);
             return result;
         }
 
@@ -173,6 +262,29 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _courseServices.GetListCourseAsCategory(idCategory);
+            return result;
+        }
+
+        /// <summary>
+        /// GetListCourseAsCategoryPaged – Paginated version
+        /// </summary>
+        /// <param name="idCategory"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [HttpGet("course/category/{idCategory}/{pageIndex}/{pageSize}")]
+        public async Task<RepositoryModel<PagedResult<CourseModel>>> GetListCourseAsCategoryPaged(long idCategory, int pageIndex, int pageSize)
+        {
+            RepositoryModel<PagedResult<CourseModel>> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = new PagedResult<CourseModel>(),
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _courseServices.GetListCourseAsCategoryPaged(idCategory, pageIndex, pageSize);
             return result;
         }
 
@@ -809,6 +921,32 @@ namespace HDNXUdemyAPI.Controllers
         {
             [JsonPropertyName("status")]
             public int? Status { get; set; }
+        }
+
+        /// <summary>
+        /// ExportCoursesToExcel – Download courses as Excel file
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("course/export/excel")]
+        public async Task<IActionResult> ExportCoursesToExcel()
+        {
+            var courses = await _courseServices.GetListCourseForAdmin();
+            var exportData = courses.Select(c => new
+            {
+                c.Id,
+                Title = c.Title ?? "",
+                Category = c.CategoryName ?? "",
+                Author = c.UserName ?? "",
+                Price = c.PriceOfCourse,
+                DiscountPrice = c.PriceOfDiscount,
+                IsFree = c.IsFree,
+                Level = c.LevelCourse ?? "",
+                Rating = c.AverageScore,
+                Status = c.Status
+            }).ToList();
+
+            var bytes = Helpers.ExcelExportHelper.ExportToExcel(exportData, "Courses");
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"courses_{DateTime.UtcNow:yyyyMMdd}.xlsx");
         }
     }
 }

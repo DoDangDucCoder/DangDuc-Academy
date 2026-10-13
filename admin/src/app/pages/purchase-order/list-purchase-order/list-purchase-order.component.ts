@@ -2,8 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, ViewChild, QueryList, ViewChildren } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { Store } from '@ngrx/store';
-import { selectData, selectlistData } from 'src/app/store/Invoices/invoices.selector';
-import { deleteinvoice, fetchInvoiceData, fetchInvoicelistData } from 'src/app/store/Invoices/invoices.action';
+
 import { PurchaseOrder } from 'src/app/models/models/purchase';
 import { PurchaseServices } from 'src/app/core/services/purchase.service';
 import { PageResult } from 'src/app/models/models/repository_base';
@@ -126,9 +125,9 @@ export class ListPurchaseOrderComponent {
   deleteData(id: any) {
     this.deleteRecordModal?.hide();
     if (id) {
-      this.store.dispatch(deleteinvoice({ id: this.deleteID.toString() }));
+      // this.store.dispatch(deleteinvoice({ id: this.deleteID.toString() }));
     }
-    this.store.dispatch(deleteinvoice({ id: this.checkedValGet.toString() }));
+    // this.store.dispatch(deleteinvoice({ id: this.checkedValGet.toString() }));
     this.deleteRecordModal?.hide();
     this.masterSelected = false
   }

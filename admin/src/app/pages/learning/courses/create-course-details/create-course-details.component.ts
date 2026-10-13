@@ -6,7 +6,7 @@ import { Options } from '@angular-slider/ngx-slider';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { Store } from '@ngrx/store';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
-import { deleteproductsList } from 'src/app/store/Product/product.action';
+
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { DropzoneComponent, DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { CourseServices } from 'src/app/core/services/course.service';

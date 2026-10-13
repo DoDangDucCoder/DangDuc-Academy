@@ -21,15 +21,17 @@ namespace HDNXUdemyAPI.Controllers
     public class PromotionOfCourseController : BaseController
     {
         private readonly IStripeServices _stripeServices;
+        private readonly IAuditLogService _auditLogService;
 
         /// <summary>
         /// PromotionOfCourseController
         /// </summary>
         /// <param name="stripeServices"></param>
         /// <exception cref="ProjectException"></exception>
-        public PromotionOfCourseController(IStripeServices stripeServices)
+        public PromotionOfCourseController(IStripeServices stripeServices, IAuditLogService auditLogService)
         {
             _stripeServices = stripeServices ?? throw new ProjectException(nameof(_stripeServices));
+            _auditLogService = auditLogService;
         }
 
         /// <summary>
@@ -50,6 +52,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.CreateCouponForPromotion(model);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Coupon.Create", "Coupon", model.Id?.ToString(), null, new { model.NameOfCoupon, model.PercentOff, model.Status });
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -71,6 +74,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.DeleteCouponForPromotion(stripeCouponId);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Coupon.Inactive", "Coupon", stripeCouponId, null, null);
             return Ok(result);
         }
 
@@ -93,6 +97,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.CreateStripePromotionCode(idCoupon, promotionCode);
+            await _auditLogService.WriteAsync(CurrentUserId(), "PromotionCode.Create", "PromotionCode", idCoupon, null, new { promotionCode });
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -114,6 +119,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.InactivePromotionCode(promotionCodeId);
+            await _auditLogService.WriteAsync(CurrentUserId(), "PromotionCode.Inactive", "PromotionCode", promotionCodeId, null, null);
             return Ok(result);
         }
 
@@ -155,6 +161,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _stripeServices.UpdateCouponPromotionCode(model);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Coupon.Update", "Coupon", model.Id?.ToString(), null, new { model.NameOfCoupon, model.PercentOff, model.Status });
             return Ok(result);
         }
 

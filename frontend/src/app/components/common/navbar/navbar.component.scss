@@ -1,5 +1,6 @@
 .navbar-area {
     position: relative;
+    z-index: 1000;
     background-color: var(--whiteColor);
     padding: {
         top: 5px;
@@ -47,11 +48,11 @@
             };
 
             img {
-                width: 100px;
-                margin : {
-                    bottom: -20px;
-                    top: -25px;
-                }
+                display: block;
+                width: 180px;
+                max-width: 100%;
+                height: auto;
+                margin: 0;
             }
         }
         ul {
@@ -162,7 +163,7 @@
                 }
                 .dropdown-menu {
                     border: none;
-                    top: 70px;
+                    top: 100%;
                     left: 0;
                     z-index: 99;
                     opacity: 0;
@@ -1320,4 +1321,64 @@ span.new {
         }
     }
     
+}
+
+@media (min-width: 992px) {
+    .navbar-area {
+        .container-fluid {
+            padding-left: clamp(16px, 2vw, 40px);
+            padding-right: clamp(16px, 2vw, 40px);
+        }
+
+        .navbar {
+            .navbar-brand { flex-shrink: 0; }
+            .navbar-collapse { min-width: 0; gap: 16px; }
+            .search-box {
+                flex: 1 1 280px;
+                min-width: 100px;
+                max-width: 350px;
+                width: auto;
+                margin-left: 16px;
+                .input-search { padding-right: 44px; }
+            }
+            .navbar-nav {
+                flex-shrink: 0;
+                align-items: center;
+                > .nav-item {
+                    flex-shrink: 0;
+                    > .nav-link {
+                        white-space: nowrap;
+                        margin-left: 9px;
+                        margin-right: 9px;
+                    }
+                    &.training-nav {
+                        width: auto;
+                        line-height: normal;
+                        margin: 10px 16px;
+                        > .nav-link { padding: 15px 18px; margin: 0; }
+                    }
+                }
+            }
+            .others-option { flex-shrink: 0; margin-left: 12px; }
+        }
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1399px) {
+    .navbar-area .navbar {
+        .navbar-brand img { width: 130px; }
+        .navbar-collapse { gap: 8px; }
+        .search-box { margin-left: 0; }
+        .navbar-nav > .nav-item {
+            > .nav-link { font-size: 14px; margin-left: 6px; margin-right: 6px; }
+            &.training-nav {
+                margin: 10px 12px;
+                > .nav-link { padding: 12px 8px; }
+            }
+        }
+        .others-option {
+            margin-left: 8px;
+            .option-item { margin-left: 12px; }
+        }
+    }
 }

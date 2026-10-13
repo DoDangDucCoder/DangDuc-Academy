@@ -1,0 +1,178 @@
+<div class="container-fluid">
+    <div class="card p-4">
+        <h4 class="mb-3">Assignment Manager</h4>
+
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+        <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+        <div *ngIf="!viewingSubmissionsFor">
+            <!-- Select Course -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Select Course</label>
+                <select class="form-select" [(ngModel)]="idCourse" (change)="loadAssignments()" [disabled]="isLoadingCourses">
+                    <option [value]="0">-- Select a course --</option>
+                    <option *ngFor="let c of courses" [value]="c.id">{{ c.title }}</option>
+                </select>
+                <div *ngIf="isLoadingCourses" class="text-muted mt-1"><small>Loading courses...</small></div>
+            </div>
+
+            <div class="row" *ngIf="idCourse">
+                <!-- Form to Add/Edit Assignment -->
+                <div class="col-md-4">
+                    <div class="card bg-light p-3">
+                        <h5 class="mb-3">{{ model.id ? 'Edit' : 'Create' }} Assignment</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" [(ngModel)]="model.title" placeholder="Assignment Title">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" rows="3" [(ngModel)]="model.description" placeholder="Assignment Description"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Max Score</label>
+                            <input type="number" class="form-control" [(ngModel)]="model.maxScore">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" class="form-control" [(ngModel)]="model.dueDate">
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isLoading">
+                                {{ isLoading ? 'Saving...' : (model.id ? 'Update' : 'Create') }}
+                            </button>
+                            <button *ngIf="model.id" class="btn btn-secondary" (click)="resetForm()" [disabled]="isLoading">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List of Assignments -->
+                <div class="col-md-8">
+                    <h5 class="mb-3">Assignments for Course</h5>
+                    <div *ngIf="isLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive" *ngIf="!isLoading">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Due Date</th>
+                                    <th>Max Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="assignments.length === 0">
+                                    <td colspan="4" class="text-center text-muted">No assignments found.</td>
+                                </tr>
+                                <tr *ngFor="let item of assignments">
+                                    <td><strong>{{ item.title }}</strong></td>
+                                    <td>{{ item.dueDate | date:'mediumDate' }}</td>
+                                    <td>{{ item.maxScore }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-info text-white" (click)="viewSubmissions(item.id)">Submissions</button>
+                                            <button class="btn btn-sm btn-warning" (click)="edit(item)">Edit</button>
+                                            <button class="btn btn-sm btn-danger" (click)="delete(item.id)">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submissions View -->
+        <div *ngIf="viewingSubmissionsFor">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5>Student Submissions</h5>
+                <button class="btn btn-outline-secondary btn-sm" (click)="closeSubmissions()"><i class="bi bi-arrow-left"></i> Back to Assignments</button>
+            </div>
+
+            <div *ngIf="isLoading" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="!isLoading">
+                <!-- List of Submissions -->
+                <div class="col-md-7">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Submitted At</th>
+                                    <th>Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="submissions.length === 0">
+                                    <td colspan="4" class="text-center text-muted">No submissions found.</td>
+                                </tr>
+                                <tr *ngFor="let sub of submissions">
+                                    <td>{{ sub.idUser }}</td>
+                                    <td>{{ sub.submittedAt | date:'short' }}</td>
+                                    <td>
+                                        <span *ngIf="sub.score !== null && sub.score !== undefined" class="badge bg-success">{{ sub.score }}</span>
+                                        <span *ngIf="sub.score === null || sub.score === undefined" class="badge bg-warning text-dark">Pending</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" (click)="startGrading(sub)">View & Grade</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Grading Area -->
+                <div class="col-md-5" *ngIf="gradeModel.idSubmission">
+                    <div class="card bg-light p-3">
+                        <div class="d-flex justify-content-between">
+                            <h5>Grade Submission</h5>
+                            <button type="button" class="btn-close" (click)="gradeModel.idSubmission = 0"></button>
+                        </div>
+                        <hr>
+                        <ng-container *ngFor="let s of submissions">
+                            <div *ngIf="s.id === gradeModel.idSubmission">
+                                <div class="mb-3">
+                                    <strong>Submission Text:</strong>
+                                    <div class="p-2 bg-white border mt-1" style="min-height: 60px;">{{ s.submissionText || 'No text' }}</div>
+                                </div>
+                                <div class="mb-3" *ngIf="s.fileUrl">
+                                    <strong>Attached File:</strong><br>
+                                    <a [href]="s.fileUrl" target="_blank" class="btn btn-sm btn-outline-info mt-1">Download File</a>
+                                </div>
+                            </div>
+                        </ng-container>
+                        
+                        <div class="mb-3 mt-4">
+                            <label class="form-label">Score</label>
+                            <input type="number" class="form-control" [(ngModel)]="gradeModel.score">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Feedback</label>
+                            <textarea class="form-control" rows="3" [(ngModel)]="gradeModel.feedback"></textarea>
+                        </div>
+                        <button class="btn btn-success w-100" (click)="submitGrade()" [disabled]="isLoading">Save Grade</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

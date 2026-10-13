@@ -20,7 +20,7 @@ namespace HDNXUdemyData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("sche_dev_HDNXUdemy")
-                .HasAnnotation("ProductVersion", "7.0.14")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "hstore");
@@ -78,7 +78,343 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdContent");
+
                     b.ToTable("ContentCourseDetails", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.AchievementBadgeEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<int>("CriteriaType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CriteriaValue")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IconEmoji")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AchievementBadges", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.AnnouncementEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdInstructor")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdCourse")
+                        .HasDatabaseName("IX_Announcements_Course");
+
+                    b.ToTable("Announcements", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.Article", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.Property<long>("ViewCount")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Articles", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.AssignmentEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MaxScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Assignments", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.AssignmentSubmissionEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<long>("IdAssignment")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdUser")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("SubmissionText")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AssignmentSubmissions", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.AuditLogEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<LocalDateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("EntityId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLogs", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.BannerEntities", b =>
@@ -167,7 +503,111 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCourse");
+
+                    b.HasIndex("IdStudent", "IdCourse")
+                        .IsUnique();
+
                     b.ToTable("BookmarkCourses", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CartEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint")
+                        .HasColumnName("IdStudent");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Carts", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CartItemEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CartId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdCart")
+                        .HasColumnType("bigint")
+                        .HasColumnName("IdCart");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint")
+                        .HasColumnName("IdCourse");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric")
+                        .HasColumnName("Price");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CartItems", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.CategoryEntities", b =>
@@ -217,32 +657,82 @@ namespace HDNXUdemyData.Migrations
                         {
                             Id = 1L,
                             CreateBy = 1L,
-                            CreateDate = new NodaTime.LocalDateTime(2024, 3, 26, 11, 46, 13).PlusNanoseconds(508208800L),
+                            CreateDate = new NodaTime.LocalDateTime(2026, 7, 1, 16, 34, 14).PlusNanoseconds(695794900L),
                             Name = "Công nghệ thông tin",
                             Status = 0,
                             UpdateBy = 1L,
-                            UpdateDate = new NodaTime.LocalDateTime(2024, 3, 26, 11, 46, 13).PlusNanoseconds(508208800L)
+                            UpdateDate = new NodaTime.LocalDateTime(2026, 7, 1, 16, 34, 14).PlusNanoseconds(695794900L)
                         },
                         new
                         {
                             Id = 2L,
                             CreateBy = 1L,
-                            CreateDate = new NodaTime.LocalDateTime(2024, 3, 26, 11, 46, 13).PlusNanoseconds(508208800L),
+                            CreateDate = new NodaTime.LocalDateTime(2026, 7, 1, 16, 34, 14).PlusNanoseconds(695794900L),
                             Name = "Chat GPT",
                             Status = 0,
                             UpdateBy = 1L,
-                            UpdateDate = new NodaTime.LocalDateTime(2024, 3, 26, 11, 46, 13).PlusNanoseconds(508208800L)
+                            UpdateDate = new NodaTime.LocalDateTime(2026, 7, 1, 16, 34, 14).PlusNanoseconds(695794900L)
                         },
                         new
                         {
                             Id = 3L,
                             CreateBy = 1L,
-                            CreateDate = new NodaTime.LocalDateTime(2024, 3, 26, 11, 46, 13).PlusNanoseconds(508208800L),
+                            CreateDate = new NodaTime.LocalDateTime(2026, 7, 1, 16, 34, 14).PlusNanoseconds(695794900L),
                             Name = "Khóa học cuộc sống",
                             Status = 0,
                             UpdateBy = 1L,
-                            UpdateDate = new NodaTime.LocalDateTime(2024, 3, 26, 11, 46, 13).PlusNanoseconds(508208800L)
+                            UpdateDate = new NodaTime.LocalDateTime(2026, 7, 1, 16, 34, 14).PlusNanoseconds(695794900L)
                         });
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CertificateEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CertificateCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<LocalDateTime>("IssuedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Certificates", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.ContentCourseEntities", b =>
@@ -281,6 +771,8 @@ namespace HDNXUdemyData.Migrations
                         .HasColumnName("UpdateDate");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdCourse");
 
                     b.ToTable("ContentCourses", "sche_dev_HDNXUdemy");
                 });
@@ -366,6 +858,9 @@ namespace HDNXUdemyData.Migrations
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("StripeCouponId")
+                        .IsUnique();
 
                     b.ToTable("Coupons", "sche_dev_HDNXUdemy");
                 });
@@ -464,7 +959,12 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses", "sche_dev_HDNXUdemy");
+                    b.HasIndex("IdCategory");
+
+                    b.ToTable("Courses", "sche_dev_HDNXUdemy", t =>
+                        {
+                            t.HasCheckConstraint("CK_Courses_Prices_NonNegative", "\"PriceOfCourse\" >= 0 AND \"PriceOfDiscount\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.CourseEvaluationEntities", b =>
@@ -516,7 +1016,129 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCourse");
+
+                    b.HasIndex("IdStudent", "IdCourse")
+                        .IsUnique();
+
                     b.ToTable("CourseEvaluations", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CourseNoteEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Content");
+
+                    b.Property<long>("ContentDetailId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdContentDetail")
+                        .HasColumnType("bigint")
+                        .HasColumnName("IdContentDetail");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint")
+                        .HasColumnName("IdCourse");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint")
+                        .HasColumnName("IdStudent");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Timestamp")
+                        .HasColumnType("integer")
+                        .HasColumnName("Timestamp");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentDetailId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("IdCourse", "IdStudent")
+                        .HasDatabaseName("IX_CourseNotes_Course_Student");
+
+                    b.ToTable("CourseNotes", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CoursePrerequisiteEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdPrerequisiteCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdCourse", "IdPrerequisiteCourse")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Prerequisite_Course");
+
+                    b.ToTable("CoursePrerequisites", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.DetailTheadQuestionCourseEntities", b =>
@@ -564,6 +1186,10 @@ namespace HDNXUdemyData.Migrations
                         .HasColumnName("UpdateDate");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdStudent");
+
+                    b.HasIndex("IdTheadQuestionCourse");
 
                     b.ToTable("DetailTheadQuestionCourses", "sche_dev_HDNXUdemy");
                 });
@@ -675,6 +1301,341 @@ namespace HDNXUdemyData.Migrations
                     b.ToTable("InformationManualBankings", "sche_dev_HDNXUdemy");
                 });
 
+            modelBuilder.Entity("HDNXUdemyData.Entities.InstructorPaymentMethodEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AccountHolderName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdInstructor")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("InstructorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PaypalEmail")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdInstructor")
+                        .IsUnique()
+                        .HasDatabaseName("IX_InstructorPaymentMethods_Instructor");
+
+                    b.HasIndex("InstructorId");
+
+                    b.ToTable("InstructorPaymentMethods", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.LearningPathCourseEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdLearningPath")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdLearningPath", "IdCourse")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LearningPathCourse_Path_Course");
+
+                    b.ToTable("LearningPathCourses", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.LearningPathEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("EstimatedHours")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("IdCategory")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("LevelRequired")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdCategory")
+                        .HasDatabaseName("IX_LearningPath_Category");
+
+                    b.ToTable("LearningPaths", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.LearningStreakEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<int>("CurrentStreak")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<LocalDateTime>("LastActivityDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("LongestStreak")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<int>("TotalDaysLearned")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdStudent")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LearningStreak_Student");
+
+                    b.ToTable("LearningStreaks", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.LessonCompletionEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdContentDetail")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdStudent", "IdContentDetail")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LessonCompletion_Student_Content");
+
+                    b.HasIndex("IdStudent", "IdCourse")
+                        .HasDatabaseName("IX_LessonCompletion_Student_Course");
+
+                    b.ToTable("LessonCompletions", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.LiveClassEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<LocalDateTime>("EndTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdInstructor")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MeetingUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<LocalDateTime>("StartTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LiveClasses", "sche_dev_HDNXUdemy");
+                });
+
             modelBuilder.Entity("HDNXUdemyData.Entities.NotificationEntities", b =>
                 {
                     b.Property<long>("Id")
@@ -724,6 +1685,10 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCourse");
+
+                    b.HasIndex("IdStudent");
+
                     b.ToTable("Notifications", "sche_dev_HDNXUdemy");
                 });
 
@@ -768,6 +1733,64 @@ namespace HDNXUdemyData.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Partners", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.PayoutRequestEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AdminNote")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdInstructor")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PayoutStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ProcessDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdInstructor")
+                        .HasDatabaseName("IX_PayoutRequests_Instructor");
+
+                    b.HasIndex("PayoutStatus")
+                        .HasDatabaseName("IX_PayoutRequests_Status");
+
+                    b.ToTable("PayoutRequests", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.PromotionCodeEntities", b =>
@@ -828,6 +1851,9 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("StripePromotionCodeId")
+                        .IsUnique();
+
                     b.ToTable("PromotionCodes", "sche_dev_HDNXUdemy");
                 });
 
@@ -877,7 +1903,17 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PurcharseCourseDetails", "sche_dev_HDNXUdemy");
+                    b.HasIndex("IdCourse");
+
+                    b.HasIndex("IdPurchaseOrder")
+                        .HasDatabaseName("IX_PurchaseDetails_PurchaseOrder");
+
+                    b.HasIndex("IdStudent");
+
+                    b.ToTable("PurcharseCourseDetails", "sche_dev_HDNXUdemy", t =>
+                        {
+                            t.HasCheckConstraint("CK_PurcharseCourseDetails_Prices_NonNegative", "\"PriceOfCourse\" >= 0 AND \"PriceOfDiscount\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.PurcharseCourseEntities", b =>
@@ -944,7 +1980,356 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PurcharseCourses", "sche_dev_HDNXUdemy");
+                    b.HasIndex("IdStudent");
+
+                    b.HasIndex("PurcharseCode")
+                        .IsUnique();
+
+                    b.ToTable("PurcharseCourses", "sche_dev_HDNXUdemy", t =>
+                        {
+                            t.HasCheckConstraint("CK_PurcharseCourses_Amounts_NonNegative", "\"TotalPrice\" >= 0 AND \"DiscountAmount\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.QAVoteEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdQuestion")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdUser")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsForAnswer")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsUpvote")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdQuestion", "IdUser", "IsForAnswer")
+                        .IsUnique()
+                        .HasDatabaseName("IX_QAVotes_Question_User");
+
+                    b.ToTable("QAVotes", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.QuizAnswerOptionEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdQuestion")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizAnswerOptions", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.QuizAttemptAnswerEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdAnswerOption")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdAttempt")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdQuestion")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizAttemptAnswers", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.QuizAttemptEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdQuiz")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsPassed")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<LocalDateTime>("SubmittedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizAttempts", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.QuizEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PassingScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Quizzes", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.QuizQuestionEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdQuiz")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Point")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizQuestions", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.RefundRequestEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AdminNote")
+                        .HasColumnType("text");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long>("IdPurchaseCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<LocalDateTime?>("ProcessDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RefundStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<LocalDateTime?>("RequestDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdStudent")
+                        .HasDatabaseName("IX_RefundRequests_Student");
+
+                    b.HasIndex("RefundStatus")
+                        .HasDatabaseName("IX_RefundRequests_Status");
+
+                    b.ToTable("RefundRequests", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.StudentProcessEntities", b =>
@@ -986,6 +2371,9 @@ namespace HDNXUdemyData.Migrations
                         .HasColumnName("UpdateDate");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdCourse", "CreateBy")
+                        .HasDatabaseName("IX_StudentProcess_Course_Student");
 
                     b.ToTable("StudentProcess", "sche_dev_HDNXUdemy");
                 });
@@ -1036,6 +2424,12 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCourse");
+
+                    b.HasIndex("IdPromotion");
+
+                    b.HasIndex("IdStudent");
+
                     b.ToTable("StudentPromotions", "sche_dev_HDNXUdemy");
                 });
 
@@ -1076,7 +2470,64 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCategory");
+
                     b.ToTable("SubCategories", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.SubtitleEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("IdContentDetail")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdContentDetail")
+                        .HasDatabaseName("IX_Subtitles_ContentDetail");
+
+                    b.ToTable("Subtitles", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.SystemConfigEntities", b =>
@@ -1165,7 +2616,58 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCourse");
+
+                    b.HasIndex("IdStudent");
+
                     b.ToTable("TheadQuestionCourses", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.UserBadgeEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<LocalDateTime>("EarnedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long>("IdBadge")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdStudent", "IdBadge")
+                        .IsUnique()
+                        .HasDatabaseName("IX_UserBadge_Student_Badge");
+
+                    b.ToTable("UserBadges", "sche_dev_HDNXUdemy");
                 });
 
             modelBuilder.Entity("HDNXUdemyData.Entities.UserEntities", b =>
@@ -1232,7 +2734,438 @@ namespace HDNXUdemyData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.VideoEngagementEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("IdContentDetail")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text");
+
+                    b.Property<double>("VideoDuration")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("VideoPosition")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdContentDetail", "IdStudent")
+                        .HasDatabaseName("IX_VideoEngagement_Content_Student");
+
+                    b.ToTable("VideoEngagements", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.VideoPlaybackPositionEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<double>("DurationSeconds")
+                        .HasColumnType("double precision");
+
+                    b.Property<long>("IdContentDetail")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<LocalDateTime>("LastUpdated")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<double>("PositionSeconds")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdStudent", "IdContentDetail")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VideoPlayback_Student_Content");
+
+                    b.ToTable("VideoPlaybackPositions", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.XPTransactionEntities", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CreateBy");
+
+                    b.Property<LocalDateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreateDate");
+
+                    b.Property<long?>("IdCourse")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdStudent")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<long>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UpdateBy");
+
+                    b.Property<LocalDateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdStudent")
+                        .HasDatabaseName("IX_XPTransaction_Student");
+
+                    b.ToTable("XPTransactions", "sche_dev_HDNXUdemy");
+                });
+
+            modelBuilder.Entity("DNXUdemyData.Entities.ContentCourseDetailEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.ContentCourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdContent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.BookmarkCourseEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CartEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CartItemEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CartEntities", "Cart")
+                        .WithMany("CartItems")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.ContentCourseEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CourseEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CategoryEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCategory")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CourseEvaluationEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CourseNoteEntities", b =>
+                {
+                    b.HasOne("DNXUdemyData.Entities.ContentCourseDetailEntities", "ContentDetail")
+                        .WithMany()
+                        .HasForeignKey("ContentDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContentDetail");
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.DetailTheadQuestionCourseEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.TheadQuestionCourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdTheadQuestionCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.InstructorPaymentMethodEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdInstructor")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", "Instructor")
+                        .WithMany()
+                        .HasForeignKey("InstructorId");
+
+                    b.Navigation("Instructor");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.NotificationEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.PayoutRequestEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", "Instructor")
+                        .WithMany()
+                        .HasForeignKey("IdInstructor")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Instructor");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.PurcharseCourseDetailsEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.PurcharseCourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdPurchaseOrder")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.PurcharseCourseEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.StudentProcessEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.StudentPromotionEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.PromotionCodeEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdPromotion")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.SubCategoryEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CategoryEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCategory")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.SubtitleEntities", b =>
+                {
+                    b.HasOne("DNXUdemyData.Entities.ContentCourseDetailEntities", "ContentCourseDetail")
+                        .WithMany()
+                        .HasForeignKey("IdContentDetail")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContentCourseDetail");
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.TheadQuestionCourseEntities", b =>
+                {
+                    b.HasOne("HDNXUdemyData.Entities.CourseEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdCourse")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HDNXUdemyData.Entities.UserEntities", null)
+                        .WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HDNXUdemyData.Entities.CartEntities", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 #pragma warning restore 612, 618
         }

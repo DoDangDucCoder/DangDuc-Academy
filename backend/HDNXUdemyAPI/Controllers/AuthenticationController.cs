@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.RequestModel;
@@ -19,13 +19,15 @@ namespace HDNXUdemyAPI.Controllers
     public class AuthenticationController : BaseController
     {
         private readonly IAuthenticationServices _authenticationServices;
+        private readonly IAuditLogService _auditLogService;
 
         /// <summary>
         /// AuthenticationController
         /// </summary>
-        public AuthenticationController(IAuthenticationServices authenticationServices)
+        public AuthenticationController(IAuthenticationServices authenticationServices, IAuditLogService auditLogService)
         {
             _authenticationServices = authenticationServices ?? throw new ProjectException(nameof(_authenticationServices));
+            _auditLogService = auditLogService;
         }
 
         /// <summary>
@@ -46,6 +48,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _authenticationServices.LoginWithGoogle(model, HttpContext);
+            await _auditLogService.WriteAsync(result.Data.UserId, "Auth.LoginGoogle", "User", result.Data.UserId?.ToString(), null, new { result.Data.Email });
             return result;
         }
 
@@ -67,6 +70,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _authenticationServices.LoginWithFacebook(credential, HttpContext);
+            await _auditLogService.WriteAsync(result.Data.UserId, "Auth.LoginFacebook", "User", result.Data.UserId?.ToString(), null, new { result.Data.Email });
             return result;
         }
 
@@ -110,6 +114,7 @@ namespace HDNXUdemyAPI.Controllers
             };
 
             result.Data = await _authenticationServices.RegisterNormalUser(request.Email ?? string.Empty, request.Password ?? string.Empty, request.Name ?? string.Empty, request.Phone ?? string.Empty);
+            await _auditLogService.WriteAsync(null, "Auth.Register", "User", null, null, new { request.Email, request.Name, request.Phone });
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -132,7 +137,16 @@ namespace HDNXUdemyAPI.Controllers
                 StatusCode = (int)HttpStatusCode.OK
             };
 
-            result.Data = await _authenticationServices.LoginNormalAccount(request.Email ?? string.Empty, request.Password ?? string.Empty, HttpContext);
+            try
+            {
+                result.Data = await _authenticationServices.LoginNormalAccount(request.Email ?? string.Empty, request.Password ?? string.Empty, HttpContext);
+                await _auditLogService.WriteAsync(result.Data.UserId, "Auth.Login", "User", result.Data.UserId?.ToString(), null, new { result.Data.Email });
+            }
+            catch
+            {
+                await _auditLogService.WriteAsync(null, "Auth.LoginFailed", "User", null, null, new { request.Email });
+                throw;
+            }
             return Ok(result);
         }
 
@@ -154,6 +168,7 @@ namespace HDNXUdemyAPI.Controllers
             return StatusCode(StatusCodes.Status410Gone, result);
         }
 
+
         /// <summary>
         /// VerifyLinkRegister
         /// </summary>
@@ -172,6 +187,98 @@ namespace HDNXUdemyAPI.Controllers
             {
                 return Redirect(ProjectConfig.LinkRegisterError ?? string.Empty);
             }
+        }
+
+        /// <summary>
+        /// RefreshToken - Exchange a valid refresh token for a new access + refresh token pair
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+        {
+            RepositoryModel<ResponeLogin> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = new ResponeLogin(),
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _authenticationServices.RefreshAccessToken(request.RefreshToken ?? string.Empty, HttpContext);
+            await _auditLogService.WriteAsync(result.Data.UserId, "Auth.RefreshToken", "User", result.Data.UserId?.ToString(), null, new { result.Data.Email });
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// RevokeToken - Invalidate a refresh token (secure logout)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("revoke-token")]
+        [Authorize]
+        public async Task<IActionResult> RevokeToken(RevokeTokenRequest request)
+        {
+            RepositoryModel<bool> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = false,
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _authenticationServices.RevokeRefreshToken(request.RefreshToken ?? string.Empty);
+            await _auditLogService.WriteAsync(CurrentUserId(), "Auth.RevokeToken", "User", CurrentUserId().ToString(), null, null);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// ForgotPassword - Send OTP code to email for password reset
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+        {
+            RepositoryModel<bool> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = false,
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _authenticationServices.ForgotPassword(request.Email);
+            await _auditLogService.WriteAsync(null, "Auth.ForgotPassword", "User", null, null, new { request.Email });
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// ResetPassword - Verify OTP code and set new password
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            RepositoryModel<bool> result = new()
+            {
+                PartnerCode = Messenger.SuccessFull,
+                RetCode = ERetCode.Successfull,
+                Data = false,
+                SystemMessage = string.Empty,
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            result.Data = await _authenticationServices.ResetPassword(request.Email, request.Token, request.NewPassword);
+            await _auditLogService.WriteAsync(null, "Auth.ResetPassword", "User", null, null, new { request.Email });
+            return Ok(result);
         }
     }
 }

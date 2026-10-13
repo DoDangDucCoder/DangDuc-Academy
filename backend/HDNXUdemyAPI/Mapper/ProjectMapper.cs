@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DNXUdemyData.Entities;
 using HDNXUdemyData.Entities;
 using HDNXUdemyData.Model;
@@ -42,6 +42,7 @@ namespace HDNXUdemyAPI.Mapper
             CreateMap<PartnerEntities, PartnerModel>().ReverseMap();
             CreateMap<UserEntities, UserModel>().ReverseMap();
             CreateMap<CourseEvaluationEntities, CourseEvaluationModel>().ReverseMap();
+            CreateMap<RefundRequestEntities, RefundRequestModel>().ReverseMap();
 
             CreateMap<ListContentWithDetailCourse, ContentCourseModel>().ReverseMap();
             CreateMap<ListContentWithDetailCourse, ContentCourseEntities>().ReverseMap();

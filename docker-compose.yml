@@ -11,6 +11,11 @@ services:
       - "5432:5432"
     volumes:
       - hdnx_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-HDNXUdemy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -26,6 +31,128 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-cli -a \"$$REDIS_PASSWORD\" ping; else redis-cli ping; fi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: hdnx-elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms512m -Xmx512m}
+    ports:
+      - "9200:9200"
+    volumes:
+      - hdnx_elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hdnx-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-HDNXUdemy};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change_me}"
+      AppConfig__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-HDNXUdemy};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change_me};Persist Security Info=false;"
+      Serilog__ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-HDNXUdemy};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change_me};Persist Security Info=false;"
+      Redis__Host: "redis"
+      Redis__Port: "6379"
+      Redis__Password: "${REDIS_PASSWORD:-}"
+      Elasticsearch__Url: "http://elasticsearch:9200"
+      AppConfig__ApiKeyYoutubeApi: "${YOUTUBE_API_KEY:-CHANGE_ME_USE_ENV}"
+    ports:
+      - "5194:5194"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5194/health/live || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  video-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.VideoApi
+    container_name: hdnx-video-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-HDNXUdemy};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change_me}"
+      AppConfig__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-HDNXUdemy};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change_me};Persist Security Info=false;"
+      Serilog__ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-HDNXUdemy};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change_me};Persist Security Info=false;"
+      Redis__Host: "redis"
+      Redis__Port: "6379"
+      Redis__Password: "${REDIS_PASSWORD:-}"
+    ports:
+      - "5195:5195"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5195/health/live || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hdnx-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+      video-api:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: hdnx-admin
+    restart: unless-stopped
+    ports:
+      - "81:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   hdnx_postgres_data:
+  hdnx_elasticsearch_data:

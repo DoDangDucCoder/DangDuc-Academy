@@ -17,10 +17,6 @@ export class TrainingCoursesDetailsComponent implements OnInit {
         counter: false,
         plugins: [lgVideo]
     };
-    onBeforeSlide = (detail: BeforeSlideDetail): void => {
-        const { index, prevIndex } = detail;
-        console.log(index, prevIndex);
-    };
 
     // Tabs
     currentTab = 'tab1';

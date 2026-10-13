@@ -49,6 +49,11 @@ import { NumberFormatPipe } from 'src/app/pipeTransform/format_current_number';
 import { EditCourseComponent } from './edit-course/edit-course.component';
 import { environment } from 'src/environments/environment';
 
+import { AssignmentManagerComponent } from './assignment-manager/assignment-manager.component';
+import { LiveClassManagerComponent } from './live-class-manager/live-class-manager.component';
+import { QuizManagerComponent } from './quiz-manager/quiz-manager.component';
+import { InstructorDashboardComponent } from './instructor-dashboard/instructor-dashboard.component';
+
 const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
   url: `${environment.urlUploadFile}upload-video-to-server/file-document`,
   maxFilesize: 100,
@@ -64,7 +69,11 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     CreateCourseDetailsComponent,
     FormatMoneyDirective,
     NumberFormatPipe,
-    EditCourseComponent
+    EditCourseComponent,
+    AssignmentManagerComponent,
+    LiveClassManagerComponent,
+    QuizManagerComponent,
+    InstructorDashboardComponent
   ],
   imports: [
     CommonModule,

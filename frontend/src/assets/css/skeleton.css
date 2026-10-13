@@ -1,0 +1,757 @@
+/* ============================================
+   Skeleton Loading Animation (Shimmer Effect)
+   ============================================ */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text { height: 14px; margin-bottom: 8px; width: 80%; }
+.skeleton-text.short { width: 40%; }
+.skeleton-text.medium { width: 60%; }
+.skeleton-title { height: 20px; margin-bottom: 12px; width: 60%; }
+.skeleton-avatar { width: 48px; height: 48px; border-radius: 50%; }
+.skeleton-thumbnail { width: 100%; height: 180px; border-radius: 8px; }
+.skeleton-card { padding: 16px; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.skeleton-btn { width: 120px; height: 38px; border-radius: 4px; }
+
+body.dark-theme .skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   Auto-Advance Video Countdown Overlay
+   ============================================ */
+.auto-advance-overlay {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 9999;
+}
+.auto-advance-card {
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  animation: slideUpFade 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.auto-advance-card p { margin: 0 0 10px 0; }
+.auto-advance-card strong { font-size: 1.5em; color: #feca57; }
+
+@keyframes slideUpFade {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ============================================
+   Accessibility (WCAG 2.1)
+   ============================================ */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 99999;
+  padding: 12px 24px;
+  background: #1a73e8;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+}
+.skip-to-content:focus {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* Keyboard focus visible outline */
+*:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+
+/* Draft saved indicator */
+.draft-saved-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 128, 0, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  z-index: 9998;
+  animation: slideUpFade 0.3s ease;
+  pointer-events: none;
+}
+
+/* ============================================
+   Course Badges (Bestseller, Hot, Highest Rated)
+   ============================================ */
+.course-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 6px;
+}
+.badge-bestseller {
+  background: #eceb98;
+  color: #3d3c0a;
+}
+.badge-hot {
+  background: #f3ca8c;
+  color: #612a00;
+}
+.badge-highest-rated {
+  background: #b4d9f8;
+  color: #0a2c4d;
+}
+.badge-new {
+  background: #acd5ac;
+  color: #0a3d0a;
+}
+.badge-free {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* ============================================
+   Sticky Buy Button
+   ============================================ */
+.sticky-buy-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: #1c1d1f;
+  color: white;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+.sticky-buy-bar.visible {
+  transform: translateY(0);
+}
+.sticky-buy-bar .course-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sticky-buy-bar .buy-btn {
+  background: #a435f0;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sticky-buy-bar .buy-btn:hover {
+  background: #8710d8;
+}
+
+/* ============================================
+   30-Day Money-Back Guarantee
+   ============================================ */
+.guarantee-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f7f9fa;
+  border: 1px solid #d1d7dc;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 0.85rem;
+  color: #1c1d1f;
+}
+.guarantee-badge .guarantee-icon {
+  font-size: 1.4rem;
+  color: #1e88e5;
+}
+
+/* ============================================
+   Social Share Buttons
+   ============================================ */
+.social-share-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.social-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #d1d7dc;
+  background: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.social-share-btn:hover {
+  background: #f5f5f5;
+  border-color: #a435f0;
+  color: #a435f0;
+}
+.social-share-btn.facebook { color: #1877f2; }
+.social-share-btn.twitter { color: #1da1f2; }
+.social-share-btn.linkedin { color: #0077b5; }
+.social-share-btn.telegram { color: #0088cc; }
+
+/* ============================================
+   Course Progress Bar (on course cards)
+   ============================================ */
+.course-progress-bar {
+  height: 4px;
+  background: #d1d7dc;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.course-progress-bar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a435f0, #6d28d9);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.course-progress-text {
+  font-size: 0.75rem;
+  color: #6a6f73;
+  margin-top: 4px;
+}
+
+/* ============================================
+   Wishlist Heart Button
+   ============================================ */
+.wishlist-btn {
+  background: transparent;
+  border: 2px solid #d1d7dc;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+.wishlist-btn:hover {
+  border-color: #a435f0;
+  color: #a435f0;
+}
+.wishlist-btn.active {
+  background: #a435f0;
+  border-color: #a435f0;
+  color: white;
+}
+
+/* ============================================
+   Keyboard Shortcuts Tooltip
+   ============================================ */
+.keyboard-shortcuts-tooltip {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  line-height: 1.8;
+}
+.keyboard-shortcuts-tooltip kbd {
+  background: #444;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85em;
+  margin-right: 4px;
+}
+
+/* ============================================
+   Mark as Complete Checkbox
+   ============================================ */
+.lesson-complete-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #6a6f73;
+}
+.lesson-complete-check input[type="checkbox"] {
+  accent-color: #a435f0;
+  width: 18px;
+  height: 18px;
+}
+.lesson-complete-check.completed {
+  color: #1e88e5;
+  font-weight: 600;
+}
+
+/* ============================================
+   Cookie Consent Banner (GDPR)
+   ============================================ */
+.cookie-consent-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: #1c1d1f;
+  color: #fff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+  animation: slideUpFade 0.4s ease;
+}
+.cookie-consent-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  flex: 1;
+}
+.cookie-consent-banner a {
+  color: #a435f0;
+  text-decoration: underline;
+}
+.cookie-consent-banner .consent-actions {
+  display: flex;
+  gap: 8px;
+}
+.cookie-consent-banner .btn-accept {
+  background: #a435f0;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cookie-consent-banner .btn-decline {
+  background: transparent;
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ============================================
+   Gamification: Streak Fire
+   ============================================ */
+.streak-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.streak-display .fire-icon {
+  font-size: 1.1rem;
+  animation: firePulse 1s ease-in-out infinite;
+}
+@keyframes firePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* ============================================
+   Gamification: XP & Level Bar
+   ============================================ */
+.xp-level-bar {
+  background: #f7f9fa;
+  border: 1px solid #d1d7dc;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.xp-level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.xp-level-header .level-badge {
+  background: linear-gradient(135deg, #a435f0, #6d28d9);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.xp-progress {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.xp-progress .xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a435f0, #f7931e);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+/* ============================================
+   Gamification: Achievement Badges
+   ============================================ */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+.achievement-badge-card {
+  text-align: center;
+  padding: 16px 8px;
+  border-radius: 12px;
+  border: 2px solid #d1d7dc;
+  transition: all 0.2s;
+}
+.achievement-badge-card.earned {
+  border-color: #a435f0;
+  background: #faf5ff;
+}
+.achievement-badge-card.locked {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+.achievement-badge-card .badge-emoji {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.achievement-badge-card .badge-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ============================================
+   Gamification: Leaderboard
+   ============================================ */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.leaderboard-table th {
+  background: #1c1d1f;
+  color: white;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.8rem;
+}
+.leaderboard-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.85rem;
+}
+.leaderboard-table tr:nth-child(1) td { background: #fff8e1; }
+.leaderboard-table tr:nth-child(2) td { background: #f5f5f5; }
+.leaderboard-table tr:nth-child(3) td { background: #fff3e0; }
+.rank-medal { font-size: 1.2rem; }
+
+/* ============================================
+   Learning Path Card
+   ============================================ */
+.learning-path-card {
+  background: white;
+  border: 1px solid #d1d7dc;
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.learning-path-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+.learning-path-card .path-level {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.learning-path-card .path-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: #6a6f73;
+}
+
+/* ============================================
+   Search Autocomplete Dropdown
+   ============================================ */
+.search-box { position: relative !important; }
+.search-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: #fff; border: 1px solid #e0e0e0; border-radius: 0 0 8px 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 9999;
+  max-height: 400px; overflow-y: auto;
+}
+.search-result-item {
+  display: flex; align-items: center; padding: 12px 16px; gap: 12px;
+  text-decoration: none; color: #1c1d1f; border-bottom: 1px solid #f4f4f4;
+  transition: background .15s;
+}
+.search-result-item:hover { background: #f7f9fa; }
+.search-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.search-info { flex: 1; min-width: 0; }
+.search-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-meta { font-size: 12px; color: #6a6f73; margin-top: 2px; }
+
+/* ============================================
+   What You'll Learn Box (Course Detail)
+   ============================================ */
+.what-youll-learn-box {
+  border: 1px solid #d1d7dc; padding: 24px; margin-bottom: 16px;
+}
+.what-youll-learn-box h3 {
+  font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #1c1d1f;
+}
+.learn-item {
+  padding: 6px 0; font-size: 14px; color: #1c1d1f; display: flex; align-items: flex-start; gap: 8px;
+}
+.learn-item i { color: #a435f0; font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+
+/* ============================================
+   Sticky Sidebar (Course Detail)
+   ============================================ */
+.sidebar-sticky {
+  position: -webkit-sticky; position: sticky; top: 80px; align-self: flex-start;
+}
+
+/* ============================================
+   Course Includes Section
+   ============================================ */
+.course-includes-section h5 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.includes-list { list-style: none; padding: 0; margin: 0; }
+.includes-list li {
+  padding: 5px 0; font-size: 13px; color: #1c1d1f; display: flex; align-items: center; gap: 8px;
+}
+.includes-list li i { color: #a435f0; font-size: 16px; }
+
+/* ============================================
+   Money-Back Guarantee
+   ============================================ */
+.money-back-guarantee {
+  display: flex; align-items: center; gap: 12px; padding: 16px;
+  background: linear-gradient(135deg, #f3e8ff, #ede9fe); border-radius: 8px;
+  margin-top: 16px; border: 1px solid #ddd6fe;
+}
+.money-back-guarantee > i { font-size: 32px; color: #7c3aed; flex-shrink: 0; }
+.money-back-guarantee strong { font-size: 14px; color: #1c1d1f; display: block; }
+.money-back-guarantee p { font-size: 12px; color: #6a6f73; margin: 2px 0 0; }
+
+/* ============================================
+   Buy Now Button
+   ============================================ */
+.buy-now-btn { background: #a435f0 !important; margin-top: 8px; }
+.buy-now-btn:hover { background: #8710d8 !important; }
+
+/* ============================================
+   Category Mega Menu
+   ============================================ */
+.navbar-nav > .nav-item > .dropdown-menu {
+  min-width: 220px; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,.1);
+  border: 1px solid #e0e0e0; padding: 8px 0;
+}
+.navbar-nav > .nav-item > .dropdown-menu .nav-item a {
+  padding: 8px 20px; font-size: 14px; color: #1c1d1f; display: block; transition: all .15s;
+}
+.navbar-nav > .nav-item > .dropdown-menu .nav-item a:hover {
+  background: #f7f9fa; color: #a435f0;
+}
+
+/* ============================================
+   Dynamic Star Rating (golden)
+   ============================================ */
+.rating .bxs-star { color: #e59819 !important; }
+.rating .bx-star { color: #d1d7dc; }
+
+/* ============================================
+   Instructor Bio Card (Enhanced)
+   ============================================ */
+.courses-instructor .advisor-image img {
+  border-radius: 50%; width: 120px; height: 120px; object-fit: cover;
+  border: 3px solid #a435f0;
+}
+.courses-instructor .advisor-content h3 { font-size: 20px; font-weight: 700; }
+.courses-instructor .advisor-content .sub-title { color: #a435f0; font-weight: 600; }
+
+/* ============================================
+   Flash Sale Banner
+   ============================================ */
+.flash-sale-banner {
+  background: linear-gradient(90deg, #1c1d1f, #3e1f6d, #a435f0);
+  padding: 12px 0; position: relative; z-index: 100;
+}
+.flash-sale-content {
+  display: flex; align-items: center; justify-content: center; gap: 24px; color: #fff;
+}
+.flash-sale-left { display: flex; align-items: center; gap: 12px; }
+.flash-badge {
+  background: #eceb98; color: #1c1d1f; padding: 4px 12px; border-radius: 4px;
+  font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;
+}
+.flash-text { font-size: 15px; }
+.flash-countdown { display: flex; align-items: center; gap: 4px; }
+.count-box {
+  background: rgba(255,255,255,.15); padding: 4px 10px; border-radius: 4px;
+  text-align: center; min-width: 48px;
+}
+.count-box span { display: block; font-size: 20px; font-weight: 800; line-height: 1.2; }
+.count-box small { font-size: 10px; text-transform: uppercase; opacity: .8; }
+.count-sep { font-size: 20px; font-weight: 700; }
+.flash-close {
+  position: absolute; right: 20px; background: none; border: none;
+  color: #fff; font-size: 22px; cursor: pointer; opacity: .7;
+}
+.flash-close:hover { opacity: 1; }
+
+@media (max-width: 768px) {
+  .flash-sale-content { flex-direction: column; gap: 8px; font-size: 13px; }
+  .flash-sale-left { flex-direction: column; gap: 4px; }
+}
+
+/* ============================================
+   Trending Section (Homepage)
+   ============================================ */
+.trending-section { background: #f7f9fa; }
+.trending-section .section-title .sub-title {
+  color: #a435f0; font-weight: 700; font-size: 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.trending-section .section-title h2 { font-size: 24px; font-weight: 700; margin-top: 4px; }
+
+.trending-card {
+  background: #fff; border-radius: 8px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06); transition: transform .2s, box-shadow .2s;
+}
+.trending-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,.12); }
+.trending-thumb-wrap { position: relative; display: block; }
+.trending-thumb { width: 100%; height: 160px; object-fit: cover; display: block; }
+.trending-badge {
+  position: absolute; top: 8px; left: 8px; background: #eceb98; color: #1c1d1f;
+  padding: 2px 10px; border-radius: 4px; font-size: 11px; font-weight: 800;
+}
+.trending-body { padding: 12px 16px; }
+.trending-body h4 { font-size: 14px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
+.trending-body h4 a { color: #1c1d1f; text-decoration: none; }
+.trending-body h4 a:hover { color: #a435f0; }
+.trending-author { font-size: 11px; color: #6a6f73; margin-bottom: 6px; }
+.trending-rating { display: flex; align-items: center; gap: 4px; font-size: 13px; margin-bottom: 6px; }
+.trending-rating .bxs-star { color: #e59819; }
+.trending-rating span { font-weight: 700; color: #1c1d1f; }
+.trending-rating .rating-count { font-weight: 400; color: #6a6f73; }
+.trending-price { font-size: 15px; font-weight: 800; color: #1c1d1f; }
+.current-price { margin-right: 8px; }
+.original-price { font-size: 13px; font-weight: 400; color: #6a6f73; }
+.free-badge { color: #a435f0; font-weight: 700; }
+
+/* ============================================
+   Related Courses (Course Detail)
+   ============================================ */
+.related-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; color: #1c1d1f; }
+.related-course-card {
+  border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  transition: transform .2s, box-shadow .2s; background: #fff;
+}
+.related-course-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
+.related-thumb { width: 100%; height: 150px; object-fit: cover; display: block; }
+.related-body { padding: 12px; }
+.related-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+.related-body h4 a { color: #1c1d1f; text-decoration: none; }
+.related-body h4 a:hover { color: #a435f0; }
+.related-author { font-size: 11px; color: #6a6f73; margin-bottom: 6px; }
+.related-price { font-weight: 800; font-size: 15px; color: #1c1d1f; }
+
+/* ============================================
+   Lesson Completion Checkbox in Video Player
+   ============================================ */
+.lesson-checkbox { margin-right: 8px; cursor: pointer; accent-color: #a435f0; }
+.lesson-completed .courses-name { text-decoration: line-through; opacity: .6; }
+
+/* ============================================
+   Review Summary Box
+   ============================================ */
+.review-summary-box {
+  display: flex; gap: 32px; padding: 24px; border: 1px solid #d1d7dc;
+  margin-bottom: 24px; border-radius: 4px;
+}
+.review-big-score { text-align: center; min-width: 120px; }
+.big-number { font-size: 56px; font-weight: 800; color: #b4690e; line-height: 1; display: block; }
+.review-big-score .rating { justify-content: center; margin: 8px 0 4px; }
+.review-big-score .rating .bxs-star { color: #e59819; font-size: 18px; }
+.review-label { font-size: 13px; color: #b4690e; font-weight: 700; }
+
+.review-bars { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.bar-row { display: flex; align-items: center; gap: 8px; }
+.bar-label { width: 50px; font-size: 13px; color: #6a6f73; text-align: right; }
+.bar-row .bar-container {
+  flex: 1; height: 8px; background: #d1d7dc; border-radius: 4px; overflow: hidden;
+}
+.bar-fill { height: 100%; background: #6a6f73; border-radius: 4px; transition: width .3s ease; }
+.bar-count { width: 30px; font-size: 13px; color: #6a6f73; }
+
+/* Review Filter Buttons */
+.review-filter { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 6px 16px; border: 1px solid #1c1d1f; border-radius: 20px;
+  background: transparent; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 4px;
+}
+.filter-btn:hover { background: #1c1d1f; color: #fff; }
+.filter-btn.active { background: #1c1d1f; color: #fff; }
+.filter-btn .bxs-star { color: #e59819; font-size: 12px; }
+
+@media (max-width: 768px) {
+  .review-summary-box { flex-direction: column; gap: 16px; }
+}

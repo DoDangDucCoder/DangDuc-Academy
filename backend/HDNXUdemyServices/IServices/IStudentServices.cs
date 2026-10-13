@@ -1,4 +1,5 @@
-﻿using HDNXUdemyModel.Model;
+using HDNXUdemyModel.Base;
+using HDNXUdemyModel.Model;
 
 namespace HDNXUdemyServices.IServices
 {
@@ -11,6 +12,8 @@ namespace HDNXUdemyServices.IServices
         Task<bool> UpdateStudent(long id, UserModel model);
 
         Task<List<UserModel>> GetListStudents();
+
+        Task<PagedResult<UserModel>> GetListStudentsPaged(int pageIndex, int pageSize);
 
         Task<UserModel> GetStudent(long id);
 
@@ -43,6 +46,8 @@ namespace HDNXUdemyServices.IServices
         Task<bool> DeleteStudentBookmarkCourse(long id);
 
         Task<List<UserModel>> GetListUserManager();
+
+        Task<PagedResult<UserModel>> GetListUserManagerPaged(int pageIndex, int pageSize);
 
         Task<List<UserModel>> GetListTeachers();
 

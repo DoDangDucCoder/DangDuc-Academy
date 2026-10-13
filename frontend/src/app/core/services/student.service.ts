@@ -100,4 +100,9 @@ export class StudentServices {
             partnerCode: null,
         };
     }
+
+    getListStudentProcess() {
+        const ApiUrl = LinkSettings.GetResLinkSetting('Student', 'GetListStudentProcess');
+        return this.transferHttp.get(ApiUrl).pipe(map((res: RepositoryModel<any[]>) => res));
+    }
 }

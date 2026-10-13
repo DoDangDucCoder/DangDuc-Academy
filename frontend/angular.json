@@ -34,6 +34,7 @@
                 "node_modules/animate.css/animate.min.css",
                 "node_modules/boxicons/css/boxicons.min.css",
                 "src/assets/css/flaticon.css",
+                "src/assets/css/skeleton.css",
                 "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [
@@ -103,23 +104,6 @@
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "odemy-ng:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
           }
         },
         "e2e": {

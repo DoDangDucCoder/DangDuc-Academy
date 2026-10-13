@@ -23,6 +23,12 @@
     };
     .logo {
         display: inline-block;
+
+        img {
+            width: 240px;
+            max-width: 100%;
+            height: auto;
+        }
     }
     h2 {
         font: {

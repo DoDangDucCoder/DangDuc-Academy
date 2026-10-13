@@ -12,17 +12,19 @@ export class TokenStorageService {
   signOut(): void {
     window.sessionStorage.removeItem(TOKEN_KEY);
     window.sessionStorage.removeItem(USER_KEY);
+    window.localStorage.removeItem(TOKEN_KEY);
     window.localStorage.removeItem('token');
     window.localStorage.removeItem(USER_KEY);
   }
 
   public saveToken(token: string): void {
     window.localStorage.removeItem('token');
+    window.localStorage.removeItem(TOKEN_KEY);
     window.sessionStorage.setItem(TOKEN_KEY, token);
   }
 
   public getToken(): string | null {
-    return sessionStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY) ?? localStorage.getItem(TOKEN_KEY) ?? localStorage.getItem('token');
   }
 
   public saveUser(user: any): void {

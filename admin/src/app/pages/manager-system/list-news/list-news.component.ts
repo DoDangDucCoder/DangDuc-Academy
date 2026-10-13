@@ -6,9 +6,9 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { Store } from '@ngrx/store';
-import { selectData, selectDataLoading } from 'src/app/store/Product/product.selector';
+// import product selector
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
-import { addproductsList, deleteproductsList, fetchproductsList, updateproductLists } from 'src/app/store/Product/product.action';
+// import product action
 
 @Component({
   selector: 'app-list-news',
@@ -126,7 +126,7 @@ export class ListNewsComponent {
     if (this.productForm.valid) {
       if (this.productForm.get('id')?.value) {
         const updatedData = this.productForm.value;
-        this.store.dispatch(updateproductLists({ updatedData }));
+        // this.store.dispatch(updateproductLists({ updatedData }));
       }
       else {
         this.productForm.controls['id'].setValue(this.products.length + 1)
@@ -137,7 +137,7 @@ export class ListNewsComponent {
           orders: '0',
           ...this.productForm.value,
         }
-        this.store.dispatch(addproductsList({ newData }));
+        // this.store.dispatch(addproductsList({ newData }));
       }
 
       this.showModal?.hide()
@@ -151,9 +151,9 @@ export class ListNewsComponent {
   deleteData(id: any) {
     this.deleteRecordModal?.hide();
     if (id) {
-      this.store.dispatch(deleteproductsList({ id: this.deleteId.toString() }));
+      // this.store.dispatch(deleteproductsList({ id: this.deleteId.toString() }));
     }
-    this.store.dispatch(deleteproductsList({ id: this.checkedValGet.toString() }));
+    // this.store.dispatch(deleteproductsList({ id: this.checkedValGet.toString() }));
     this.deleteRecordModal?.hide();
     this.masterSelected = false
   }

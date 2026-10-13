@@ -3,9 +3,11 @@ import { Subject } from "rxjs";
 import { LocalStorageConfig } from "src/app/library/clientconfig/localstorageconfig";
 import { GetCourseWithDetailsContent } from "src/app/models/respone_model/course-content-with-detail";
 
+import { TransferHttp } from '../transfer-http/transfer-http';
+
 @Injectable({ providedIn: 'root' })
 export class CartServices {
-    constructor() { }
+    constructor(private transferHttp: TransferHttp) { }
     private cartUpdates = new Subject<string>();
     public cartUpdates$ = this.cartUpdates.asObservable();
     public get courseItems(): GetCourseWithDetailsContent[] {
@@ -24,6 +26,11 @@ export class CartServices {
             const getCourses = LocalStorageConfig.GetListCourseAddCart() ?? Array<GetCourseWithDetailsContent>();
             getCourses.push(course);
             LocalStorageConfig.AddListCourses(getCourses);
+            
+            // Sync with backend API
+            if (LocalStorageConfig.GetUser()) {
+                this.transferHttp.post(`api/v1/Cart/add/${course.id}`, {}).subscribe();
+            }
         }
         this.cartUpdates.next('');
 
@@ -31,11 +38,17 @@ export class CartServices {
 
     removeCourse(course: GetCourseWithDetailsContent) {
         LocalStorageConfig.RemoveItemOnCart(course.id);
+        if (LocalStorageConfig.GetUser()) {
+            this.transferHttp.delete(`api/v1/Cart/remove/${course.id}`).subscribe();
+        }
         this.cartUpdates.next('');
     }
 
     removeAllDataOfCart(){
         LocalStorageConfig.RemoveAllDataListCourse();
+        if (LocalStorageConfig.GetUser()) {
+            this.transferHttp.delete(`api/v1/Cart/clear`).subscribe();
+        }
         this.cartUpdates.next('');
     }
 }

@@ -1,4 +1,4 @@
-﻿using HDNXUdemyData.Entities;
+using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.SystemExceptions;
@@ -27,6 +27,12 @@ namespace HDNXUdemyServices.CommonFunction
         {
             try
             {
+                // Add user to their personal group for targeted notifications
+                if (UserId > 0)
+                {
+                    Groups.AddToGroupAsync(Context.ConnectionId, $"user-{UserId}");
+                }
+
                 // Tạo group để nhận thông tin cho admin
                 if (Role == ERoles.Admin)
                 {
@@ -58,6 +64,10 @@ namespace HDNXUdemyServices.CommonFunction
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
+            if (UserId > 0)
+            {
+                Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user-{UserId}");
+            }
             return base.OnDisconnectedAsync(exception);
         }
 

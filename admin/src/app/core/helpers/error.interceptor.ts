@@ -11,9 +11,9 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(catchError(err => {
-            if (err.status === 401) {
-                // auto logout if 401 response returned from api
-                this.authenticationService.logout();
+            // 401 is handled by JwtInterceptor (token refresh)
+            if (err.status === 403) {
+                console.error('Access forbidden:', err.url);
             }
             const error = err?.error?.systemMessage || err?.error?.message || err?.message || err?.statusText || 'Request failed';
             return throwError(() => error);

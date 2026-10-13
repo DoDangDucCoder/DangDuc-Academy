@@ -1,3 +1,54 @@
-<p>
-  my-courses-list works!
-</p>
+<div class="my-learning-area ptb-50">
+    <div class="container">
+        <div class="page-title-content mb-4">
+            <h2>My Learning</h2>
+        </div>
+        <div class="my-learning-tabs mb-4">
+            <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">All Courses</button>
+            <button class="tab-btn" [class.active]="activeTab === 'inprogress'" (click)="activeTab = 'inprogress'">In Progress</button>
+            <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="activeTab = 'completed'">Completed</button>
+        </div>
+        <div class="row" *ngIf="!isLoading; else loadingSkeleton">
+            <div class="col-lg-4 col-md-6 mb-4" *ngFor="let course of filteredCourses">
+                <div class="my-course-card">
+                    <a [routerLink]="'/detail-content-course/' + course.idCourse">
+                        <img [src]="course.pictureUrl || 'assets/images/demo/course-placeholder.svg'" loading="lazy" alt="" class="course-thumb" />
+                    </a>
+                    <div class="course-body">
+                        <h4><a [routerLink]="'/detail-content-course/' + course.idCourse">{{ course.titleCourse }}</a></h4>
+                        <p class="instructor">{{ course.authorName || 'Instructor' }}</p>
+                        <div class="progress-section">
+                            <div class="progress">
+                                <div class="progress-bar" [style.width.%]="course.processPercent || 0"></div>
+                            </div>
+                            <span class="progress-text">{{ course.processPercent || 0 }}% complete</span>
+                        </div>
+                        <a [routerLink]="'/detail-content-course/' + course.idCourse" class="continue-btn">
+                            {{ (course.processPercent || 0) > 0 ? 'Continue Learning' : 'Start Course' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="filteredCourses.length === 0" class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="bx bx-book-open empty-icon"></i>
+                    <h3>No courses found</h3>
+                    <p>Start learning something new today!</p>
+                    <a routerLink="/" class="default-btn">Browse Courses<span></span></a>
+                </div>
+            </div>
+        </div>
+        <ng-template #loadingSkeleton>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" *ngFor="let i of [1,2,3,4,5,6]">
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-thumbnail"></div>
+                        <div class="skeleton skeleton-title mt-3"></div>
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text short"></div>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>

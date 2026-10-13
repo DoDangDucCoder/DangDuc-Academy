@@ -26,6 +26,20 @@ const routes: Routes = [
         (m) => m.CoursesLearningWithTeacherModule
       ),
   },
+  {
+    path: 'language-exams',
+    loadChildren: () =>
+      import('./language-exams/language-exams.module').then(
+        (m) => m.LanguageExamsModule
+      ),
+  },
+  {
+    path: 'language-vocabulary',
+    loadChildren: () =>
+      import('./language-vocabulary/language-vocabulary.module').then(
+        (m) => m.LanguageVocabularyModule
+      ),
+  },
 ];
 
 @NgModule({

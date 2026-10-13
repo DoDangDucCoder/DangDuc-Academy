@@ -1,0 +1,34 @@
+<div class="cert-overlay" (click)="$event.target === $event.currentTarget && close()">
+  <div class="cert-wrap">
+    <div class="cert-border">
+      <div class="cert-header">
+        <div class="cert-logo"><img src="assets/brand/dangduc-icon-vector.svg" alt="DangDuc Academy" width="64" height="57"></div>
+        <div class="cert-subtitle">CERTIFICATE OF ACHIEVEMENT</div>
+      </div>
+      <div class="cert-body">
+        <p class="cert-presents">This certifies that</p>
+        <h2 class="cert-name">{{ userName }}</h2>
+        <p class="cert-desc">has successfully completed</p>
+        <h3 class="cert-exam">{{ examTitle }}</h3>
+        <div class="cert-score-row">
+          <div class="score-circle"><span>{{ score | number:'1.0-1' }}%</span></div>
+          <div class="cert-detail-list">
+            <div>✅ {{ correct }} / {{ total }} câu đúng</div>
+            <div>📅 {{ today | date:'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="cert-footer">
+        <div class="cert-seal">🏆</div>
+        <div class="cert-sign">
+          <div class="sign-line"></div>
+          <div>Language Learning</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cert-actions">
+    <button class="btn-print" (click)="printCert()">🖨️ In / Lưu PDF</button>
+    <button class="btn-close" (click)="close()">✕ Đóng</button>
+  </div>
+</div>

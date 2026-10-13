@@ -192,6 +192,24 @@ export const MENU: MenuItem[] = [
                         link: '/learning/create',
                         parentId: 25
                     },
+                    {
+                        id: 301,
+                        label: 'Instructor Dashboard',
+                        link: '/learning/instructor-dashboard',
+                        parentId: 25
+                    },
+                    {
+                        id: 302,
+                        label: 'Quiz Manager',
+                        link: '/learning/quiz-manager',
+                        parentId: 25
+                    },
+                    {
+                        id: 303,
+                        label: 'Live Class Manager',
+                        link: '/learning/live-class-manager',
+                        parentId: 25
+                    },
                 ]
             },
             {
@@ -287,6 +305,12 @@ export const MENU: MenuItem[] = [
                 id: 49,
                 label: 'MENUITEMS.APPS.LIST.LISTINGMAP',
                 link: '/real-estate/map',
+                parentId: 46
+            },
+            {
+                id: 491,
+                label: 'Audit Log',
+                link: '/manager-system/audit-log',
                 parentId: 46
             },
             {

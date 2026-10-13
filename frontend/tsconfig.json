@@ -2,13 +2,17 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "rootDir": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    },
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
@@ -24,6 +28,6 @@
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
-    "strictTemplates": true,
+    "strictTemplates": true
   }
 }

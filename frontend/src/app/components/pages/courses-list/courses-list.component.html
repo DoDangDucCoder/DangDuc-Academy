@@ -3,9 +3,9 @@
         <div class="page-title-content">
             <ul>
                 <li><a routerLink="/">Home</a></li>
-                <li>CategoryName</li>
+                <li>Danh sách khóa học</li>
             </ul>
-            <h2>CategoryName</h2>
+            <h2>Khóa Học</h2>
         </div>
     </div>
     <div class="shape9"><img src="assets/img/shape8.svg" alt="image" /></div>
@@ -16,58 +16,39 @@
         <div class="container pt-4">
             <div class="odemy-grid-sorting row align-items-center">
                 <div class="col-lg-6 col-md-6 result-count">
-                    <p>We found <span class="count">{{listCourses.length}}</span> course for your</p>
+                    <p>Tìm thấy <span class="count">{{listCourses.length}}</span> khóa học</p>
                 </div>
                 <div class="col-lg-6 col-md-6 ordering">
                     <div class="select-box">
-                        <label>Sort By:</label>
+                        <label>Sắp xếp:</label>
                         <select>
-                            <option>Default</option>
-                            <option>Popularity</option>
-                            <option>Latest</option>
-                            <option>Price: low to high</option>
-                            <option>Price: high to low</option>
+                            <option>Mặc định</option>
+                            <option>Phổ biến nhất</option>
+                            <option>Mới nhất</option>
+                            <option>Giá: Thấp đến Cao</option>
+                            <option>Giá: Cao đến Thấp</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div class="row">
+
+            <div class="row g-4 mt-2">
                 <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let item of listCourses">
-                    <div class="single-courses-box">
-                        <div class="courses-image">
-                            <a routerLink="/detail-courses/{{item.id}}" class="d-block image">
-                                <img [src]="item.pictureUrl | assetUrl:'assets/images/demo/course-placeholder.svg'" fallbackSrc="/assets/images/demo/course-placeholder.svg" alt="image" />
-                            </a>
-                            <a routerLink="/" class="fav"><i class="flaticon-heart"></i></a>
-                            <div class="price shadow" [hidden]="!item.isDiscount">{{item.isDiscount == true ? (item.priceOfDiscount| currency ) : (item.priceOfCourse | currency )}}</div>
-                        </div>
-                        <div class="courses-content">
-                            <div class="course-author d-flex align-items-center">
-                        <img [src]="'assets/images/demo/avatar-instructor.svg' | assetUrl" fallbackSrc="/assets/images/demo/avatar-placeholder.svg" class="rounded-circle" alt="image" />
-                                <span>{{item.userName || 'HDNX Academy'}}</span>
-                            </div>
-                            <h3>
-                                <a routerLink="/detail-courses/{{item.id}}">{{item.title}}</a>
-                            </h3>
-                            <p class="truncated-content">
-                                {{item.shortDescription}}
-                            </p>
-                            <ul class="courses-box-footer d-flex justify-content-between align-items-center">
-                                <li><i class="bx bx-money"></i><span class="ps-2">{{item.isDiscount == true ? (item.priceOfDiscount | currency) : (item.priceOfCourse | currency)}}</span> </li>
-                                <li [hidden]="!item.isDiscount"><del><i class="bx bx-money"></i><span class="ps-2">{{item.priceOfCourse | currency}}</span></del>
-                                </li>
-                            </ul>
-                            <ul class="courses-box-footer d-flex justify-content-between align-items-center">
-                                <li><i class="flaticon-agenda"></i> {{item.totalChapter}} Lessons</li>
-                                <li><i class="flaticon-people"></i> {{item.totalStudentRegister}} Students</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <app-course-card
+                        [course]="item"
+                        routePrefix="/detail-courses"
+                        [showAddToCart]="true">
+                    </app-course-card>
                 </div>
 
                 <div class="col-lg-12 col-md-12">
                     <div class="pagination-area text-center">
-                        <pagination nextText="Next Page" previousText="Previous Page" class="pagination-wrap hstack justify-content-center gap-2" [totalItems]="listCourses?.length" [itemsPerPage]="10" (pagrChanged)="pageChanged($event)"></pagination>
+                        <pagination nextText="Next Page" previousText="Previous Page"
+                            class="pagination-wrap hstack justify-content-center gap-2"
+                            [totalItems]="listCourses?.length"
+                            [itemsPerPage]="10"
+                            (pagrChanged)="pageChanged($event)">
+                        </pagination>
                     </div>
                 </div>
             </div>

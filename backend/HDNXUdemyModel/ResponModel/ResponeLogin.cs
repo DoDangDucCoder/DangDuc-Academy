@@ -1,4 +1,4 @@
-﻿namespace HDNXUdemyModel.ResponModel
+namespace HDNXUdemyModel.ResponModel
 {
     public class ResponeLogin
     {
@@ -19,5 +19,9 @@
         public string? RoleName { get; set; }
 
         public string? Token { get; set; }
+
+        public string? RefreshToken { get; set; }
+
+        public DateTime? TokenExpires { get; set; }
     }
 }

@@ -1,0 +1,88 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Live Class Manager</h4>
+    <button class="btn btn-primary" (click)="load()">Refresh</button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="idCourse" [disabled]="isLoadingOptions">
+        <option [ngValue]="undefined">All courses</option>
+        <option *ngFor="let course of courses" [ngValue]="course.id">{{ course.title }} #{{ course.id }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="idInstructor" [disabled]="isLoadingOptions">
+        <option [ngValue]="undefined">All instructors</option>
+        <option *ngFor="let instructor of instructors" [ngValue]="instructor.id">
+          {{ instructor.name || instructor.email }} #{{ instructor.id }}
+        </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-outline-primary w-100" (click)="load()">Filter</button>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <h5>{{ model.id ? 'Edit live class' : 'Create live class' }}</h5>
+      <select class="form-select mb-2" [(ngModel)]="model.idCourse">
+        <option [ngValue]="0">Select course</option>
+        <option *ngFor="let course of courses" [ngValue]="course.id">{{ course.title }} #{{ course.id }}</option>
+      </select>
+      <select class="form-select mb-2" [(ngModel)]="model.idInstructor">
+        <option [ngValue]="0">Select instructor</option>
+        <option *ngFor="let instructor of instructors" [ngValue]="instructor.id">
+          {{ instructor.name || instructor.email }} #{{ instructor.id }}
+        </option>
+      </select>
+      <input class="form-control mb-2" placeholder="Title" [(ngModel)]="model.title" />
+      <textarea class="form-control mb-2" placeholder="Description" [(ngModel)]="model.description"></textarea>
+      <input type="datetime-local" class="form-control mb-2" placeholder="Start time" [(ngModel)]="model.startTime" />
+      <input type="datetime-local" class="form-control mb-2" placeholder="End time" [(ngModel)]="model.endTime" />
+      <input class="form-control mb-2" placeholder="Meeting URL" [(ngModel)]="model.meetingUrl" />
+      <select class="form-select mb-3" [(ngModel)]="model.status">
+        <option [ngValue]="1">Active</option>
+        <option [ngValue]="2">Ended</option>
+        <option [ngValue]="0">Inactive</option>
+      </select>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary" (click)="save()">Save</button>
+        <button class="btn btn-light" (click)="reset()">Reset</button>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <h5>Live classes</h5>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Course</th>
+            <th>Instructor</th>
+            <th>Start</th>
+            <th>Status</th>
+            <th>Meeting</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of liveClasses">
+            <td>{{ item.title }}</td>
+            <td>{{ item.idCourse }}</td>
+            <td>{{ item.idInstructor }}</td>
+            <td>{{ item.startTime }}</td>
+            <td>{{ statusLabel(item.status) }}</td>
+            <td><a [href]="item.meetingUrl" target="_blank">Open</a></td>
+            <td><button class="btn btn-sm btn-outline-primary" (click)="edit(item)">Edit</button></td>
+          </tr>
+          <tr *ngIf="!liveClasses.length">
+            <td colspan="7" class="text-muted">No live classes found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-﻿using CloudinaryDotNet.Actions;
+using CloudinaryDotNet.Actions;
 using HDNXUdemyModel.ResponModel;
 using Microsoft.AspNetCore.Http;
 
@@ -11,5 +11,7 @@ namespace HDNXUdemyServices.IServices
         Task<ResponseUploadWithCloudinary> AddPhotoToCloudAsyncByBase64(string imagesBase64);
 
         Task<DeletionResult> DeletePhotoToCloudAsync(string publicId);
+
+        Task<ResponseUploadWithCloudinary> AddRawFileToCloudAsync(IFormFile formFile);
     }
 }

@@ -2,8 +2,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 // component
-import { SigninComponent } from './signin/signin.component';
-import { SignupComponent } from './signup/signup.component';
 import { PassResetComponent } from './pass-reset/pass-reset.component';
 import { PassChangeComponent } from './pass-change/pass-change.component';
 import { LockscreenComponent } from './lockscreen/lockscreen.component';
@@ -14,15 +12,18 @@ import { TwostepComponent } from './twostep/twostep.component';
 const routes: Routes = [
   {
     path: '',
-    component: SigninComponent,
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
   },
   {
     path: 'signin',
-    component: SigninComponent,
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
   },
   {
     path: 'signup',
-    component: SignupComponent,
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
   },
   {
     path: 'pass-reset',

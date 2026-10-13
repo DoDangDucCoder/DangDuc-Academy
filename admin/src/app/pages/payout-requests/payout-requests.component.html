@@ -1,0 +1,45 @@
+<app-breadcrumbs title="Pending Payout Requests" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Pending Payout Requests</h4>
+                <p class="card-title-desc">List of all pending payout requests from instructors.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered dt-responsive nowrap">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Instructor ID</th>
+                                <th>Amount</th>
+                                <th>Request Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of payouts">
+                                <td>#{{item.id}}</td>
+                                <td>{{item.idInstructor}}</td>
+                                <td>${{item.amount}}</td>
+                                <td>{{item.requestDate | date:'medium'}}</td>
+                                <td>
+                                    <button class="btn btn-success btn-sm me-2" (click)="processPayout(item.id, true)">
+                                        <i class="bx bx-check"></i> Approve (Paid)
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" (click)="processPayout(item.id, false)">
+                                        <i class="bx bx-x"></i> Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="payouts.length === 0">
+                                <td colspan="5" class="text-center">No pending payout requests found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

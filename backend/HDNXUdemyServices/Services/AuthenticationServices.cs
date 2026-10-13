@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Google.Apis.Auth;
 using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Net.Mail;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace HDNXUdemyServices.Services
@@ -25,18 +26,25 @@ namespace HDNXUdemyServices.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly ISystemConfigRepository _systemConfigRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IPasswordResetTokenRepository _passwordResetTokenRepository;
         private readonly HttpClient _httpClient;
         private readonly IEmailServices _emailServices;
+        private readonly ISendEmailSMSServices _sendEmailServices;
         private readonly IMapper _mapper;
 
         public AuthenticationServices(IUserRepository userRepository, HttpClient httpClient, IMapper mapper, ISystemConfigRepository systemConfigRepository,
-            IEmailServices emailServices)
+            IEmailServices emailServices, IRefreshTokenRepository refreshTokenRepository, IPasswordResetTokenRepository passwordResetTokenRepository,
+            ISendEmailSMSServices sendEmailServices)
         {
             _userRepository = userRepository ?? throw new ProjectException(nameof(_userRepository));
             _httpClient = httpClient ?? throw new ProjectException(nameof(_httpClient));
             _mapper = mapper ?? throw new ProjectException(nameof(_mapper));
             _systemConfigRepository = systemConfigRepository ?? throw new ProjectException(nameof(_systemConfigRepository));
             _emailServices = emailServices ?? throw new ProjectException(nameof(_emailServices));
+            _refreshTokenRepository = refreshTokenRepository ?? throw new ProjectException(nameof(_refreshTokenRepository));
+            _passwordResetTokenRepository = passwordResetTokenRepository ?? throw new ProjectException(nameof(_passwordResetTokenRepository));
+            _sendEmailServices = sendEmailServices ?? throw new ProjectException(nameof(_sendEmailServices));
         }
 
         public async Task<ResponeLogin> LoginWithGoogle(LoginWithGoogle model, HttpContext httpContext)
@@ -263,9 +271,165 @@ namespace HDNXUdemyServices.Services
                 Thread.CurrentPrincipal = claimsPrincipal;
                 returnData.Token = HelperFunction.GenerateToken(ProjectConfig.Secret ?? string.Empty, ProjectConfig.ExpiresDate, returnData.UserId ?? 0,
                     returnData.UserName ?? string.Empty, string.Empty, returnData.RoleId);
+
+                // Generate and store refresh token
+                var refreshTokenValue = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+                var refreshTokenEntity = new RefreshTokenEntities
+                {
+                    UserId = returnData.UserId ?? 0,
+                    Token = refreshTokenValue,
+                    ExpiresAt = DateTime.UtcNow.AddDays(7),
+                    IsRevoked = false
+                };
+                await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+
+                returnData.RefreshToken = refreshTokenValue;
+                returnData.TokenExpires = refreshTokenEntity.ExpiresAt;
             }
 
             return returnData;
+        }
+
+        public async Task<ResponeLogin> RefreshAccessToken(string refreshToken, HttpContext httpContext)
+        {
+            var storedToken = await _refreshTokenRepository.GetObjectAsync(x => x.Token == refreshToken);
+            if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiresAt < DateTime.UtcNow)
+            {
+                throw new ProjectBadRequestException("Invalid or expired refresh token.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(storedToken.UserId);
+            if (user == null)
+            {
+                throw new ProjectBadRequestException(InternalCodeMessenger.NotFoundValue);
+            }
+
+            // Revoke old token (token rotation)
+            storedToken.IsRevoked = true;
+            var newRefreshTokenValue = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            storedToken.ReplacedByToken = newRefreshTokenValue;
+            await _refreshTokenRepository.UpdateAsync(storedToken);
+
+            // Generate new token pair
+            var returnData = _mapper.Map<ResponeLogin>(user);
+            returnData.Token = HelperFunction.GenerateToken(ProjectConfig.Secret ?? string.Empty, ProjectConfig.ExpiresDate, returnData.UserId ?? 0,
+                returnData.UserName ?? string.Empty, string.Empty, returnData.RoleId);
+
+            var newRefreshToken = new RefreshTokenEntities
+            {
+                UserId = user.Id,
+                Token = newRefreshTokenValue,
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false
+            };
+            await _refreshTokenRepository.AddAsync(newRefreshToken);
+
+            returnData.RefreshToken = newRefreshTokenValue;
+            returnData.TokenExpires = newRefreshToken.ExpiresAt;
+
+            return returnData;
+        }
+
+        public async Task<bool> RevokeRefreshToken(string refreshToken)
+        {
+            var storedToken = await _refreshTokenRepository.GetObjectAsync(x => x.Token == refreshToken);
+            if (storedToken == null)
+            {
+                return false;
+            }
+
+            storedToken.IsRevoked = true;
+            return await _refreshTokenRepository.UpdateAsync(storedToken);
+        }
+
+        public async Task<bool> ForgotPassword(string email)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetObjectAsync(x => x.Email != null && x.Email.ToLower() == normalizedEmail);
+            if (user == null)
+            {
+                // Return true even if user not found (security: don't reveal if email exists)
+                return true;
+            }
+
+            // Generate 6-digit OTP code
+            var otpCode = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
+
+            // Save reset token to database
+            var resetToken = new PasswordResetTokenEntities
+            {
+                UserId = user.Id,
+                Token = otpCode,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+                IsUsed = false
+            };
+            await _passwordResetTokenRepository.AddAsync(resetToken);
+
+            // Send email with OTP code
+            var subject = "HDNXUdemy - Đặt lại mật khẩu";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                    <h2 style='color: #6366f1;'>Đặt lại mật khẩu</h2>
+                    <p>Xin chào <strong>{user.Name}</strong>,</p>
+                    <p>Bạn đã yêu cầu đặt lại mật khẩu. Sử dụng mã OTP bên dưới:</p>
+                    <div style='background: #f3f4f6; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;'>
+                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #6366f1;'>{otpCode}</span>
+                    </div>
+                    <p style='color: #6b7280;'>Mã này sẽ hết hạn sau <strong>15 phút</strong>.</p>
+                    <p style='color: #6b7280;'>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+                    <hr style='border: 1px solid #e5e7eb; margin: 20px 0;' />
+                    <p style='color: #9ca3af; font-size: 12px;'>HDNXUdemy - Nền tảng học trực tuyến</p>
+                </div>";
+
+            try
+            {
+                await _sendEmailServices.SendEmailToSingleEmail(normalizedEmail, subject, body);
+            }
+            catch
+            {
+                // Log error but don't fail - token is saved, user can retry
+            }
+
+            return true;
+        }
+
+        public async Task<bool> ResetPassword(string email, string token, string newPassword)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetObjectAsync(x => x.Email != null && x.Email.ToLower() == normalizedEmail);
+            if (user == null)
+            {
+                throw new ProjectBadRequestException("Invalid email or reset code.");
+            }
+
+            // Find valid reset token
+            var resetToken = await _passwordResetTokenRepository.GetObjectAsync(x =>
+                x.UserId == user.Id &&
+                x.Token == token &&
+                !x.IsUsed &&
+                x.ExpiresAt > DateTime.UtcNow);
+
+            if (resetToken == null)
+            {
+                throw new ProjectBadRequestException("Invalid or expired reset code.");
+            }
+
+            // Validate password strength
+            if (newPassword.Length < 8 ||
+                !Regex.IsMatch(newPassword, "[A-Z]") ||
+                !Regex.IsMatch(newPassword, "[a-z]") ||
+                !Regex.IsMatch(newPassword, "[0-9]"))
+            {
+                throw new ProjectBadRequestException("Password must be at least 8 characters and include uppercase, lowercase, and number.");
+            }
+
+            // Mark token as used
+            resetToken.IsUsed = true;
+            await _passwordResetTokenRepository.UpdateAsync(resetToken);
+
+            // Update password
+            user.Password = PasswordHasher.Hash(newPassword);
+            return await _userRepository.UpdateAsync(user);
         }
     }
 }

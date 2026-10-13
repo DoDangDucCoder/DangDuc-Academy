@@ -162,7 +162,7 @@ export class Print {
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -391,7 +391,7 @@ export class Print {
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -638,7 +638,7 @@ export class Print {
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -870,7 +870,7 @@ export class Print {
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -1076,7 +1076,7 @@ export class Print {
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -1263,7 +1263,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -1477,7 +1477,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -1748,7 +1748,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -2020,7 +2020,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -2271,7 +2271,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -2533,7 +2533,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -2769,7 +2769,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>
@@ -3057,7 +3057,7 @@ margin: 0;
 </head>
 <body onload="window.print();window.close();">
     <div class="header">
-        <div class="img"><img alt="" src="/assets/img/logo.png" /></div>
+        <div class="img"><img alt="" src="/assets/brand/dangduc-logo-header-vector.svg" /></div>
         <div class="info-store">
             <h3>${user.Data.TitleStore}</h3>
             <p>${user.Data.AddressStore}</p>

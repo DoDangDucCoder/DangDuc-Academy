@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthenticationServices } from 'src/app/core/services/authentication.service';
 import { CartServices } from 'src/app/core/services/cart.service';
 import { CategoryServices } from 'src/app/core/services/category.service';
+import { CourseServices } from 'src/app/core/services/course.service';
 import { LocalStorageConfig } from 'src/app/library/clientconfig/localstorageconfig';
 import { CategoryModel } from 'src/app/models/models/category';
 import { StudentUser } from 'src/app/models/models/student-user';
@@ -20,6 +21,10 @@ export class NavbarComponent implements OnInit {
     categories: CategoryModel[] = [];
     userStudent: LoginRegister | undefined | null = null;
     public count: number = 0;
+    searchQuery = '';
+    searchResults: any[] = [];
+    showSearchDropdown = false;
+    private searchTimeout: any;
     @HostListener('window:scroll', ['$event'])
     checkScroll() {
         const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
@@ -33,7 +38,8 @@ export class NavbarComponent implements OnInit {
         private readonly categoryServices: CategoryServices,
         private readonly router: Router,
         private readonly cartServices: CartServices,
-        private readonly authenticationServices: AuthenticationServices,) { }
+        private readonly authenticationServices: AuthenticationServices,
+        private readonly courseServices: CourseServices) { }
 
     ngOnInit(): void {
         this.authenticationServices.getDataUploadAfterLogin().subscribe((res) => {
@@ -90,4 +96,33 @@ export class NavbarComponent implements OnInit {
         this.router.navigate([`/login`]);
     }
 
+    onSearchInput() {
+        clearTimeout(this.searchTimeout);
+        if (this.searchQuery.trim().length < 2) {
+            this.searchResults = [];
+            this.showSearchDropdown = false;
+            return;
+        }
+        this.searchTimeout = setTimeout(() => {
+            this.courseServices.searchCourses(this.searchQuery, 1, 5).subscribe((res: any) => {
+                if (res.retCode === 0 && res.data?.items) {
+                    this.searchResults = res.data.items;
+                    this.showSearchDropdown = true;
+                }
+            });
+        }, 300);
+    }
+
+    onSearchSubmit(e: Event) {
+        e.preventDefault();
+        if (this.searchQuery.trim()) {
+            this.showSearchDropdown = false;
+            this.router.navigate(['/courses'], { queryParams: { q: this.searchQuery } });
+        }
+    }
+
+    hideSearchDropdown() {
+        setTimeout(() => { this.showSearchDropdown = false; }, 200);
+    }
 }
+

@@ -51,6 +51,11 @@
                         Quizzes
                     </span>
                 </li>
+                <li class="nav-tab" [ngClass]="{'active': currentTab === 'tab3'}">
+                    <span (click)="switchTab($event, 'tab3')">
+                        Earnings & Payouts
+                    </span>
+                </li>
             </ul>
             <div class="tabs-container">
                 <div class="pane" id="tab1" *ngIf="currentTab === 'tab1'">
@@ -1005,6 +1010,33 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pane" id="tab3" *ngIf="currentTab === 'tab3'">
+                    <div class="card p-4">
+                        <h3>Earnings & Payouts</h3>
+                        <div class="row align-items-center mt-3">
+                            <div class="col-md-6">
+                                <div *ngIf="isLoadingBalance" class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    <span>Loading balance...</span>
+                                </div>
+                                <h4 *ngIf="!isLoadingBalance">Available Balance: <span class="text-success">${{ balance | number:'1.2-2' }}</span></h4>
+                                <p *ngIf="!isLoadingBalance && balance === 0" class="text-muted mt-1">You have no available balance to withdraw.</p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex" *ngIf="balance > 0 && !isLoadingBalance">
+                                    <input type="number" class="form-control me-2" [(ngModel)]="payoutAmount"
+                                           [max]="balance" [min]="1" placeholder="Amount to request"
+                                           [disabled]="isSubmitting">
+                                    <button class="btn btn-primary text-nowrap" (click)="requestPayout()"
+                                            [disabled]="isSubmitting || payoutAmount <= 0 || payoutAmount > balance">
+                                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        {{ isSubmitting ? 'Submitting...' : 'Request Payout' }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

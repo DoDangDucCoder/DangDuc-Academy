@@ -1,0 +1,108 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Articles" [breadcrumbItems]="[{ label: 'Pages' }, { label: 'Articles', active: true }]"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card" id="articlesList">
+            <div class="card-header border-0">
+                <div class="d-flex align-items-center">
+                    <h5 class="card-title mb-0 flex-grow-1">Article List</h5>
+                    <div class="flex-shrink-0">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a routerLink="/articles/add" class="btn btn-primary add-btn"><i class="bi bi-plus-circle align-baseline me-1"></i> Add Article</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body border border-dashed border-end-0 border-start-0">
+                <div class="row g-3">
+                    <div class="col-xxl-5 col-sm-12">
+                        <div class="search-box">
+                            <input type="text" class="form-control search bg-light border-light" placeholder="Search for articles..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+                            <i class="ri-search-line search-icon"></i>
+                        </div>
+                    </div>
+                    <!--end col-->
+                    <div class="col-xxl-1 col-sm-4">
+                        <div>
+                            <button type="button" class="btn btn-primary w-100" (click)="onSearch();"> <i class="ri-equalizer-fill me-1 align-bottom"></i>
+                                Filters
+                            </button>
+                        </div>
+                    </div>
+                    <!--end col-->
+                </div>
+                <!--end row-->
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="table-responsive table-card mb-1">
+                        <table class="table align-middle table-nowrap" id="articleTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" style="width: 50px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="checkAll" value="option">
+                                        </div>
+                                    </th>
+                                    <th class="sort" data-sort="title">Title</th>
+                                    <th class="sort" data-sort="slug">Slug</th>
+                                    <th class="sort" data-sort="viewCount">Views</th>
+                                    <th class="sort" data-sort="createDate">Create Date</th>
+                                    <th class="sort" data-sort="action">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="list form-check-all" id="article-list-data">
+                                <tr *ngFor="let data of articles" id="a_{{data.id}}">
+                                    <th scope="row">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
+                                        </div>
+                                    </th>
+                                    <td class="title">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <img [src]="data.thumbnailUrl || 'assets/images/placeholder.png'" alt="" class="avatar-xs rounded-circle">
+                                            </div>
+                                            <div class="flex-grow-1 ms-2 name">{{data.title}}</div>
+                                        </div>
+                                    </td>
+                                    <td class="slug">{{data.slug}}</td>
+                                    <td class="viewCount">{{data.viewCount}}</td>
+                                    <td class="createDate">{{data.createDate | date :'longDate'}}</td>
+                                    <td>
+                                        <ul class="list-inline hstack gap-2 mb-0">
+                                            <li class="list-inline-item edit" tooltip="Edit" placement="top">
+                                                <a routerLink="/articles/edit/{{data.id}}" class="text-muted d-inline-block">
+                                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-inline-item" tooltip="Remove" placement="top">
+                                                <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-bs-target="#deleteRecordModal" (click)="deleteArticle(data.id)">
+                                                    <i class="ri-delete-bin-5-fill fs-16"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row justify-content-md-between align-items-md-center">
+                        <div class="col col-sm-6">
+                            <div class="dataTables_info mb-2" id="tickets-table_info" role="status" aria-live="polite">
+                                Showing {{((currentPage - 1) * pageSize) + 1}} to {{((currentPage - 1) * pageSize) + articles.length}} of {{totalItems}} entries
+                            </div>
+                        </div>
+                        <div class="col col-sm-6">
+                            <div class="text-sm-right float-sm-end listjs-pagination">
+                                <pagination [totalItems]="totalItems" [itemsPerPage]="pageSize" [(ngModel)]="currentPage" (pageChanged)="onPageChange($event)" class="pagination-wrap hstack gap-2"></pagination>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

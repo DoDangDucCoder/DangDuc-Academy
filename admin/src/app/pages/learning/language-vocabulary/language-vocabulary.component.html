@@ -1,0 +1,343 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Quản Lý Từ Vựng" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<app-hdnx-loading [show]="isLoading">
+
+  <!-- Language Tabs -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <ul class="nav nav-tabs nav-tabs-custom nav-success nav-justified" role="tablist">
+        @for (lang of languages; track lang.code) {
+        <li class="nav-item">
+          <a class="nav-link py-2"
+            [class.active]="selectedLanguage === lang.code"
+            href="javascript:void(0);"
+            (click)="selectLanguage(lang.code)">
+            <span class="me-1">{{ lang.flag }}</span>
+            <span class="fw-semibold">{{ lang.label }}</span>
+          </a>
+        </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card" id="vocabList">
+        <div class="card-body">
+          <div class="row align-items-center g-2">
+            <div class="col-lg-3 me-auto">
+              <h6 class="card-title mb-0">
+                Danh Sách Từ Vựng
+                <span class="badge bg-primary ms-1 align-baseline">{{ totalItems }}</span>
+              </h6>
+            </div><!--end col-->
+            <div class="col-lg-auto">
+              <div class="hstack flex-wrap gap-2">
+                <button class="btn btn-success" (click)="openBulkImport()">
+                  <i class="bi bi-upload align-baseline me-1"></i> Nhập Hàng Loạt
+                </button>
+                <button class="btn btn-secondary" (click)="openCreateModal()">
+                  <i class="bi bi-plus-circle align-baseline me-1"></i> Thêm Từ Mới
+                </button>
+              </div>
+            </div><!--end col-->
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- CSV Import Section -->
+          <div class="csv-import-section">
+            <div class="csv-header">
+              <h5>📂 Import từ CSV</h5>
+              <button class="btn btn-link btn-sm" (click)="downloadCSVTemplate()">⬇ Tải template</button>
+            </div>
+            <div class="csv-body">
+              <input type="file" accept=".csv" (change)="onFileSelected($event)" #csvInput style="display:none">
+              <button class="btn btn-outline-secondary btn-sm" (click)="csvInput.click()">Chọn file CSV</button>
+              <span *ngIf="selectedFile" class="ms-2 text-muted small">{{ selectedFile.name }}</span>
+            </div>
+            <!-- Preview -->
+            <div *ngIf="csvPreview.length > 0" class="csv-preview mt-2">
+              <small class="text-muted">Preview (5 dòng đầu):</small>
+              <table class="table table-sm table-bordered mt-1">
+                <thead><tr><th>word</th><th>pronunciation</th><th>meaningVi</th><th>level</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let row of csvPreview">
+                    <td>{{ row.word || row.Word }}</td>
+                    <td>{{ row.pronunciation || row.Pronunciation }}</td>
+                    <td>{{ row.meaningVi || row.meaning_vi }}</td>
+                    <td>{{ row.level || row.Level }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="text-danger small" *ngIf="importError">{{ importError }}</div>
+              <button class="btn btn-primary btn-sm" [disabled]="importing" (click)="importCSV()">
+                {{ importing ? 'Đang import...' : 'Import ' + selectedFile?.name }}
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive table-card">
+            <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+              <thead class="text-muted">
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Từ</th>
+                  <th scope="col">Phiên Âm</th>
+                  <th scope="col">Nghĩa (Tiếng Việt)</th>
+                  <th scope="col">Cấp Độ</th>
+                  <th scope="col">Tags</th>
+                  <th scope="col">Hành Động</th>
+                </tr>
+              </thead>
+              <tbody class="list form-check-all">
+                @for (vocab of pagedVocabs; track vocab.id) {
+                <tr id="vocab_{{ vocab.id }}">
+                  <td><a href="javascript:void(0)" class="fw-medium link-primary">#{{ vocab.id }}</a></td>
+                  <td>
+                    <div>
+                      <p class="fw-semibold mb-0">{{ vocab.word }}</p>
+                      @if (vocab.exampleSentence) {
+                      <small class="text-muted fst-italic">{{ vocab.exampleSentence | slice:0:60 }}...</small>
+                      }
+                    </div>
+                  </td>
+                  <td class="text-primary">{{ vocab.pronunciation }}</td>
+                  <td>{{ vocab.meaningVi }}</td>
+                  <td>
+                    <span class="badge {{ getLevelBadgeClass(vocab.level) }}">{{ vocab.level }}</span>
+                  </td>
+                  <td>
+                    @if (vocab.tags) {
+                    @for (tag of vocab.tags.split(','); track $index) {
+                    <span class="badge bg-secondary-subtle text-secondary me-1">{{ tag.trim() }}</span>
+                    }
+                    }
+                  </td>
+                  <td>
+                    <ul class="d-flex gap-2 list-unstyled mb-0">
+                      <li>
+                        <a href="javascript:void(0);" (click)="openEditModal(vocab)"
+                          class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn"
+                          title="Sửa">
+                          <i class="ph-pencil"></i>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="javascript:void(0);" (click)="removeItem(vocab.id)"
+                          class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn"
+                          title="Xóa">
+                          <i class="ph-trash"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                }
+              </tbody><!-- end tbody -->
+            </table><!-- end table -->
+
+            <div class="noresult" [style.display]="pagedVocabs.length === 0 && !isLoading ? 'block' : 'none'">
+              <div class="text-center py-4">
+                <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                <h5 class="mt-2">Không có từ vựng nào</h5>
+                <p class="text-muted mb-0">Chưa có từ vựng nào cho ngôn ngữ này. Hãy thêm từ mới.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row align-items-center mt-4 pt-2" id="pagination-element">
+            <div class="col-sm">
+              <div class="text-muted text-center text-sm-start">
+                Hiển thị <span class="fw-semibold">{{ pagedVocabs.length }}</span> /
+                <span class="fw-semibold">{{ totalItems }}</span> từ vựng
+              </div>
+            </div><!--end col-->
+            <div class="col-sm-auto mt-3 mt-sm-0">
+              <pagination
+                class="pagination-wrap hstack gap-2 justify-content-center"
+                [totalItems]="totalItems"
+                [itemsPerPage]="pageSize"
+                (pageChanged)="pageChanged($event)">
+              </pagination>
+            </div><!--end col-->
+          </div><!--end row-->
+        </div>
+      </div><!--end card-->
+    </div><!--end col-->
+  </div><!--end row-->
+
+</app-hdnx-loading>
+
+<!-- ─── Create / Edit Vocab Modal ───────────────────────────────────────── -->
+<div bsModal #addVocabModal="bs-modal" class="modal fade" id="addVocabModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-success p-3">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-book me-2"></i>
+          {{ isEditMode ? 'Chỉnh Sửa Từ Vựng' : 'Thêm Từ Vựng Mới' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="addVocabModal.hide()"></button>
+      </div>
+
+      <form (ngSubmit)="saveVocab()" [formGroup]="vocabForm" novalidate autocomplete="off">
+        <div class="modal-body">
+          <div class="row g-3">
+
+            <!-- Language -->
+            <div class="col-md-6">
+              <label for="vocab-language-input" class="form-label">Ngôn ngữ <span class="text-danger">*</span></label>
+              <select class="form-select" id="vocab-language-input" formControlName="language"
+                [class.is-invalid]="submitted && f['language'].errors">
+                @for (lang of languages; track lang.code) {
+                <option [value]="lang.code">{{ lang.flag }} {{ lang.label }}</option>
+                }
+              </select>
+              @if (submitted && f['language'].errors?.['required']) {
+              <div class="invalid-feedback">Vui lòng chọn ngôn ngữ.</div>
+              }
+            </div>
+
+            <!-- Level -->
+            <div class="col-md-6">
+              <label for="vocab-level-input" class="form-label">Cấp Độ <span class="text-danger">*</span></label>
+              <select class="form-select" id="vocab-level-input" formControlName="level"
+                [class.is-invalid]="submitted && f['level'].errors">
+                <option value="A1">A1 - Sơ cấp</option>
+                <option value="A2">A2 - Sơ cấp trên</option>
+                <option value="B1">B1 - Trung cấp</option>
+                <option value="B2">B2 - Trung cấp trên</option>
+                <option value="C1">C1 - Cao cấp</option>
+                <option value="C2">C2 - Thành thạo</option>
+              </select>
+              @if (submitted && f['level'].errors?.['required']) {
+              <div class="invalid-feedback">Vui lòng chọn cấp độ.</div>
+              }
+            </div>
+
+            <!-- Word -->
+            <div class="col-md-6">
+              <label for="word-input" class="form-label">Từ <span class="text-danger">*</span></label>
+              <input type="text" id="word-input" formControlName="word" class="form-control"
+                placeholder="Nhập từ vựng" required
+                [class.is-invalid]="submitted && f['word'].errors">
+              @if (submitted && f['word'].errors?.['required']) {
+              <div class="invalid-feedback">Vui lòng nhập từ vựng.</div>
+              }
+            </div>
+
+            <!-- Pronunciation -->
+            <div class="col-md-6">
+              <label for="pronunciation-input" class="form-label">Phiên Âm</label>
+              <input type="text" id="pronunciation-input" formControlName="pronunciation" class="form-control"
+                placeholder="VD: /wɜːrd/">
+            </div>
+
+            <!-- Meaning Vi -->
+            <div class="col-12">
+              <label for="meaningVi-input" class="form-label">Nghĩa Tiếng Việt <span class="text-danger">*</span></label>
+              <input type="text" id="meaningVi-input" formControlName="meaningVi" class="form-control"
+                placeholder="Nhập nghĩa tiếng Việt" required
+                [class.is-invalid]="submitted && f['meaningVi'].errors">
+              @if (submitted && f['meaningVi'].errors?.['required']) {
+              <div class="invalid-feedback">Vui lòng nhập nghĩa tiếng Việt.</div>
+              }
+            </div>
+
+            <!-- Example Sentence -->
+            <div class="col-12">
+              <label for="example-input" class="form-label">Câu Ví Dụ</label>
+              <textarea id="example-input" formControlName="exampleSentence" class="form-control" rows="2"
+                placeholder="Nhập câu ví dụ..."></textarea>
+            </div>
+
+            <!-- Tags -->
+            <div class="col-12">
+              <label for="tags-input" class="form-label">Tags</label>
+              <input type="text" id="tags-input" formControlName="tags" class="form-control"
+                placeholder="VD: business, travel, food (phân cách bằng dấu phẩy)">
+              <div class="form-text">Nhập các tags phân cách nhau bằng dấu phẩy.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" (click)="addVocabModal.hide()">Hủy</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i>
+            {{ isEditMode ? 'Cập Nhật' : 'Thêm Từ Vựng' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Bulk Import Modal ────────────────────────────────────────────────── -->
+<div bsModal #bulkImportModal="bs-modal" class="modal fade" id="bulkImportModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-warning p-3">
+        <h5 class="modal-title">
+          <i class="bi bi-upload me-2"></i> Nhập Từ Vựng Hàng Loạt
+        </h5>
+        <button type="button" class="btn-close" (click)="bulkImportModal.hide()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Dán dữ liệu JSON theo định dạng mảng. Mỗi phần tử cần có: <code>word</code>, <code>meaningVi</code>, <code>level</code>.
+          <br>
+          Ví dụ: <code>[{{ '{' }}"word": "hello", "pronunciation": "/həˈloʊ/", "meaningVi": "xin chào", "level": "A1"{{ '}' }}]</code>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Dữ Liệu JSON</label>
+          <textarea class="form-control font-monospace" rows="10" [(ngModel)]="bulkImportText"
+            placeholder='[&#10;  {&#10;    "word": "hello",&#10;    "pronunciation": "/həˈloʊ/",&#10;    "meaningVi": "xin chào",&#10;    "exampleSentence": "Hello, how are you?",&#10;    "level": "A1",&#10;    "tags": "greeting"&#10;  }&#10;]'>
+          </textarea>
+        </div>
+        <div class="text-muted small">
+          Ngôn ngữ áp dụng: <strong>{{ languages | json }}</strong>
+          ({{ selectedLanguage }})
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="bulkImportModal.hide()">Hủy</button>
+        <button type="button" class="btn btn-warning" (click)="processBulkImport()">
+          <i class="bi bi-upload me-1"></i> Nhập Dữ Liệu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Delete Confirm Modal ─────────────────────────────────────────────── -->
+<div bsModal #deleteRecordModal="bs-modal" class="modal fade zoomIn" id="deleteRecordModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="deleteRecordModal.hide()"></button>
+      </div>
+      <div class="modal-body p-md-5">
+        <div class="text-center">
+          <div class="text-danger">
+            <i class="bi bi-trash display-4"></i>
+          </div>
+          <div class="mt-4">
+            <h4>Xác nhận xóa?</h4>
+            <p class="text-muted mx-4 mb-0">Bạn chắc chắn muốn xóa từ vựng này không?</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+          <button type="button" class="btn btn-light w-sm" (click)="deleteRecordModal.hide()">Hủy</button>
+          <button type="button" class="btn btn-danger w-sm" (click)="confirmDelete()">Xóa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

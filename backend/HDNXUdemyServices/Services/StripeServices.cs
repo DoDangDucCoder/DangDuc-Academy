@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
 using HDNXUdemyData.Model;
@@ -104,7 +104,11 @@ namespace HDNXUdemyServices.Services
             try
             {
                 var stripeServices = new SessionService();
-                var session = await stripeServices.CreateAsync(options);
+                var requestOptions = new RequestOptions
+                {
+                    IdempotencyKey = $"checkout_{model.PurcharseCode}_{DateTime.UtcNow:yyyyMMddHH}"
+                };
+                var session = await stripeServices.CreateAsync(options, requestOptions);
                 returnValue.SessionId = session.Id;
                 await DistributedCacheRedis.SetDataToDistributedCache(_distributedCache, model.PurcharseCode.ToString(), model);
             }
@@ -397,6 +401,31 @@ namespace HDNXUdemyServices.Services
             if (pageIndex < 1 || pageSize < 1 || pageSize > 100)
             {
                 throw new ProjectBadRequestException("Paging is invalid.");
+            }
+        }
+
+        public async Task<bool> RefundPayment(string paymentIntentId)
+        {
+            try
+            {
+                StripeConfiguration.ApiKey = ProjectConfig.StripeSecretKey; // Ensure key is set
+                var options = new RefundCreateOptions
+                {
+                    PaymentIntent = paymentIntentId,
+                };
+                var service = new Stripe.RefundService();
+                var refund = await service.CreateAsync(options);
+                return refund.Status == "succeeded" || refund.Status == "pending";
+            }
+            catch (StripeException ex)
+            {
+                // Handle or log Stripe specific errors
+                Console.WriteLine($"Stripe Error: {ex.Message}");
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

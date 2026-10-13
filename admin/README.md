@@ -15,6 +15,8 @@
 
 Admin Dashboard là ứng dụng **Angular 17 SPA** được xây dựng dựa trên template **Steex**, dành cho **quản trị viên** quản lý toàn bộ hệ thống HDNXUdemy. Dashboard cung cấp giao diện quản trị chuyên nghiệp với: thống kê doanh thu, quản lý khóa học (tạo/sửa/xóa, thêm nội dung, upload video), quản lý người dùng, đơn hàng, danh mục, banner, tin tức, coupon, cấu hình hệ thống, và nhiều tính năng nâng cao khác.
 
+> Legacy Firebase/Google Maps/Stripe public keys đã được xoá khỏi source. Xem hướng dẫn thay key mới tại [`../docs/environment-keys.md`](../docs/environment-keys.md).
+
 - **Project name:** `steex` (Steex Angular Template)
 - **Dev server:** http://127.0.0.1:4201/
 - **Production URL:** https://hdnx-admin.devproinsights.com
@@ -128,8 +130,7 @@ admin/
 ├── angular.json                     # Angular workspace config
 ├── package.json                     # Dependencies
 ├── tsconfig.json                    # TypeScript config
-├── tsconfig.app.json                # App TS config
-└── tsconfig.spec.json               # Test TS config
+└── tsconfig.app.json                # App TS config
 ```
 
 ---
@@ -381,16 +382,6 @@ npm run buildPro
 ```bash
 npm run watch
 ```
-
-### 5. Unit Tests
-
-```bash
-ng test
-# hoặc
-npm test
-```
-
----
 
 ## 📦 Dependencies chính
 

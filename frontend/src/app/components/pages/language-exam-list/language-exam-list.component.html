@@ -1,0 +1,97 @@
+<div class="exam-list-page">
+
+  <!-- ── Header Banner ── -->
+  <section class="lang-banner" [style.background]="'linear-gradient(135deg,' + meta.color + 'cc,' + meta.color + ')'">
+    <div class="container">
+      <div class="banner-content">
+        <span class="lang-flag">{{ meta.flag }}</span>
+        <div>
+          <h1>{{ meta.name }}</h1>
+          <p>{{ meta.types.join(' · ') }}</p>
+        </div>
+      </div>
+      <div class="banner-actions">
+        <button class="btn-flashcard" (click)="goToFlashcard()">
+          <i class="bx bx-book-open"></i> Học Flashcard
+          <span class="badge" *ngIf="vocabStats?.dueForReview">{{ vocabStats?.dueForReview }} cần ôn</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Filters ── -->
+  <section class="filters-bar">
+    <div class="container">
+      <div class="filters">
+        <div class="filter-group">
+          <label>Loại đề</label>
+          <select [(ngModel)]="selectedType" (change)="onTypeChange()">
+            <option value="">Tất cả</option>
+            <option *ngFor="let t of meta.types" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="filter-group" *ngIf="levels.length > 0">
+          <label>Cấp độ</label>
+          <select [(ngModel)]="selectedLevel" (change)="onLevelChange()">
+            <option value="">Tất cả</option>
+            <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Exam Grid ── -->
+  <section class="exams-section">
+    <div class="container">
+
+      <!-- Loading -->
+      <div class="loading-wrap" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Đang tải đề thi...</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="!loading && exams.length === 0">
+        <i class="bx bx-file-blank"></i>
+        <p>Chưa có đề thi nào. Vui lòng quay lại sau!</p>
+      </div>
+
+      <!-- Grid -->
+      <div class="exam-grid" *ngIf="!loading && exams.length > 0">
+        <div class="exam-card" *ngFor="let exam of exams"
+          [class.exam-card--disabled]="exam.totalQuestions === 0"
+          (click)="exam.totalQuestions > 0 && goToExam(exam.id)">
+          <div class="exam-card-header" [style.background]="meta.color">
+            <span class="exam-type-badge">{{ exam.examType }}</span>
+            <span class="exam-level-badge" *ngIf="exam.level"
+              [style.background]="getDifficultyColor(exam.level)">
+              {{ exam.level }}
+            </span>
+            <span class="coming-soon-badge" *ngIf="exam.totalQuestions === 0">Sắp ra mắt</span>
+          </div>
+          <div class="exam-card-body">
+            <h3 class="exam-title">{{ exam.title }}</h3>
+            <p class="exam-desc" *ngIf="exam.description">{{ exam.description }}</p>
+            <div class="exam-meta">
+              <span><i class="bx bx-time"></i> {{ formatTime(exam.durationMinutes) }}</span>
+              <span><i class="bx bx-question-mark"></i> {{ exam.totalQuestions }} câu</span>
+              <span><i class="bx bx-user"></i> {{ exam.attemptCount | number }} lượt làm</span>
+            </div>
+          </div>
+          <div class="exam-card-footer">
+            <span class="pass-score" *ngIf="exam.passScore > 0">
+              Qua: {{ exam.passScore }}%
+            </span>
+            <button class="btn-start" [style.background]="exam.totalQuestions > 0 ? meta.color : '#aaa'"
+              [disabled]="exam.totalQuestions === 0">
+              {{ exam.totalQuestions > 0 ? 'Làm bài' : 'Sắp có' }} <i class="bx bx-right-arrow-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>

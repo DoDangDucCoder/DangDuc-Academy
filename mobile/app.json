@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "DangDuc Academy",
+    "icon": "./assets/brand/icon.png",
+    "slug": "hdnx-udemy-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/brand/favicon.png"
+    },
+    "extra": {
+      "apiBaseUrl": "http://localhost:5194"
+    }
+  }
+}

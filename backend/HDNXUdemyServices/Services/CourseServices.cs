@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DNXUdemyData.Entities;
 using HDNXUdemyData.Entities;
 using HDNXUdemyData.IRepository;
@@ -6,6 +6,7 @@ using HDNXUdemyModel.Base;
 using HDNXUdemyModel.Constant;
 using HDNXUdemyModel.Exception;
 using HDNXUdemyModel.Model;
+using HDNXUdemyModel.RequestModel;
 using HDNXUdemyModel.ResponModel;
 using HDNXUdemyModel.SystemExceptions;
 using HDNXUdemyServices.CommonFunction;
@@ -113,6 +114,31 @@ namespace HDNXUdemyServices.Services
             return resultMapping;
         }
 
+        public async Task<PagedResult<CourseModel>> GetListCourseForAdminPaged(int pageIndex, int pageSize)
+        {
+            var getData = await _courseRepository.GetAllAsync();
+            var getCategory = await _categoryRepository.GetAllAsync();
+            var resultMapping = _mapper.Map<List<CourseModel>>(getData);
+            foreach (var item in resultMapping)
+            {
+                var getDataOfVoteStar = await _courseEvaluationRepository.GetAsync(x => x.IdCourse == item.Id);
+                var getVoteData = HelperFunction.CalculatorToTalStartOfCourse(getDataOfVoteStar.ToList());
+                item.TotalVoteOfCourse = getDataOfVoteStar.Count();
+                item.Vote1Star = getVoteData.Item1;
+                item.Vote2Star = getVoteData.Item2;
+                item.Vote3Star = getVoteData.Item3;
+                item.Vote4Star = getVoteData.Item4;
+                item.Vote5Star = getVoteData.Item5;
+                item.AverageScore = getVoteData.Item6;
+                item.CategoryName = getCategory.Where(x => x.Id == item.IdCategory).FirstOrDefault()?.Name;
+                item.UserName = "Admin";
+                item.ProcessCourseName = item.ProcessCourse.HasValue
+                    ? ((ProcessVideo)item.ProcessCourse.Value).GetEnumDescription()
+                    : null;
+            }
+            return resultMapping.GetPagingPaged(pageIndex, pageSize, null);
+        }
+
         public async Task<List<CourseModel>> GetListCourseOfStudent(long idStudent)
         {
             var getIdOfPurchaseOrder = await _pucharseCourseRepository.
@@ -167,7 +193,7 @@ namespace HDNXUdemyServices.Services
             if (getData != null && resultMapping != null)
             {
                 var resultCourse = _mapper.Map<List<CourseModel>>((await _courseRepository.GetAsync(x => x.IdCategory == getData.IdCategory)).Take(3));
-                var resultAuthor = _mapper.Map<UserModel>(await _userRepository.GetObjectAsync(x => x.Id == getData.CreateBy));
+                var resultAuthor = _mapper.Map<UserModel>(await _userRepository.GetObjectAsync(x => x.Id == getData.IdAuthor));
                 var getCategory = await _categoryRepository.GetAllAsync();
                 var getDataOfVoteStar = await _courseEvaluationRepository.GetAsync(x => x.IdCourse == resultMapping.Id);
                 var getVoteData = HelperFunction.CalculatorToTalStartOfCourse(getDataOfVoteStar.ToList());
@@ -179,14 +205,16 @@ namespace HDNXUdemyServices.Services
                 resultMapping.Vote5Star = getVoteData.Item5;
                 resultMapping.AverageScore = getVoteData.Item6;
                 resultMapping.CategoryName = getCategory.Where(x => x.Id == resultMapping.IdCategory).FirstOrDefault()?.Name;
-                resultMapping.UserName = (await _userRepository.GetByIdAsync(resultMapping.CreateBy))?.Name;
+                resultMapping.UserName = (await _userRepository.GetByIdAsync(resultMapping.IdAuthor))?.Name;
                 resultMapping.ProcessCourseName = resultMapping.ProcessCourse.HasValue
                     ? ((ProcessVideo)resultMapping.ProcessCourse.Value).GetEnumDescription()
                     : null;
                 resultMapping.ListContentCourseDetails = await GetContentOfCourse(getData.Id, isAdmin);
                 resultMapping.ListCourseRate = resultCourse;
                 resultMapping.Author = resultAuthor;
-                resultMapping.FileUploadUrlStream = $"{ProjectConfig.APIUrlGetVideoMp4}{resultMapping.FileUrl}";
+                resultMapping.FileUploadUrlStream = string.IsNullOrWhiteSpace(resultMapping.FileUrl) || IsYoutubeVideoId(resultMapping.FileUrl)
+                    ? null
+                    : $"{ProjectConfig.APIUrlGetVideoMp4}{resultMapping.FileUrl}";
                 resultMapping.IsPurchase = isPurchase;
             }
 
@@ -390,10 +418,20 @@ namespace HDNXUdemyServices.Services
                 }
             }
 
-            resultMapping.FileUploadUrlStream = canAccessPrivateContent && !string.IsNullOrWhiteSpace(resultMapping.FileNameVideo)
+            resultMapping.FileUploadUrlStream = canAccessPrivateContent && !string.IsNullOrWhiteSpace(resultMapping.FileNameVideo) && !IsYoutubeVideoId(resultMapping.FileNameVideo)
                 ? $"{ProjectConfig.APIUrlGetVideoStream}{resultMapping.FileNameVideo}"
                 : null;
+            if (!canAccessPrivateContent)
+            {
+                resultMapping.IdVideoUpload = null;
+                resultMapping.FileNameVideo = null;
+            }
             return resultMapping;
+        }
+
+        private static bool IsYoutubeVideoId(string? value)
+        {
+            return !string.IsNullOrWhiteSpace(value) && Regex.IsMatch(value, @"^[a-zA-Z0-9_-]{11}$", RegexOptions.CultureInvariant);
         }
 
         private long GetCurrentUserId()
@@ -428,6 +466,8 @@ namespace HDNXUdemyServices.Services
                         if (!item.IsLearningFree)
                         {
                             item.FileUploadUrlStream = null;
+                            item.IdVideoUpload = null;
+                            item.FileNameVideo = null;
                         }
                     });
                 }
@@ -514,6 +554,87 @@ namespace HDNXUdemyServices.Services
         {
             var getData = await _courseRepository.GetAsync(x => x.IdCategory == idCategory);
             return _mapper.Map<List<CourseModel>>(getData);
+        }
+
+        public async Task<PagedResult<CourseModel>> GetListCourseAsCategoryPaged(long idCategory, int pageIndex, int pageSize)
+        {
+            var getData = await _courseRepository.GetAsync(x => x.IdCategory == idCategory);
+            var resultMapping = _mapper.Map<List<CourseModel>>(getData);
+            return resultMapping.GetPagingPaged(pageIndex, pageSize, null);
+        }
+
+        public async Task<PagedResult<CourseModel>> SearchCourses(SearchCoursesRequest request, int pageIndex, int pageSize)
+        {
+            var allCourses = await _courseRepository.GetAsync(x => x.Status == (int)EStatus.Active);
+            var query = allCourses.AsQueryable();
+
+            // Filter by keyword (title or short description)
+            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            {
+                var keyword = request.Keyword.Trim().ToLowerInvariant();
+                query = query.Where(x =>
+                    (x.Title != null && x.Title.ToLower().Contains(keyword)) ||
+                    (x.ShortDescription != null && x.ShortDescription.ToLower().Contains(keyword)));
+            }
+
+            // Filter by category
+            if (request.CategoryId.HasValue && request.CategoryId > 0)
+            {
+                query = query.Where(x => x.IdCategory == request.CategoryId.Value);
+            }
+
+            // Filter by price range
+            if (request.PriceMin.HasValue)
+            {
+                query = query.Where(x => x.PriceOfCourse >= request.PriceMin.Value);
+            }
+            if (request.PriceMax.HasValue)
+            {
+                query = query.Where(x => x.PriceOfCourse <= request.PriceMax.Value);
+            }
+
+            // Filter by level
+            if (!string.IsNullOrWhiteSpace(request.Level))
+            {
+                query = query.Where(x => x.LevelCourse != null && x.LevelCourse.ToLower() == request.Level.Trim().ToLowerInvariant());
+            }
+
+            // Sort
+            query = request.SortBy?.ToLowerInvariant() switch
+            {
+                "price_asc" => query.OrderBy(x => x.IsFree ? 0 : (x.IsDiscount ? x.PriceOfDiscount : x.PriceOfCourse)),
+                "price_desc" => query.OrderByDescending(x => x.IsFree ? 0 : (x.IsDiscount ? x.PriceOfDiscount : x.PriceOfCourse)),
+                "newest" => query.OrderByDescending(x => x.Id),
+                _ => query.OrderByDescending(x => x.Id)
+            };
+
+            var resultMapping = _mapper.Map<List<CourseModel>>(query.ToList());
+
+            // Enrich with category names
+            var categories = await _categoryRepository.GetAllAsync();
+            foreach (var item in resultMapping)
+            {
+                item.CategoryName = categories.FirstOrDefault(c => c.Id == item.IdCategory)?.Name;
+            }
+
+            // Filter by min rating (post-mapping since ratings come from evaluations)
+            if (request.MinRating.HasValue && request.MinRating > 0)
+            {
+                var filteredList = new List<CourseModel>();
+                foreach (var item in resultMapping)
+                {
+                    var evaluations = await _courseEvaluationRepository.GetAsync(x => x.IdCourse == item.Id);
+                    var avgScore = HelperFunction.CalculatorToTalStartOfCourse(evaluations.ToList()).Item6;
+                    item.AverageScore = avgScore;
+                    if (avgScore >= request.MinRating.Value)
+                    {
+                        filteredList.Add(item);
+                    }
+                }
+                resultMapping = filteredList;
+            }
+
+            return resultMapping.GetPagingPaged(pageIndex, pageSize, null);
         }
 
         private static void ValidateId(long id)

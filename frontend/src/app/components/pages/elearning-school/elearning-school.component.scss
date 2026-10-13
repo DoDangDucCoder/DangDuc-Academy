@@ -1,0 +1,47 @@
+.trending-section {
+    .row > [class*="col-"] {
+        display: flex;
+    }
+
+    .trending-card {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .trending-thumb-wrap {
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .trending-thumb {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+    }
+
+    .trending-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+
+        h4 {
+            line-height: 1.4;
+            min-height: 2.8em;
+
+            a {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+
+    .trending-price {
+        margin-top: auto;
+    }
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 275" width="310" height="275"><g transform="translate(0,7)"><g>
+  <path fill="#FFB41F" fill-rule="evenodd" d="M155 74H194C259 74 289 106 289 158C289 212 257 238 194 238H155V196H190C223 196 243 184 243 157C243 130 226 116 190 116H155Z"/>
+  <path fill="#1EAAEE" fill-rule="evenodd" d="M20 62H113C164 62 193 96 193 150C193 207 164 238 109 238H20ZM70 106V195H105C133 195 145 177 145 151C145 123 131 106 103 106Z"/>
+  <path fill="#0B2149" d="M122 133L122 183Q122 189 128 186L170 161Q176 157 169 153L128 130Q122 127 122 133Z"/>
+  <path fill="#0B2149" d="M105 60L186 24L270 62L188 94Z"/>
+  <path stroke="#0B2149" stroke-width="7" stroke-linecap="round" d="M262 65V113"/>
+  <circle fill="#0B2149" cx="262" cy="119" r="9"/>
+</g></g></svg>

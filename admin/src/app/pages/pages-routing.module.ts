@@ -23,11 +23,6 @@ const routes: Routes = [
       import('./purchase-order/purchase-order.module').then((m) => m.PurchaseOrderModule),
   },
   {
-    path: 'advance-ui',
-    loadChildren: () =>
-      import('./advanceui/advanceui.module').then((m) => m.AdvanceuiModule),
-  },
-  {
     path: 'subscriptions',
     loadChildren: () =>
       import('./subscriptions/subscriptions.module').then(
@@ -42,19 +37,19 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'charts',
+    path: 'articles',
     loadChildren: () =>
-      import('./charts/charts.module').then((m) => m.ChartsModule),
+      import('./articles/articles.module').then((m) => m.ArticlesModule),
   },
   {
-    path: 'custom-ui',
+    path: 'refund-requests',
     loadChildren: () =>
-      import('./custom-ui/custom-ui.module').then((m) => m.CustomUiModule),
+      import('./refund-requests/refund-requests.module').then(m => m.RefundRequestsModule),
   },
   {
-    path: 'pages',
+    path: 'payout-requests',
     loadChildren: () =>
-      import('./extrapages/extrapages.module').then((m) => m.ExtrapagesModule),
+      import('./payout-requests/payout-requests.module').then(m => m.PayoutRequestsModule),
   },
 ];
 

@@ -1,0 +1,107 @@
+<div class="result-page" *ngIf="!loading; else loadingTpl">
+
+  <!-- ── Score Hero ── -->
+  <section class="score-hero" [class.passed]="result?.isPassed" [class.failed]="!result?.isPassed">
+    <div class="container">
+      <div class="score-card">
+
+        <!-- Circle Chart -->
+        <div class="circle-chart">
+          <svg viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="54"/>
+            <circle class="fill" cx="60" cy="60" r="54"
+              [style.stroke-dashoffset]="circleOffset"
+              [style.stroke]="result?.isPassed ? '#4caf50' : '#f44336'"/>
+          </svg>
+          <div class="circle-label">
+            <span class="pct">{{ result?.percentage | number:'1.0-0' }}%</span>
+            <span class="grade">{{ gradeLabel }}</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="score-stats">
+          <h2 class="exam-title">{{ result?.examTitle }}</h2>
+          <div class="result-badge" [class.pass]="result?.isPassed" [class.fail]="!result?.isPassed">
+            {{ result?.isPassed ? '✅ ĐẠT' : '❌ CHƯA ĐẠT' }}
+          </div>
+          <div class="stat-row">
+            <div class="stat-box">
+              <span class="stat-val">{{ result?.correctCount }}</span>
+              <span class="stat-lbl">Câu đúng</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val">{{ (result?.totalQuestions ?? 0) - (result?.correctCount ?? 0) }}</span>
+              <span class="stat-lbl">Câu sai</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val">{{ formatTime(result?.timeTakenSeconds ?? 0) }}</span>
+              <span class="stat-lbl">Thời gian</span>
+            </div>
+          </div>
+          <div class="result-actions">
+            <button class="btn-cert" *ngIf="result?.isPassed" (click)="showCertificate = true" style="background:#c9a84c; color:#fff; border:none; border-radius:8px; padding:8px 16px; margin-right:8px; cursor:pointer;">
+              🎓 Xem Chứng Chỉ
+            </button>
+            <button class="btn-retake" (click)="retake()"><i class="bx bx-refresh"></i> Làm lại</button>
+            <button class="btn-history" (click)="viewHistory()"><i class="bx bx-history"></i> Lịch sử</button>
+            <button class="btn-back" (click)="backToList()"><i class="bx bx-list-ul"></i> Danh sách đề</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <app-certificate
+    *ngIf="showCertificate && result"
+    [examTitle]="result!.examTitle"
+    [score]="+result!.percentage"
+    [correct]="result!.correctCount"
+    [total]="result!.totalQuestions"
+    (closed)="showCertificate = false">
+  </app-certificate>
+
+  <!-- ── Review Section ── -->
+  <section class="review-section">
+    <div class="container">
+      <div class="review-header">
+        <h3>Xem Lại Đáp Án</h3>
+        <div class="filter-tabs">
+          <button [class.active]="filterMode==='all'"     (click)="filterMode='all'">Tất cả ({{ result?.totalQuestions }})</button>
+          <button [class.active]="filterMode==='correct'" (click)="filterMode='correct'" class="correct-tab">Đúng ({{ result?.correctCount }})</button>
+          <button [class.active]="filterMode==='wrong'"   (click)="filterMode='wrong'"   class="wrong-tab">Sai ({{ (result?.totalQuestions??0)-(result?.correctCount??0) }})</button>
+        </div>
+      </div>
+
+      <div class="review-list">
+        <div class="review-item" *ngFor="let q of filteredResults; let i = index"
+             [class.correct]="q.isCorrect" [class.wrong]="!q.isCorrect">
+          <div class="review-q-header">
+            <span class="review-status">{{ q.isCorrect ? '✅' : '❌' }}</span>
+            <p class="review-q-text"><strong>Câu {{ i+1 }}:</strong> {{ q.questionText }}</p>
+          </div>
+          <div class="review-options">
+            <div class="review-opt" *ngFor="let opt of q.options"
+              [class.correct-opt]="opt.isCorrect"
+              [class.selected-wrong]="opt.id === q.selectedAnswerId && !opt.isCorrect">
+              <span class="opt-lbl">{{ opt.label }}</span>
+              <span>{{ opt.answerText }}</span>
+              <span class="opt-tag correct-tag" *ngIf="opt.isCorrect">✓ Đáp án đúng</span>
+              <span class="opt-tag wrong-tag"   *ngIf="opt.id === q.selectedAnswerId && !opt.isCorrect">✗ Bạn chọn</span>
+            </div>
+          </div>
+          <div class="explanation" *ngIf="q.explanation">
+            <i class="bx bx-info-circle"></i> <strong>Giải thích:</strong> {{ q.explanation }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-screen">
+    <div class="spinner"></div><p>Đang tải kết quả...</p>
+  </div>
+</ng-template>

@@ -1,0 +1,75 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Quiz Manager</h4>
+    <div class="input-group" style="max-width: 460px">
+      <select class="form-select" [(ngModel)]="idCourse" [disabled]="isLoadingCourses">
+        <option [ngValue]="0">Select course</option>
+        <option *ngFor="let course of courses" [ngValue]="course.id">
+          {{ course.title }} #{{ course.id }}
+        </option>
+      </select>
+      <button class="btn btn-primary" (click)="load()">Load</button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  <div *ngIf="isLoading" class="text-muted">Loading...</div>
+
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <h5>{{ model.id ? 'Edit quiz' : 'Create quiz' }}</h5>
+      <input class="form-control mb-2" placeholder="Quiz title" [(ngModel)]="model.title" />
+      <textarea class="form-control mb-2" placeholder="Description" [(ngModel)]="model.description"></textarea>
+      <input type="number" class="form-control mb-3" placeholder="Passing score" [(ngModel)]="model.passingScore" />
+
+      <div class="question" *ngFor="let question of model.questions; let qi = index">
+        <input class="form-control mb-2" placeholder="Question" [(ngModel)]="question.questionText" />
+        <input type="number" class="form-control mb-2" placeholder="Point" [(ngModel)]="question.point" />
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <small class="text-muted">Question {{ qi + 1 }}</small>
+          <button class="btn btn-sm btn-outline-danger" (click)="removeQuestion(qi)">Remove question</button>
+        </div>
+        <div class="input-group mb-2" *ngFor="let answer of question.answers; let ai = index">
+          <div class="input-group-text">
+            <input type="checkbox" [(ngModel)]="answer.isCorrect" />
+          </div>
+          <input class="form-control" placeholder="Answer" [(ngModel)]="answer.answerText" />
+          <button class="btn btn-outline-danger" (click)="removeAnswer(qi, ai)">Remove</button>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" (click)="addAnswer(qi)">Add answer</button>
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-outline-secondary" (click)="addQuestion()">Add question</button>
+        <button class="btn btn-primary" (click)="save()">Save</button>
+        <button class="btn btn-light" (click)="reset()">Reset</button>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <h5>Quizzes</h5>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Passing</th>
+            <th>Questions</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let quiz of quizzes">
+            <td>{{ quiz.title }}</td>
+            <td>{{ quiz.passingScore }}%</td>
+            <td>{{ quiz.questions.length }}</td>
+            <td><button class="btn btn-sm btn-outline-primary" (click)="edit(quiz)">Edit</button></td>
+          </tr>
+          <tr *ngIf="!quizzes.length">
+            <td colspan="4" class="text-muted">No quizzes for this course.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

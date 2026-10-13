@@ -1,0 +1,94 @@
+<div class="flashcard-page" *ngIf="!loading; else loadingTpl">
+
+  <!-- ── Stats bar ── -->
+  <div class="stats-bar" *ngIf="stats">
+    <div class="container">
+      <div class="stat"><span class="val">{{ stats.totalLearned }}</span><span class="lbl">Đã học</span></div>
+      <div class="stat"><span class="val">{{ stats.masteredCount }}</span><span class="lbl">Thành thạo</span></div>
+      <div class="stat warn"><span class="val">{{ stats.dueForReview }}</span><span class="lbl">Cần ôn</span></div>
+      <div class="progress-wrap">
+        <div class="progress-label">Tiến độ: {{ stats.progressPercent }}%</div>
+        <div class="progress-track"><div class="progress-fill" [style.width.%]="stats.progressPercent"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Session Done ── -->
+  <div class="session-done" *ngIf="sessionDone">
+    <div class="done-card">
+      <div class="done-icon">🎉</div>
+      <h2>Xong rồi!</h2>
+      <p>Bạn đã ôn <strong>{{ sessionTotal }}</strong> từ, đúng <strong>{{ sessionCorrect }}</strong> từ.</p>
+      <div class="done-score">{{ sessionTotal > 0 ? (sessionCorrect / sessionTotal * 100 | number:'1.0-0') : 0 }}% chính xác</div>
+      <div class="done-stats" *ngIf="stats">
+        <span>🏆 {{ stats.masteredCount }} từ thành thạo</span>
+        <span>📚 {{ stats.dueForReview }} từ còn cần ôn</span>
+      </div>
+      <button class="btn-restart" (click)="restart()">Ôn tiếp <i class="bx bx-refresh"></i></button>
+    </div>
+  </div>
+
+  <!-- ── Flashcard Area ── -->
+  <div class="flashcard-area" *ngIf="!sessionDone && current">
+    <div class="progress-line">
+      <span>{{ currentIndex + 1 }} / {{ cards.length }}</span>
+      <div class="mini-progress"><div [style.width.%]="(currentIndex/cards.length)*100"></div></div>
+    </div>
+
+    <!-- Card -->
+    <div class="card-scene" (click)="flipCard()">
+      <div class="card-body" [class.flipped]="isFlipped">
+
+        <!-- Front -->
+        <div class="card-face front">
+          <div class="lang-badge">{{ lang | uppercase }}</div>
+          <div class="card-level" *ngIf="current.level">{{ current.level }}</div>
+          <div class="card-word">{{ current.word }}</div>
+          <div class="pronunciation" *ngIf="current.pronunciation">{{ current.pronunciation }}</div>
+          <button class="btn-audio" *ngIf="current.audioUrl" (click)="$event.stopPropagation(); playAudio(current.audioUrl!)">
+            <i class="bx bxs-volume-full"></i>
+          </button>
+          <p class="flip-hint">Nhấn để xem nghĩa</p>
+        </div>
+
+        <!-- Back -->
+        <div class="card-face back">
+          <div class="back-word">{{ current.word }}</div>
+          <div class="back-meaning">{{ current.meaningVi }}</div>
+          <div class="back-example" *ngIf="current.exampleSentence">
+            <em>{{ current.exampleSentence }}</em>
+            <span *ngIf="current.exampleTranslation">→ {{ current.exampleTranslation }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Rating Buttons (show only after flip) -->
+    <div class="rating-btns" *ngIf="isFlipped">
+      <button class="btn-rate again"   (click)="rateCard(0)"><span>Quên</span><small>Again</small></button>
+      <button class="btn-rate hard"    (click)="rateCard(3)"><span>Khó</span><small>Hard</small></button>
+      <button class="btn-rate good"    (click)="rateCard(4)"><span>Nhớ</span><small>Good</small></button>
+      <button class="btn-rate perfect" (click)="rateCard(5)"><span>Thuộc</span><small>Perfect</small></button>
+    </div>
+
+    <p class="flip-cta" *ngIf="!isFlipped">Nhấn vào thẻ để lật — sau đó chọn mức độ nhớ</p>
+  </div>
+
+  <!-- No cards -->
+  <div class="no-cards" *ngIf="!sessionDone && !current && !loading">
+    <div class="done-card">
+      <div class="done-icon">✨</div>
+      <h2>Tuyệt vời!</h2>
+      <p>Không có từ nào cần ôn hôm nay. Quay lại sau nhé!</p>
+      <div class="done-stats" *ngIf="stats">
+        <span>🏆 {{ stats.masteredCount }} từ thành thạo</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-screen"><div class="spinner"></div><p>Đang tải từ vựng...</p></div>
+</ng-template>

@@ -9,4 +9,6 @@ export class LoginRegister {
     roleId: number;
     token: string;
     roleName: string;
+    refreshToken: string;
+    tokenExpires: string;
 }
